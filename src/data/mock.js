@@ -2,6 +2,7 @@ export const company = {
   name: '빵빵카 주식회사',
   representative: '오태진',
   businessNumber: '114-86-25134',
+  mailOrderNumber: '제 2025-서울서초-2333 호',
   phone: '02-592-0079',
   address: '서울 서초구 신반포로23길 78-9 (수푸레하우스) 1층',
 }

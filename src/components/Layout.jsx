@@ -70,6 +70,7 @@ export function Footer() {
                   <p><span className="footer-label">사업장 주소</span><span>{company.address}</span></p>
                   <p><span className="footer-label">대표 전화</span><span>{company.phone}</span></p>
                   <p><span className="footer-label">사업자 등록번호</span><span>{company.businessNumber}</span></p>
+                  <p><span className="footer-label">통신판매신고번호</span><span>{company.mailOrderNumber}</span></p>
                 </div>
               </section>
             </div>
