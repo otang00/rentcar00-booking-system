@@ -73,13 +73,13 @@ function buildBookingConfirmationEmail({ booking, req } = {}) {
   const paymentMethod = booking.pricingSnapshot?.paymentMethod || '확인 필요'
   const totalAmount = `${Number(booking.quotedTotalAmount || 0).toLocaleString('ko-KR')}원`
 
-  const subject = `[00렌트카] 예약 확정 대기 ${booking.publicReservationCode}`
-  const previewText = '신규 예약이 접수되었습니다. 관리자 로그인 후 결제 확인 뒤 예약을 확정해 주세요.'
+  const subject = `[00렌트카] 예약 확정 ${booking.publicReservationCode}`
+  const previewText = '결제가 완료되어 홈페이지 예약 원장에 확정 예약이 생성되었습니다. 관리자 상세에서 바로 확인해 주세요.'
 
   const text = [
-    '예약 확정 대기 알림',
+    '예약 확정 알림',
     '',
-    '신규 예약이 접수되었습니다.',
+    '결제가 완료되어 예약이 확정되었습니다.',
     `예약번호: ${booking.publicReservationCode}`,
     `고객명: ${booking.customerName || '-'}`,
     `연락처: ${customerPhone}`,
@@ -94,11 +94,9 @@ function buildBookingConfirmationEmail({ booking, req } = {}) {
     `총 금액: ${totalAmount}`,
     `결제수단: ${paymentMethod}`,
     '',
-    '아직 고객 예약은 확정 대기 상태입니다.',
     '아래 링크는 관리자 로그인 후 사용할 수 있습니다.',
-    '로그인 후 상세 페이지에서 결제 확인 뒤 예약을 확정해 주세요.',
+    '상세 페이지에서 예약 상태와 취소/환불 진행 여부를 확인해 주세요.',
     `관리자 상세 확인: ${detailUrl}`,
-    `관리자 로그인 후 확정 링크: ${confirmUrl}`,
   ].join('\n')
 
   const html = `
@@ -106,19 +104,19 @@ function buildBookingConfirmationEmail({ booking, req } = {}) {
     <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f7fb;padding:24px;color:#17212b;">
       <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:16px;padding:28px;border:1px solid #e5e7eb;">
         <div style="margin-bottom:20px;">
-          <div style="font-size:12px;font-weight:700;color:#c2410c;background:#fff7ed;display:inline-block;padding:6px 10px;border-radius:999px;">확정 대기</div>
-          <h1 style="margin:14px 0 8px;font-size:24px;line-height:1.3;">예약 확정 대기 알림</h1>
-          <p style="margin:0;color:#475569;line-height:1.6;">신규 예약이 접수되었습니다. 관리자 로그인 후 결제 확인 뒤 예약을 확정해 주세요.</p>
+          <div style="font-size:12px;font-weight:700;color:#166534;background:#f0fdf4;display:inline-block;padding:6px 10px;border-radius:999px;">예약 확정</div>
+          <h1 style="margin:14px 0 8px;font-size:24px;line-height:1.3;">예약 확정 알림</h1>
+          <p style="margin:0;color:#475569;line-height:1.6;">결제가 완료되어 홈페이지 예약 원장에 확정 예약이 생성되었습니다. 관리자 상세에서 바로 확인해 주세요.</p>
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
-          <div style="background:#fff7ed;border-radius:12px;padding:14px;">
-            <div style="font-size:12px;color:#9a3412;margin-bottom:6px;">상태</div>
-            <strong style="font-size:16px;color:#c2410c;">확정 대기</strong>
+          <div style="background:#f0fdf4;border-radius:12px;padding:14px;">
+            <div style="font-size:12px;color:#166534;margin-bottom:6px;">상태</div>
+            <strong style="font-size:16px;color:#166534;">예약 확정</strong>
           </div>
           <div style="background:#eff6ff;border-radius:12px;padding:14px;">
             <div style="font-size:12px;color:#1d4ed8;margin-bottom:6px;">결제상태</div>
-            <strong style="font-size:16px;color:#1d4ed8;">입금/결제 확인 전</strong>
+            <strong style="font-size:16px;color:#1d4ed8;">결제 완료</strong>
           </div>
         </div>
 
@@ -149,11 +147,10 @@ function buildBookingConfirmationEmail({ booking, req } = {}) {
 
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
           <a href="${detailUrl}" style="background:#111827;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:700;display:inline-block;">관리자 상세 확인</a>
-          <a href="${confirmUrl}" style="background:#ffffff;color:#111827;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:700;display:inline-block;border:1px solid #d1d5db;">관리자 로그인 후 확정</a>
         </div>
 
-        <p style="margin:0 0 8px;color:#475569;line-height:1.6;">아직 고객 예약은 확정 대기 상태입니다.</p>
-        <p style="margin:0;color:#475569;line-height:1.6;">이미 처리된 예약이면 현재 상태를 다시 보여주고 중복 확정은 막습니다. 관리자 로그인 세션이 없으면 상세 확인과 확정이 제한됩니다.</p>
+        <p style="margin:0 0 8px;color:#475569;line-height:1.6;">취소가 필요하면 관리자 상세에서 예약 취소 후 환불 상태를 관리해 주세요.</p>
+        <p style="margin:0;color:#475569;line-height:1.6;">관리자 로그인 세션이 없으면 상세 확인이 제한됩니다.</p>
       </div>
     </div>
   `

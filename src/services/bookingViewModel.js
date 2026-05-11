@@ -27,49 +27,29 @@ function getPickupLabel(snapshot, pickupMethod) {
 
 function resolveBookingPresentation(booking = {}) {
   const bookingStatus = String(booking.bookingStatus || '')
+  const paymentStatus = String(booking.paymentStatus || '')
 
   if (bookingStatus === 'cancelled') {
+    const paymentPresentation = paymentStatus === 'refunded'
+      ? { statusLabel: '환불 완료', statusTone: 'cancelled' }
+      : paymentStatus === 'refund_pending'
+        ? { statusLabel: '환불 처리 중', statusTone: 'pending' }
+        : { statusLabel: '예약 취소', statusTone: 'cancelled' }
+
     return {
       status: 'cancelled',
-      statusLabel: '예약 취소',
-      statusTone: 'cancelled',
+      statusLabel: paymentPresentation.statusLabel,
+      statusTone: paymentPresentation.statusTone,
       canCancel: false,
     }
   }
 
-  if (bookingStatus === 'confirmation_pending') {
-    return {
-      status: 'confirmation_pending',
-      statusLabel: '확정 대기',
-      statusTone: 'pending',
-      canCancel: true,
-    }
-  }
-
-  if (['confirmed_pending_sync', 'confirmed'].includes(bookingStatus)) {
+  if (bookingStatus === 'confirmed') {
     return {
       status: 'confirmed',
       statusLabel: '예약 확정',
       statusTone: 'confirmed',
       canCancel: true,
-    }
-  }
-
-  if (bookingStatus === 'completed') {
-    return {
-      status: 'completed',
-      statusLabel: '이용 완료',
-      statusTone: 'confirmed',
-      canCancel: false,
-    }
-  }
-
-  if (bookingStatus === 'in_use') {
-    return {
-      status: 'in_use',
-      statusLabel: '이용 중',
-      statusTone: 'confirmed',
-      canCancel: false,
     }
   }
 

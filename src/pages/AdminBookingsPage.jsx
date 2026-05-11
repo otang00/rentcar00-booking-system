@@ -6,9 +6,8 @@ import { getAdminBookings } from '../services/adminBookingsApi'
 import { isAdminUser } from '../utils/adminAccess'
 
 const TAB_OPTIONS = [
-  { key: 'pending', label: '확정대기' },
-  { key: 'active', label: '살아있는 예약' },
-  { key: 'cancelled', label: '취소 예약' },
+  { key: 'active', label: '예약 확정' },
+  { key: 'cancelled', label: '취소 / 환불' },
 ]
 
 const QUERY_FIELD_OPTIONS = [
@@ -136,7 +135,7 @@ export default function AdminBookingsPage() {
   const [zzimcarSync, setZzimcarSync] = useState(null)
   const [zzimcarSyncErrors, setZzimcarSyncErrors] = useState([])
 
-  const tab = searchParams.get('tab') || 'pending'
+  const tab = searchParams.get('tab') || 'active'
   const qField = searchParams.get('qField') || 'carNumber'
   const q = searchParams.get('q') || ''
 
@@ -228,7 +227,7 @@ export default function AdminBookingsPage() {
                 <div>
                   <h1 style={{ margin: 0 }}>예약관리</h1>
                   <p className="small-note" style={{ marginTop: 8 }}>
-                    현재 살아있는 예약과 확정대기 예약을 한 화면에서 확인합니다.
+                    홈페이지 예약 원장을 확인하고 취소/환불 상태를 관리합니다.
                   </p>
                 </div>
                 {hasAdminHint ? (
@@ -306,7 +305,7 @@ export default function AdminBookingsPage() {
                       <div key={item.id} className="reservation-result-card">
                         <div className="reservation-result-card__header">
                           <div>
-                            <span className="reservation-result-card__eyebrow">{tab === 'pending' ? '확정대기 예약' : '예약관리'}</span>
+                            <span className="reservation-result-card__eyebrow">{tab === 'cancelled' ? '취소 / 환불 예약' : '예약관리'}</span>
                             <strong className="reservation-result-card__title">
                               {booking.carNumber ? `${booking.carNumber} · ${booking.pricingSnapshot?.carName || '-'}` : booking.pricingSnapshot?.carName || booking.reservationNumber || '-'}
                             </strong>
@@ -327,18 +326,13 @@ export default function AdminBookingsPage() {
                           <div className="reservation-result-row"><span>고객명</span><strong>{booking.customerName || '-'}</strong></div>
                           <div className="reservation-result-row"><span>대여일시</span><strong>{booking.display.pickupAt}</strong></div>
                           <div className="reservation-result-row"><span>반납일시</span><strong>{booking.display.returnAt}</strong></div>
-                          <div className="reservation-result-row"><span>결제상태</span><strong>{booking.paymentStatus === 'paid' ? '결제 확인 완료' : booking.paymentStatus === 'refund_pending' ? '환불 대기' : '입금/결제 확인 전'}</strong></div>
+                          <div className="reservation-result-row"><span>결제상태</span><strong>{booking.paymentStatus === 'paid' ? '결제 완료' : booking.paymentStatus === 'refund_pending' ? '환불 처리 중' : booking.paymentStatus === 'refunded' ? '환불 완료' : '상태 확인 필요'}</strong></div>
                         </div>
 
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                           <Link className="btn btn-outline btn-md" to={item.detailPath || '/admin/booking-confirm'}>
                             상세 확인
                           </Link>
-                          {item.canConfirm ? (
-                            <Link className="btn btn-dark btn-md" to={item.detailPath || '/admin/booking-confirm'}>
-                              상세에서 확정
-                            </Link>
-                          ) : null}
                         </div>
                       </div>
                     )

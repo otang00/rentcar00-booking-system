@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { PageShell } from '../components/Layout'
 import { useAuth } from '../hooks/useAuth'
-import { cancelAdminBooking, confirmAdminBooking, fetchAdminBookingConfirm } from '../services/adminBookingConfirmApi'
+import { cancelAdminBooking, completeAdminBookingRefund, fetchAdminBookingConfirm } from '../services/adminBookingConfirmApi'
 import { isAdminUser } from '../utils/adminAccess'
 
 export default function AdminBookingConfirmPage() {
@@ -18,7 +18,10 @@ export default function AdminBookingConfirmPage() {
   const [resultMessage, setResultMessage] = useState('')
   const hasAdminHint = useMemo(() => isAdminUser(user) || isAdminUser(profile), [profile, user])
   const redirectTo = `${location.pathname}${location.search}`
-  const canAdminCancel = hasAdminHint && ['confirmation_pending', 'confirmed_pending_sync', 'confirmed', 'in_use'].includes(String(booking?.bookingStatus || ''))
+  const canAdminCancel = hasAdminHint && String(booking?.bookingStatus || '') === 'confirmed'
+  const canCompleteRefund = hasAdminHint
+    && String(booking?.bookingStatus || '') === 'cancelled'
+    && String(booking?.paymentStatus || '') === 'refund_pending'
 
   useEffect(() => {
     if (loading) return
@@ -37,7 +40,7 @@ export default function AdminBookingConfirmPage() {
     }
 
     if (!token) {
-      setError('확정 토큰이 없습니다.')
+      setError('예약 확인 토큰이 없습니다.')
       setFetching(false)
       return () => {
         ignore = true
@@ -81,25 +84,6 @@ export default function AdminBookingConfirmPage() {
     }
   }, [loading, token, isAuthenticated, hasAdminHint, session])
 
-  async function handleConfirm() {
-    if (!token || !booking || submitting || !session?.access_token || !hasAdminHint) return
-
-    const confirmed = window.confirm('이 예약을 확정하시겠습니까?')
-    if (!confirmed) return
-
-    setSubmitting(true)
-    try {
-      const result = await confirmAdminBooking(session, token)
-      setBooking(result.booking)
-      setResultMessage(result.alreadyProcessed ? '이미 처리된 예약입니다.' : '예약이 확정되었습니다.')
-      setError('')
-    } catch (confirmError) {
-      setError(confirmError.message || '예약 확정에 실패했습니다.')
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
   async function handleCancel() {
     if (!token || !canAdminCancel || submitting || !session?.access_token || !hasAdminHint) return
 
@@ -119,6 +103,25 @@ export default function AdminBookingConfirmPage() {
     }
   }
 
+  async function handleRefundComplete() {
+    if (!token || !canCompleteRefund || submitting || !session?.access_token || !hasAdminHint) return
+
+    const confirmed = window.confirm('이 예약을 환불 완료 처리하시겠습니까?')
+    if (!confirmed) return
+
+    setSubmitting(true)
+    try {
+      const result = await completeAdminBookingRefund(session, token)
+      setBooking(result.booking)
+      setResultMessage('환불 완료 처리되었습니다.')
+      setError('')
+    } catch (refundError) {
+      setError(refundError.message || '환불 완료 처리에 실패했습니다.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
     <PageShell>
       <section className="section-bg">
@@ -127,7 +130,7 @@ export default function AdminBookingConfirmPage() {
             <div>
               <h1 style={{ margin: 0 }}>예약 확인</h1>
               <p className="small-note" style={{ marginTop: 8 }}>
-                {loading ? '로그인 상태를 확인하는 중입니다.' : fetching ? '예약 정보를 확인하는 중입니다.' : '관리자 로그인 후 예약을 확인하고 확정해 주세요.'}
+                {loading ? '로그인 상태를 확인하는 중입니다.' : fetching ? '예약 정보를 확인하는 중입니다.' : '관리자 로그인 후 예약을 확인하고 취소/환불 처리를 진행해 주세요.'}
               </p>
             </div>
 
@@ -160,20 +163,20 @@ export default function AdminBookingConfirmPage() {
                   <div className="reservation-result-row"><span>대여일시</span><strong>{booking.display.pickupAt}</strong></div>
                   <div className="reservation-result-row"><span>반납일시</span><strong>{booking.display.returnAt}</strong></div>
                   <div className="reservation-result-row"><span>배차/수령</span><strong>{booking.schedule.displayPickupLabel}</strong></div>
-                  <div className="reservation-result-row"><span>결제상태</span><strong>{booking.paymentStatus === 'paid' ? '결제 확인 완료' : '입금/결제 확인 전'}</strong></div>
+                  <div className="reservation-result-row"><span>결제상태</span><strong>{booking.paymentStatus === 'refunded' ? '환불 완료' : booking.paymentStatus === 'refund_pending' ? '환불 처리 중' : '결제 완료'}</strong></div>
                 </div>
               </div>
             ) : null}
 
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {booking?.status === 'confirmation_pending' ? (
-                <button className="btn btn-dark btn-md" type="button" onClick={handleConfirm} disabled={submitting || fetching}>
-                  {submitting ? '처리 중' : '예약 확정'}
-                </button>
-              ) : null}
               {canAdminCancel ? (
                 <button className="btn btn-outline btn-md" type="button" onClick={handleCancel} disabled={submitting || fetching}>
                   {submitting ? '처리 중' : '예약 취소'}
+                </button>
+              ) : null}
+              {canCompleteRefund ? (
+                <button className="btn btn-dark btn-md" type="button" onClick={handleRefundComplete} disabled={submitting || fetching}>
+                  {submitting ? '처리 중' : '환불 완료'}
                 </button>
               ) : null}
               <Link className="btn btn-outline btn-md" to="/admin/bookings">관리자 예약목록</Link>

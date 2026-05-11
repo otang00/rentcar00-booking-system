@@ -201,7 +201,7 @@ function serializeBookingOrder(order = {}) {
   }
 }
 
-const ACTIVE_GUEST_LOOKUP_STATUSES = ['confirmation_pending', 'confirmed_pending_sync', 'confirmed']
+const ACTIVE_GUEST_LOOKUP_STATUSES = ['confirmed']
 
 function filterActiveGuestLookupOrders(orders = []) {
   return (Array.isArray(orders) ? orders : [])
@@ -223,7 +223,7 @@ function filterActiveGuestLookupOrders(orders = []) {
 function canGuestCancelBooking(order = {}, now = new Date(), options = {}) {
   const {
     allowStartedBooking = false,
-    allowedBookingStatuses = ['confirmation_pending', 'confirmed_pending_sync', 'confirmed'],
+    allowedBookingStatuses = ['confirmed'],
   } = options
   const bookingStatus = String(order.booking_status || '')
   const paymentStatus = String(order.payment_status || '')
@@ -237,7 +237,7 @@ function canGuestCancelBooking(order = {}, now = new Date(), options = {}) {
     }
   }
 
-  if (!['pending', 'paid'].includes(paymentStatus)) {
+  if (!['paid'].includes(paymentStatus)) {
     return {
       ok: false,
       reason: 'cancel_not_allowed_payment_status',
@@ -283,7 +283,7 @@ function resolveCancelledPaymentStatus(order = {}) {
     return 'refund_pending'
   }
 
-  return 'cancelled'
+  return paymentStatus || 'refund_pending'
 }
 
 module.exports = {

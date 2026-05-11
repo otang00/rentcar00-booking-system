@@ -1,11 +1,7 @@
 'use strict'
 
 const BOOKING_ORDER_BLOCKING_STATUSES = [
-  'confirmation_pending',
-  'confirmed_pending_sync',
   'confirmed',
-  'in_use',
-  'manual_review_required',
 ]
 
 async function fetchBlockingImsReservations({

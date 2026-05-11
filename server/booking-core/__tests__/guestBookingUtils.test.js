@@ -64,16 +64,16 @@ test('validateGuestCancelInput requires reservation code', () => {
 })
 
 test('filterActiveGuestLookupOrders keeps active statuses and sorts by pickup asc then created desc', () => {
-  assert.deepEqual(ACTIVE_GUEST_LOOKUP_STATUSES, ['confirmation_pending', 'confirmed_pending_sync', 'confirmed'])
+  assert.deepEqual(ACTIVE_GUEST_LOOKUP_STATUSES, ['confirmed'])
 
   const result = filterActiveGuestLookupOrders([
     { id: 'done', booking_status: 'completed', pickup_at: '2026-05-03T09:00:00.000Z', created_at: '2026-04-01T00:00:00.000Z' },
     { id: 'late', booking_status: 'confirmed', pickup_at: '2026-05-03T09:00:00.000Z', created_at: '2026-04-02T00:00:00.000Z' },
-    { id: 'early', booking_status: 'confirmation_pending', pickup_at: '2026-05-01T09:00:00.000Z', created_at: '2026-04-01T00:00:00.000Z' },
-    { id: 'newer', booking_status: 'confirmed_pending_sync', pickup_at: '2026-05-03T09:00:00.000Z', created_at: '2026-04-03T00:00:00.000Z' },
+    { id: 'cancelled', booking_status: 'cancelled', pickup_at: '2026-05-01T09:00:00.000Z', created_at: '2026-04-01T00:00:00.000Z' },
+    { id: 'newer', booking_status: 'confirmed', pickup_at: '2026-05-03T09:00:00.000Z', created_at: '2026-04-03T00:00:00.000Z' },
   ])
 
-  assert.deepEqual(result.map((item) => item.id), ['early', 'newer', 'late'])
+  assert.deepEqual(result.map((item) => item.id), ['newer', 'late'])
 })
 
 test('canGuestCancelBooking allows future paid confirmed booking', () => {
@@ -86,14 +86,15 @@ test('canGuestCancelBooking allows future paid confirmed booking', () => {
   assert.deepEqual(result, { ok: true })
 })
 
-test('canGuestCancelBooking allows future pending confirmation booking', () => {
+test('canGuestCancelBooking rejects non-paid booking in final model', () => {
   const result = canGuestCancelBooking({
-    booking_status: 'confirmation_pending',
+    booking_status: 'confirmed',
     payment_status: 'pending',
     pickup_at: '2099-04-21T10:00:00.000Z',
   }, new Date('2099-04-20T10:00:00.000Z'))
 
-  assert.deepEqual(result, { ok: true })
+  assert.equal(result.ok, false)
+  assert.equal(result.reason, 'cancel_not_allowed_payment_status')
 })
 
 test('canGuestCancelBooking rejects started booking', () => {
@@ -115,5 +116,5 @@ test('resolveCancelSyncStatus requests external cancel when mapping exists', () 
 
 test('resolveCancelledPaymentStatus uses refund only when already paid', () => {
   assert.equal(resolveCancelledPaymentStatus({ payment_status: 'paid' }), 'refund_pending')
-  assert.equal(resolveCancelledPaymentStatus({ payment_status: 'pending' }), 'cancelled')
+  assert.equal(resolveCancelledPaymentStatus({ payment_status: 'pending' }), 'pending')
 })

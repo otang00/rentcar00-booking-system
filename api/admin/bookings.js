@@ -5,19 +5,18 @@ const { getAccessTokenFromRequest } = require('../../server/auth/getAccessTokenF
 const { getUserFromAccessToken } = require('../../server/auth/getUserFromAccessToken')
 const { assertAdminUser } = require('../../server/auth/adminAccess')
 const { serializeBookingOrder } = require('../../server/booking-core/guestBookingUtils')
-const { fetchBookingOrderByConfirmationToken, confirmBookingByToken } = require('../../server/booking-core/bookingConfirmationService')
-const { cancelBookingOrder } = require('../../server/booking-core/guestBookingService')
+const { fetchBookingOrderByConfirmationToken } = require('../../server/booking-core/bookingConfirmationService')
+const { cancelBookingOrder, completeRefundForBookingOrder } = require('../../server/booking-core/guestBookingService')
 const { createBookingConfirmToken } = require('../../server/security/bookingConfirmToken')
 
 const TAB_STATUS_MAP = {
-  pending: ['confirmation_pending'],
-  active: ['confirmation_pending', 'confirmed_pending_sync', 'confirmed', 'in_use'],
+  active: ['confirmed'],
   cancelled: ['cancelled'],
 }
 
 function normalizeTab(value) {
-  const normalized = String(value || 'pending').trim().toLowerCase()
-  return TAB_STATUS_MAP[normalized] ? normalized : 'pending'
+  const normalized = String(value || 'active').trim().toLowerCase()
+  return TAB_STATUS_MAP[normalized] ? normalized : 'active'
 }
 
 function normalizeQueryField(value) {
@@ -77,7 +76,6 @@ function toAdminBookingItem(order, fallbackCarNumberById = new Map()) {
     paymentStatus: item.paymentStatus || '',
     quotedTotalAmount: item.quotedTotalAmount ?? 0,
     createdAt: item.createdAt || null,
-    canConfirm: String(item.bookingStatus || '') === 'confirmation_pending',
     detailPath: createDetailPath(item),
   }
 }
@@ -300,40 +298,18 @@ async function handleList(req, res, supabaseClient) {
 async function handleConfirmTarget(req, res, supabaseClient) {
   const token = String(req.query?.token || '').trim()
   if (!token) {
-    return res.status(400).json({ error: 'missing_token', message: '확정 토큰이 필요합니다.' })
+    return res.status(400).json({ error: 'missing_token', message: '예약 확인 토큰이 필요합니다.' })
   }
 
   const result = await fetchBookingOrderByConfirmationToken({ supabaseClient, token })
   if (!result.ok) {
     return res.status(result.status || 400).json({
-      error: result.code || 'booking_confirm_lookup_failed',
+      error: result.code || 'booking_lookup_failed',
       message: result.message,
     })
   }
 
   return res.status(200).json({ booking: result.booking })
-}
-
-async function handleConfirm(req, res, supabaseClient) {
-  const token = String(req.body?.token || '').trim()
-  if (!token) {
-    return res.status(400).json({ error: 'missing_token', message: '확정 토큰이 필요합니다.' })
-  }
-
-  const result = await confirmBookingByToken({ supabaseClient, token, requestedBy: 'admin_web' })
-  if (!result.ok) {
-    return res.status(result.status || 400).json({
-      error: result.code || 'booking_confirm_failed',
-      message: result.message || '예약 확정에 실패했습니다.',
-      booking: result.booking || null,
-    })
-  }
-
-  return res.status(200).json({
-    booking: result.booking,
-    alreadyProcessed: Boolean(result.alreadyProcessed),
-    message: result.message || null,
-  })
 }
 
 async function handleCancel(req, res, supabaseClient) {
@@ -361,7 +337,7 @@ async function handleCancel(req, res, supabaseClient) {
     eventType: started ? 'admin_cancelled_after_start' : 'admin_cancelled',
     reason,
     allowStartedCancel: true,
-    allowedBookingStatuses: ['confirmation_pending', 'confirmed_pending_sync', 'confirmed', 'in_use'],
+    allowedBookingStatuses: ['confirmed'],
   })
 
   if (!result.ok) {
@@ -375,6 +351,42 @@ async function handleCancel(req, res, supabaseClient) {
   return res.status(200).json({
     booking: result.booking,
     mapping: result.mapping || null,
+  })
+}
+
+async function handleRefundComplete(req, res, supabaseClient) {
+  const token = String(req.body?.token || '').trim()
+  const note = String(req.body?.note || '').trim()
+  if (!token) {
+    return res.status(400).json({ error: 'missing_token', message: '예약 토큰이 필요합니다.' })
+  }
+
+  const lookup = await fetchBookingOrderByConfirmationToken({ supabaseClient, token })
+  if (!lookup.ok) {
+    return res.status(lookup.status || 400).json({
+      error: lookup.code || 'admin_refund_lookup_failed',
+      message: lookup.message || '예약 정보를 찾지 못했습니다.',
+    })
+  }
+
+  const result = await completeRefundForBookingOrder({
+    supabaseClient,
+    order: lookup.rawBooking,
+    requestedBy: 'admin_web',
+    eventType: 'admin_refund_completed',
+    note,
+  })
+
+  if (!result.ok) {
+    return res.status(result.status || 400).json({
+      error: result.code || 'admin_refund_complete_failed',
+      message: result.message || '환불 완료 처리에 실패했습니다.',
+      booking: result.booking || null,
+    })
+  }
+
+  return res.status(200).json({
+    booking: result.booking,
   })
 }
 
@@ -411,12 +423,12 @@ module.exports = async function handler(req, res) {
       return handleConfirmTarget(req, res, supabaseClient)
     }
 
-    if (req.method === 'POST' && action === 'confirm') {
-      return handleConfirm(req, res, supabaseClient)
-    }
-
     if (req.method === 'POST' && action === 'cancel') {
       return handleCancel(req, res, supabaseClient)
+    }
+
+    if (req.method === 'POST' && action === 'refund-complete') {
+      return handleRefundComplete(req, res, supabaseClient)
     }
 
     if (req.method === 'GET' && !action) {

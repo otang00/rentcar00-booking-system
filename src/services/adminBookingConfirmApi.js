@@ -16,25 +16,6 @@ export async function fetchAdminBookingConfirm(session, token) {
   }
 }
 
-export async function confirmAdminBooking(session, token) {
-  const accessToken = session?.access_token
-  const response = await fetch('/api/admin/bookings?action=confirm', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    },
-    body: JSON.stringify({ token }),
-  })
-
-  const result = await parseApiResponse(response, '예약 확정에 실패했습니다.')
-  return {
-    booking: toBookingViewModel(result.booking),
-    alreadyProcessed: Boolean(result.alreadyProcessed),
-    message: result.message || '',
-  }
-}
-
 export async function cancelAdminBooking(session, token, payload = {}) {
   const accessToken = session?.access_token
   const response = await fetch('/api/admin/bookings?action=cancel', {
@@ -53,5 +34,25 @@ export async function cancelAdminBooking(session, token, payload = {}) {
   return {
     booking: toBookingViewModel(result.booking),
     mapping: result.mapping || null,
+  }
+}
+
+export async function completeAdminBookingRefund(session, token, payload = {}) {
+  const accessToken = session?.access_token
+  const response = await fetch('/api/admin/bookings?action=refund-complete', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
+    body: JSON.stringify({
+      token,
+      note: payload.note || '',
+    }),
+  })
+
+  const result = await parseApiResponse(response, '환불 완료 처리에 실패했습니다.')
+  return {
+    booking: toBookingViewModel(result.booking),
   }
 }

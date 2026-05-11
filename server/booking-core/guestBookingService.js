@@ -313,8 +313,8 @@ async function createGuestBooking({
     },
     payment_provider: 'surrogate_web',
     payment_reference_id: paymentReferenceId,
-    booking_status: 'confirmation_pending',
-    payment_status: 'pending',
+    booking_status: 'confirmed',
+    payment_status: 'paid',
     sync_status: 'not_required',
     manual_review_required: false,
   }
@@ -363,8 +363,8 @@ async function createGuestBooking({
         bookingChannel: 'website',
         paymentProvider: 'surrogate_web',
         paymentReferenceId,
-        bookingStatus: 'confirmation_pending',
-        paymentStatus: 'pending',
+        bookingStatus: 'confirmed',
+        paymentStatus: 'paid',
         syncStatus: 'not_required',
       },
     })
@@ -568,6 +568,89 @@ async function cancelBookingOrder({
   }
 }
 
+async function completeRefundForBookingOrder({
+  supabaseClient,
+  order,
+  requestedBy = 'admin',
+  eventType = 'refund_completed',
+  note = '',
+  now = new Date(),
+} = {}) {
+  if (!supabaseClient) {
+    throw new Error('supabase client is required')
+  }
+
+  if (!order?.id) {
+    return {
+      ok: false,
+      code: 'booking_not_found',
+      status: 404,
+      message: '예약 정보를 찾을 수 없습니다.',
+    }
+  }
+
+  if (String(order.booking_status || '') !== 'cancelled') {
+    return {
+      ok: false,
+      code: 'refund_not_allowed_status',
+      status: 409,
+      message: '취소된 예약만 환불 완료 처리할 수 있습니다.',
+      booking: serializeBookingOrder(order),
+    }
+  }
+
+  if (String(order.payment_status || '') !== 'refund_pending') {
+    return {
+      ok: false,
+      code: 'refund_not_allowed_payment_status',
+      status: 409,
+      message: '환불 처리 중인 예약만 환불 완료 처리할 수 있습니다.',
+      booking: serializeBookingOrder(order),
+    }
+  }
+
+  const refundedAt = now.toISOString()
+  const { data: updatedOrder, error: updateError } = await supabaseClient
+    .from('booking_orders')
+    .update({
+      payment_status: 'refunded',
+      updated_at: refundedAt,
+    })
+    .eq('id', order.id)
+    .eq('payment_status', 'refund_pending')
+    .select('*')
+    .single()
+
+  if (updateError) {
+    throw updateError
+  }
+
+  const { error: eventError } = await supabaseClient
+    .from('reservation_status_events')
+    .insert({
+      booking_order_id: order.id,
+      event_type: eventType,
+      event_payload: {
+        requestedBy,
+        note: String(note || '').trim() || null,
+        previousBookingStatus: order.booking_status || null,
+        previousPaymentStatus: order.payment_status || null,
+        nextBookingStatus: 'cancelled',
+        nextPaymentStatus: 'refunded',
+      },
+    })
+
+  if (eventError) {
+    throw eventError
+  }
+
+  return {
+    ok: true,
+    status: 200,
+    booking: serializeBookingOrder(updatedOrder),
+  }
+}
+
 async function cancelGuestBooking({
   supabaseClient,
   customerName,
@@ -667,6 +750,7 @@ module.exports = {
   createGuestBooking,
   lookupGuestBooking,
   cancelBookingOrder,
+  completeRefundForBookingOrder,
   cancelGuestBooking,
   cancelMemberBooking,
 }

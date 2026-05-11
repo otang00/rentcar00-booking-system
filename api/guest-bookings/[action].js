@@ -8,6 +8,7 @@ const { getAccessTokenFromRequest } = require('../../server/auth/getAccessTokenF
 const { getUserFromAccessToken } = require('../../server/auth/getUserFromAccessToken')
 const { ensureProfileForUser } = require('../../server/auth/ensureProfileForUser')
 const { sendBookingConfirmationEmail } = require('../../server/email/sendBookingConfirmationEmail')
+const { sendAdminBookingAlert } = require('../../server/notifications/sendAdminBookingAlert')
 const { createBookingCompleteToken, verifyBookingCompleteToken } = require('../../server/security/bookingCompleteToken')
 const { checkGuestLookupProtection, applyRetryAfter, delayFailureResponse } = require('../../server/security/guestLookupProtection')
 const { hashOtpValue } = require('../../server/auth/phoneOtp')
@@ -215,6 +216,44 @@ async function handleCreate(req, res) {
       }
     }
 
+    let adminAlertMeta = null
+    try {
+      const adminAlertResult = await sendAdminBookingAlert({ booking: result.booking })
+      adminAlertMeta = adminAlertResult
+
+      await recordReservationStatusEvent({
+        supabaseClient,
+        bookingOrderId: result.booking.id,
+        eventType: adminAlertResult.skipped ? 'admin_booking_alert_skipped' : 'admin_booking_alert_sent',
+        eventPayload: {
+          requestedBy: authUser ? 'member_web' : 'guest_web',
+          reason: adminAlertResult.reason || null,
+          recipients: adminAlertResult.recipients || [],
+          results: adminAlertResult.results || [],
+        },
+      })
+    } catch (adminAlertError) {
+      console.error('[admin-booking-alert] failed', {
+        reservationCode: result.booking.publicReservationCode,
+        message: adminAlertError?.message || 'unknown_admin_alert_error',
+      })
+
+      await recordReservationStatusEvent({
+        supabaseClient,
+        bookingOrderId: result.booking.id,
+        eventType: 'admin_booking_alert_failed',
+        eventPayload: {
+          requestedBy: authUser ? 'member_web' : 'guest_web',
+          message: adminAlertError?.message || 'unknown_admin_alert_error',
+        },
+      }).catch(() => null)
+
+      adminAlertMeta = {
+        delivered: false,
+        skipped: false,
+      }
+    }
+
     return res.status(201).json({
       booking: result.booking,
       completionToken: createBookingCompleteToken({
@@ -222,6 +261,7 @@ async function handleCreate(req, res) {
         reservationCode: result.booking.publicReservationCode,
       }).token,
       email: emailMeta,
+      adminAlert: adminAlertMeta,
     })
   } catch (error) {
     return res.status(500).json({
