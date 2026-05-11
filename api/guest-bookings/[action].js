@@ -106,6 +106,11 @@ async function handleCreate(req, res) {
     return res.status(405).json({ error: 'method_not_allowed' })
   }
 
+  return res.status(410).json({
+    error: 'legacy_booking_create_disabled',
+    message: '직접 예약 생성 경로는 종료되었습니다. 결제 후 예약이 확정됩니다.',
+  })
+
   const payload = getBody(req)
   const validation = validateGuestBookingCreateInput(payload)
   if (!validation.isValid) {

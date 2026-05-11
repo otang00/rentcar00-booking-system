@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { parseSearchQuery, validateSearchState } from '../utils/searchQuery'
 import { fetchCarDetail } from '../services/carDetail'
 import { parseApiResponse } from '../utils/apiResponse'
@@ -17,7 +17,7 @@ import {
   validateReservationSubmission,
   validateTermsState,
 } from '../services/reservationUiState'
-import { createGuestBooking } from '../services/guestBookingApi'
+import { prepareGuestBookingPayment } from '../services/guestBookingApi'
 import { useAuth } from '../hooks/useAuth'
 import termsContent from '../../docs/legal/service-terms.md?raw'
 import privacyContent from '../../docs/legal/privacy-policy.md?raw'
@@ -49,6 +49,29 @@ function buildReservationOtpContextInput({ carId, detailToken, parsedSearchState
     quotedTotalAmount: pricing?.raw?.finalPrice || 0,
     finalAmount: pricing?.raw?.finalPrice || 0,
   }
+}
+
+function submitExternalPaymentForm(actionUrl, fields = {}) {
+  if (!actionUrl) {
+    throw new Error('결제창 주소를 확인하지 못했습니다.')
+  }
+
+  const form = document.createElement('form')
+  form.method = 'POST'
+  form.action = actionUrl
+  form.acceptCharset = 'euc-kr'
+  form.style.display = 'none'
+
+  Object.entries(fields || {}).forEach(([key, value]) => {
+    const input = document.createElement('input')
+    input.type = 'hidden'
+    input.name = key
+    input.value = value == null ? '' : String(value)
+    form.appendChild(input)
+  })
+
+  document.body.appendChild(form)
+  form.submit()
 }
 
 function formatDisplay(dateText) {
@@ -139,7 +162,6 @@ const INSURANCE_LIMITATIONS = [
 export default function CarDetailSection() {
   const { carId } = useParams()
   const location = useLocation()
-  const navigate = useNavigate()
   const { session, isAuthenticated, profile, loading: authLoading } = useAuth()
   const parsedSearchState = useMemo(() => parseSearchQuery(location.search), [location.search])
   const detailToken = useMemo(() => {
@@ -568,11 +590,14 @@ export default function CarDetailSection() {
       setIsCreatingReservation(true)
       setReservationSubmitError('')
 
-      const result = await createGuestBooking({
+      const result = await prepareGuestBookingPayment({
         carId: Number(car.id),
         deliveryDateTime: parsedSearchState.deliveryDateTime,
         returnDateTime: parsedSearchState.returnDateTime,
         pickupOption: parsedSearchState.pickupOption,
+        driverAge: parsedSearchState.driverAge,
+        order: parsedSearchState.order,
+        dongId: parsedSearchState.dongId,
         deliveryAddress: parsedSearchState.deliveryAddress || '',
         deliveryAddressDetail: deliveryAddressDetail.trim(),
         quotedTotalAmount: pricing.raw?.finalPrice || 0,
@@ -591,17 +616,15 @@ export default function CarDetailSection() {
       }, {
         session,
       })
-      const reservation = result?.booking
-      const completionToken = result?.completionToken || ''
 
-      if (!reservation || !completionToken) {
-        throw new Error('예약 완료 정보를 불러오지 못했습니다.')
+      if (!result?.actionUrl) {
+        throw new Error('결제창 주소를 확인하지 못했습니다.')
       }
 
       setIsReservationConfirmOpen(false)
-      navigate(`/reservation-complete?token=${encodeURIComponent(completionToken)}`)
+      submitExternalPaymentForm(result.actionUrl, result.formFields || {})
     } catch (error) {
-      setReservationSubmitError(error.message || '예약 생성에 실패했습니다.')
+      setReservationSubmitError(error.message || '결제 준비에 실패했습니다.')
       setIsReservationConfirmOpen(false)
     } finally {
       setIsCreatingReservation(false)
@@ -889,7 +912,7 @@ export default function CarDetailSection() {
               </div>
               <div className="search-guard-actions">
                 <button className="btn btn-outline btn-md" onClick={() => setIsReservationConfirmOpen(false)}>다시 확인</button>
-                <button className="btn btn-dark btn-md" onClick={handleConfirmReservation} disabled={isCreatingReservation}>{isCreatingReservation ? '예약 생성 중' : '예약 확정'}</button>
+                <button className="btn btn-dark btn-md" onClick={handleConfirmReservation} disabled={isCreatingReservation}>{isCreatingReservation ? '결제창 이동 중' : '예약 확정'}</button>
               </div>
             </div>
           </div>

@@ -238,6 +238,10 @@ async function createGuestBooking({
   requestedBy = 'guest',
   authUserId = null,
   now = new Date(),
+  paymentProvider = 'surrogate_web',
+  paymentReferenceId = null,
+  bookingStatus = 'confirmed',
+  paymentStatus = 'paid',
 } = {}) {
   if (!supabaseClient) {
     throw new Error('supabase client is required')
@@ -273,7 +277,7 @@ async function createGuestBooking({
   }
 
   const reservationCode = await generateUniqueReservationCode({ supabaseClient, now })
-  const paymentReferenceId = createPaymentReferenceId(now)
+  const resolvedPaymentReferenceId = String(paymentReferenceId || '').trim() || createPaymentReferenceId(now)
   const customerPhone = normalizeCustomerPhone(bookingInput.customerPhone)
   const customerBirth = normalizeCustomerBirth(bookingInput.customerBirth)
   const phoneLast4 = customerPhone.slice(-4)
@@ -311,10 +315,10 @@ async function createGuestBooking({
       paymentMethod: bookingInput.paymentMethod || null,
       customerBirth,
     },
-    payment_provider: 'surrogate_web',
-    payment_reference_id: paymentReferenceId,
-    booking_status: 'confirmed',
-    payment_status: 'paid',
+    payment_provider: String(paymentProvider || 'surrogate_web').trim() || 'surrogate_web',
+    payment_reference_id: resolvedPaymentReferenceId,
+    booking_status: String(bookingStatus || 'confirmed').trim() || 'confirmed',
+    payment_status: String(paymentStatus || 'paid').trim() || 'paid',
     sync_status: 'not_required',
     manual_review_required: false,
   }
@@ -361,10 +365,10 @@ async function createGuestBooking({
         requestedBy,
         authUserId,
         bookingChannel: 'website',
-        paymentProvider: 'surrogate_web',
-        paymentReferenceId,
-        bookingStatus: 'confirmed',
-        paymentStatus: 'paid',
+        paymentProvider: insertPayload.payment_provider,
+        paymentReferenceId: resolvedPaymentReferenceId,
+        bookingStatus: insertPayload.booking_status,
+        paymentStatus: insertPayload.payment_status,
         syncStatus: 'not_required',
       },
     })
@@ -378,6 +382,38 @@ async function createGuestBooking({
     status: 201,
     booking: serializeBookingOrder(createdOrder),
   }
+}
+
+async function fetchBookingOrderByPaymentReference({
+  supabaseClient,
+  paymentProvider,
+  paymentReferenceId,
+} = {}) {
+  if (!supabaseClient) {
+    throw new Error('supabase client is required')
+  }
+
+  const normalizedProvider = String(paymentProvider || '').trim()
+  const normalizedReferenceId = String(paymentReferenceId || '').trim()
+
+  if (!normalizedProvider || !normalizedReferenceId) {
+    return null
+  }
+
+  const { data, error } = await supabaseClient
+    .from('booking_orders')
+    .select('*')
+    .eq('payment_provider', normalizedProvider)
+    .eq('payment_reference_id', normalizedReferenceId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data || null
 }
 
 async function fetchBookingOrderByMemberReservationCode({
@@ -746,6 +782,7 @@ module.exports = {
   fetchBookingOrderByGuestLookup,
   fetchBookingOrderByCompletionToken,
   fetchBookingOrderByMemberReservationCode,
+  fetchBookingOrderByPaymentReference,
   fetchActiveReservationMapping,
   createGuestBooking,
   lookupGuestBooking,

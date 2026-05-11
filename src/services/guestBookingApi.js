@@ -19,6 +19,20 @@ export async function createGuestBooking(payload, options = {}) {
   }
 }
 
+export async function prepareGuestBookingPayment(payload, options = {}) {
+  const accessToken = options.session?.access_token
+  const response = await fetch('/api/payments/prepare', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  })
+
+  return parseApiResponse(response, '결제 준비에 실패했습니다.')
+}
+
 export async function lookupGuestBooking(payload) {
   const response = await fetch('/api/guest-bookings/lookup', {
     method: 'POST',

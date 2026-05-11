@@ -15,6 +15,7 @@ function formatDisplay(dateText) {
 export default function ReservationCompletePage() {
   const [searchParams] = useSearchParams()
   const completionToken = searchParams.get('token') || ''
+  const paymentError = searchParams.get('paymentError') || ''
   const [reservation, setReservation] = useState(null)
   const [loadError, setLoadError] = useState('')
 
@@ -23,7 +24,7 @@ export default function ReservationCompletePage() {
 
     if (!completionToken) {
       setReservation(null)
-      setLoadError('예약 정보를 찾지 못했습니다.')
+      setLoadError(paymentError || '예약 정보를 찾지 못했습니다.')
       return () => {
         isCancelled = true
       }
@@ -44,7 +45,7 @@ export default function ReservationCompletePage() {
     return () => {
       isCancelled = true
     }
-  }, [completionToken])
+  }, [completionToken, paymentError])
 
   return (
     <PageShell>
@@ -52,7 +53,7 @@ export default function ReservationCompletePage() {
         <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
           <article className="detail-card panel" style={{ display: 'grid', gap: 16 }}>
             <div>
-              <h1 style={{ margin: 0 }}>예약 확정</h1>
+              <h1 style={{ margin: 0 }}>{reservation ? '예약 확정' : paymentError ? '결제 실패' : '예약 확정'}</h1>
               <p className="small-note" style={{ marginTop: 8 }}>
                 {reservation ? '결제가 정상적으로 완료되어 예약이 확정되었습니다.' : loadError || '예약 정보를 찾지 못했습니다.'}
               </p>
