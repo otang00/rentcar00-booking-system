@@ -24,13 +24,14 @@
 
 ## 1. 먼저 알아야 하는 사실
 
-### 1-1. 이 서비스는 아직 “예약 확정”보다 “예약 접수”에 가깝다
-- 상세페이지 CTA와 완료 화면 문구는 현재 **예약 접수** 기준이다.
-- 실제 생성 시 기본 상태는 아래로 들어간다.
-  - `booking_status = confirmation_pending`
-  - `payment_status = pending`
-- 즉, 지금 구조를 **즉시 확정 완료형 결제 서비스로 착각하면 안 된다.**
-- 예약/결제 UX를 바꿀 때는 화면 문구, 상태값, 관리자 확인 흐름을 같이 봐야 한다.
+### 1-1. 이 서비스는 홈페이지 전용 예약/결제 원장이다
+- `booking_orders` 는 **홈페이지 예약/결제/취소/환불 관리용 로컬 원장**이다.
+- 실제 계약 진행, 배차/반차, 스케줄 운영은 **IMS가 최종 운영 원장**이다.
+- 따라서 홈페이지 원장은 운영 상태를 세분화하지 않고 아래만 명확히 관리한다.
+  - `booking_status = confirmed | cancelled`
+  - `payment_status = paid | refund_pending | refunded`
+- 결제 전에는 `booking_orders` row를 만들지 않는다.
+- 결제 성공 직후에만 예약을 생성하고 예약번호를 발급한다.
 
 ### 1-2. 상세페이지는 아무나 바로 열 수 있는 구조가 아니다
 - 검색 결과에서 차량별 `detailToken` 이 발급된다.
@@ -157,10 +158,14 @@
 - 상세 API는 `detailToken` 검증 전제다.
 
 ### 예약 상태 관련 혼동 방지
-- 생성 직후: `confirmation_pending + pending`
-- 관리자 확인 이후: `confirmed_pending_sync` 또는 이후 확정 상태로 간다.
+- 결제 전: 로컬 예약 원장 row 없음
+- 결제 성공 직후: `confirmed + paid`
+- 운영 취소 직후: `cancelled + refund_pending`
+- 환불 완료 후: `cancelled + refunded`
+- `confirmed` 는 홈페이지 원장에서 **시간대 차단을 유지하는 유일한 blocking 상태**다.
+- `cancelled` 는 non-blocking 상태다.
+- `in_use`, `completed`, `confirmation_pending`, `confirmed_pending_sync` 는 이번 홈페이지 원장 기준에서 제거 대상이다.
 - 취소/환불 로직은 `booking_status` 와 `payment_status` 를 같이 봐야 한다.
-- 그래서 예약 상태를 바꿀 때는 화면 라벨만 바꾸지 말고 서버 상태전이와 관리자 탭 기준까지 같이 확인해야 한다.
 
 ---
 
