@@ -23,6 +23,25 @@ const { createBookingOtpContextHash } = require('../../server/auth/bookingOtpCon
 const { normalizeCustomerName, normalizeCustomerPhone, normalizeCustomerBirth } = require('../../server/booking-core/bookingIdentity')
 const { createPaymentSessionToken, verifyPaymentSessionToken } = require('../../server/payments/paymentSessionToken')
 const { registerKcpTrade, approveKcpPayment, stringifyAmount } = require('../../server/payments/kcpClient')
+const { getKcpConfig } = require('../../server/payments/kcpConfig')
+const { AUTH_EMAIL_ALIAS_DOMAIN } = require('../../server/auth/authEmailAlias')
+
+function resolveBuyerEmail({ authUser, profile }) {
+  const candidates = [
+    profile?.email,
+    authUser?.user_metadata?.email,
+    authUser?.email,
+  ]
+
+  for (const candidate of candidates) {
+    const normalized = String(candidate || '').trim().toLowerCase()
+    if (!normalized) continue
+    if (normalized.endsWith(`@${AUTH_EMAIL_ALIAS_DOMAIN}`)) continue
+    return normalized
+  }
+
+  return ''
+}
 
 function getBody(req) {
   if (Buffer.isBuffer(req.body)) {
@@ -532,6 +551,7 @@ async function handlePrepare(req, res) {
 
     const baseUrl = buildBaseUrl(req)
     const returnUrl = `${baseUrl}/api/payments/return`
+    const buyerEmail = resolveBuyerEmail({ authUser, profile })
     const trade = await registerKcpTrade({
       orderId,
       amount,
@@ -539,21 +559,33 @@ async function handlePrepare(req, res) {
       returnUrl,
       buyerName: validation.normalized.customerName,
       buyerPhone: validation.normalized.customerPhone,
-      buyerEmail: authUser?.email || '',
+      buyerEmail,
       sessionToken,
     })
+    const kcpConfig = getKcpConfig()
 
     return res.status(200).json({
       orderId,
       amount: stringifyAmount(amount),
       actionUrl: trade.PayUrl || trade.payUrl || '',
       formFields: {
+        approval_key: trade.approvalKey || trade.approval_key || '',
         approvalKey: trade.approvalKey || trade.approval_key || '',
         PayUrl: trade.PayUrl || trade.payUrl || '',
         ordr_idxx: orderId,
         good_mny: stringifyAmount(amount),
+        good_name: `${car.display_name || car.name || '차량'} 예약`,
+        pay_method: 'CARD',
+        Ret_URL: returnUrl,
+        encoding_trans: 'UTF-8',
+        currency: '410',
+        buyr_name: validation.normalized.customerName,
+        buyr_tel2: validation.normalized.customerPhone,
+        buyr_mail: buyerEmail,
         res_cd: trade.res_cd || '0000',
-        site_cd: trade.site_cd || '',
+        site_cd: trade.site_cd || kcpConfig.siteCode || '',
+        param_opt_1: sessionToken,
+        param_opt_2: 'website_booking',
         session_token: sessionToken,
       },
     })

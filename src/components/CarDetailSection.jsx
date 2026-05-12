@@ -56,10 +56,15 @@ function submitExternalPaymentForm(actionUrl, fields = {}) {
     throw new Error('결제창 주소를 확인하지 못했습니다.')
   }
 
+  const requestedEncoding = String(fields.encoding_trans || '').trim().toUpperCase()
+  const normalizedActionUrl = requestedEncoding === 'UTF-8' && !actionUrl.includes('/jsp/encodingFilter/encodingFilter.jsp')
+    ? `${actionUrl.substring(0, actionUrl.lastIndexOf('/'))}/jsp/encodingFilter/encodingFilter.jsp`
+    : actionUrl
+
   const form = document.createElement('form')
   form.method = 'POST'
-  form.action = actionUrl
-  form.acceptCharset = 'euc-kr'
+  form.action = normalizedActionUrl
+  form.acceptCharset = requestedEncoding === 'UTF-8' ? 'utf-8' : 'euc-kr'
   form.style.display = 'none'
 
   Object.entries(fields || {}).forEach(([key, value]) => {
