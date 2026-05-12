@@ -105,23 +105,43 @@ function loadKcpPcScript(scriptUrl) {
     return Promise.reject(new Error('브라우저 환경을 확인하지 못했습니다.'))
   }
 
-  if (typeof window.KCP_Pay_Execute === 'function') {
+  const isKcpPcReady = () => (
+    typeof window.KCP_Pay_Execute === 'function'
+    && typeof window.KCP_Pay_Execute_Web === 'function'
+  )
+
+  if (isKcpPcReady()) {
     return Promise.resolve(window.KCP_Pay_Execute)
   }
 
   if (!kcpPcScriptPromise) {
     kcpPcScriptPromise = new Promise((resolve, reject) => {
+      const waitUntilReady = () => {
+        const startedAt = Date.now()
+
+        const poll = () => {
+          if (isKcpPcReady()) {
+            resolve(window.KCP_Pay_Execute)
+            return
+          }
+
+          if (Date.now() - startedAt > 5000) {
+            reject(new Error('KCP PC 결제 스크립트 초기화가 지연되고 있습니다. 다시 시도해 주세요.'))
+            return
+          }
+
+          window.setTimeout(poll, 50)
+        }
+
+        poll()
+      }
+
       const script = document.createElement('script')
       script.src = scriptUrl
       script.async = true
       script.charset = 'euc-kr'
       script.onload = () => {
-        if (typeof window.KCP_Pay_Execute === 'function') {
-          resolve(window.KCP_Pay_Execute)
-          return
-        }
-
-        reject(new Error('KCP PC 결제 스크립트를 불러왔지만 실행 함수를 찾지 못했습니다.'))
+        waitUntilReady()
       }
       script.onerror = () => reject(new Error('KCP PC 결제 스크립트를 불러오지 못했습니다.'))
       document.body.appendChild(script)
