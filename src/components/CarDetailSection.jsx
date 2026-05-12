@@ -821,7 +821,7 @@ export default function CarDetailSection() {
                 </div>
                 {shouldShowReservationErrors && reservationSubmitMessages.length > 0 && (
                   <div className="legal-note" style={{ marginTop: 0, background: '#fff4f4', color: '#9f1239' }}>
-                    <strong style={{ display: 'block', marginBottom: 8 }}>아래 항목 확인 후 예약 확정을 진행해 주세요.</strong>
+                    <strong style={{ display: 'block', marginBottom: 8 }}>아래 항목 확인 후 결제를 진행해 주세요.</strong>
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
                       {reservationSubmitMessages.map((message) => (
                         <li key={message}>{message}</li>
@@ -832,7 +832,7 @@ export default function CarDetailSection() {
                 {reservationSubmitError && (
                   <div className="legal-note" style={{ marginTop: 0, background: '#fff4f4', color: '#9f1239' }}>{reservationSubmitError}</div>
                 )}
-                <button className="btn btn-dark btn-lg btn-block" onClick={handleReservationSubmit}>예약 확정하기</button>
+                <button className="btn btn-dark btn-lg btn-block" onClick={handleReservationSubmit}>결제하기</button>
               </article>
 
               <article className="detail-card panel">
@@ -912,7 +912,7 @@ export default function CarDetailSection() {
               </div>
               <div className="search-guard-actions">
                 <button className="btn btn-outline btn-md" onClick={() => setIsReservationConfirmOpen(false)}>다시 확인</button>
-                <button className="btn btn-dark btn-md" onClick={handleConfirmReservation} disabled={isCreatingReservation}>{isCreatingReservation ? '결제창 이동 중' : '예약 확정'}</button>
+                <button className="btn btn-dark btn-md" onClick={handleConfirmReservation} disabled={isCreatingReservation}>{isCreatingReservation ? '결제창 이동 중' : '결제'}</button>
               </div>
             </div>
           </div>

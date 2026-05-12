@@ -13,6 +13,14 @@ async function readResponseBody(response) {
   }
 }
 
+function readKcpMessage(payload, fallback) {
+  return payload?.res_msg || payload?.message || payload?.Message || payload?.raw || fallback
+}
+
+function readKcpCode(payload, fallback = '') {
+  return String(payload?.res_cd || payload?.Code || payload?.code || fallback || '')
+}
+
 function stringifyAmount(amount) {
   const normalized = Number(amount || 0)
   if (!Number.isFinite(normalized) || normalized < 0) {
@@ -33,7 +41,7 @@ async function registerKcpTrade({
   sessionToken,
 } = {}) {
   const config = assertKcpConfig()
-  const body = new URLSearchParams({
+  const body = {
     site_cd: config.siteCode,
     ordr_idxx: String(orderId || '').trim(),
     good_mny: stringifyAmount(amount),
@@ -47,28 +55,28 @@ async function registerKcpTrade({
     buyr_mail: String(buyerEmail || '').trim(),
     param_opt_1: String(sessionToken || '').trim(),
     param_opt_2: 'website_booking',
-  })
+  }
 
   const response = await fetch(config.tradeRegisterUrl, {
     method: 'POST',
     headers: {
-      'content-type': 'application/x-www-form-urlencoded; charset=utf-8',
+      'content-type': 'application/json; charset=UTF-8',
     },
-    body,
+    body: JSON.stringify(body),
   })
 
   const payload = await readResponseBody(response)
 
   if (!response.ok) {
-    const message = payload?.res_msg || payload?.message || payload?.raw || 'kcp_trade_register_failed'
+    const message = readKcpMessage(payload, 'kcp_trade_register_failed')
     const error = new Error(message)
     error.code = 'kcp_trade_register_failed'
     error.payload = payload
     throw error
   }
 
-  if (String(payload?.res_cd || '') !== '0000') {
-    const error = new Error(payload?.res_msg || 'kcp_trade_register_failed')
+  if (readKcpCode(payload) !== '0000') {
+    const error = new Error(readKcpMessage(payload, 'kcp_trade_register_failed'))
     error.code = 'kcp_trade_register_rejected'
     error.payload = payload
     throw error
@@ -104,15 +112,15 @@ async function approveKcpPayment({
   const payload = await readResponseBody(response)
 
   if (!response.ok) {
-    const message = payload?.res_msg || payload?.message || payload?.raw || 'kcp_payment_approve_failed'
+    const message = readKcpMessage(payload, 'kcp_payment_approve_failed')
     const error = new Error(message)
     error.code = 'kcp_payment_approve_failed'
     error.payload = payload
     throw error
   }
 
-  if (String(payload?.res_cd || '') !== '0000') {
-    const error = new Error(payload?.res_msg || 'kcp_payment_approve_failed')
+  if (readKcpCode(payload) !== '0000') {
+    const error = new Error(readKcpMessage(payload, 'kcp_payment_approve_failed'))
     error.code = 'kcp_payment_approve_rejected'
     error.payload = payload
     throw error

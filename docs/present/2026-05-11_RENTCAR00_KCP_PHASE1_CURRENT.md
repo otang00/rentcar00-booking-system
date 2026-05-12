@@ -69,10 +69,13 @@
 4. `.env` 백업 파일을 생성한 뒤 KCP test 값을 로컬 환경에 반영했다.
 5. Vercel preview 환경(`feat/db-preview-home` 브랜치 기준)에도 KCP test 값을 반영했다.
 6. preview 배포 URL: `https://rentcar00-booking-system-ggpkkmip7-otang00s-projects.vercel.app`
-7. Vercel production 환경에도 동일한 KCP test 값을 반영했고, `https://rentcar00.com` 으로 production 배포를 완료했다.
-8. 배포 직후 `https://rentcar00.com` 의 기본 응답 `HTTP 200` 을 확인했다.
-9. 개인키와 비밀번호는 이번 1차 승인 흐름에서 직접 사용하지 않고, 별도 보관 대상으로 유지한다.
-10. 작업 중 임시로 풀어본 로컬 인증서/개인키 파일은 반영 후 즉시 삭제했다.
+7. Vercel production 환경에도 동일한 KCP 값을 반영했고, `https://rentcar00.com` 으로 production 배포를 완료했다.
+8. 이후 `ALRFN` 상점코드는 test endpoint 비대상임을 확인했고 `KCP_MODE=production` 으로 정정했다.
+9. 거래등록 요청 형식을 form-urlencoded 에서 KCP 공식 기준 JSON POST 로 수정했다.
+10. 로컬 진단에서 거래등록 `Code=0000`, `Message=Success` 를 확인했다.
+11. 배포 직후 `https://rentcar00.com` 의 기본 응답 `HTTP 200` 을 확인했다.
+12. 개인키와 비밀번호는 이번 1차 승인 흐름에서 직접 사용하지 않고, 별도 보관 대상으로 유지한다.
+13. 작업 중 임시로 풀어본 로컬 인증서/개인키 파일은 반영 후 즉시 삭제했다.
 
 ## git / 배포 기준
 - `.gitignore` 에 `.env`, `.env.*` 가 이미 포함되어 있어 env 파일은 추적 제외 상태다.
@@ -83,6 +86,7 @@
 1. preview 또는 production에서 실제 결제 왕복 검증
 2. KCP 도메인 기준 추가 CSP 점검 필요 여부 확인
 3. 실결제/취소 운영 점검
+4. 버튼/문구 최종 UX 확인
 
 ## 주의
 - 구 `guest-bookings/create` 직접 생성 경로는 종료 상태로 본다.
