@@ -28,7 +28,7 @@ function getKcpConfig(env = process.env) {
   const mode = resolveKcpMode(env)
   const siteCode = String(env.KCP_SITE_CD || '').trim()
   const siteKey = String(env.KCP_SITE_KEY || '').trim()
-  const certInfo = String(env.KCP_CERT_INFO || '').trim()
+  const certInfo = String(env.KCP_CERT_INFO || '').trim().replace(/\\n/g, '\n')
 
   return {
     mode,
