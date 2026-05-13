@@ -54,6 +54,18 @@ function roundPercent(value, fallback = 0) {
   return Math.max(0, Math.round(next * 100) / 100)
 }
 
+const DEFAULT_PRICING_OPTION_TYPE = 'semi_premium'
+const PRICING_OPTION_CONFIG = {
+  basic: { hour1: 0.12, week1: 5.5, week2: 7.5, month1: 10.5 },
+  semi_premium: { hour1: 0.12, week1: 5.5, week2: 8.0, month1: 12.0 },
+  premium: { hour1: 0.14, week1: 6.5, week2: 9.0, month1: 14.0 },
+}
+
+function normalizePricingOptionType(value) {
+  const normalized = normalizeText(value).toLowerCase()
+  return PRICING_OPTION_CONFIG[normalized] ? normalized : DEFAULT_PRICING_OPTION_TYPE
+}
+
 function computeRatios(legacyPolicy) {
   const base24 = normalizeNumber(legacyPolicy?.baseDailyPrice ?? legacyPolicy?.base_daily_price, 0)
   if (base24 <= 0) {
@@ -81,38 +93,41 @@ function computeRatios(legacyPolicy) {
   }
 }
 
-function buildRatePayloadFromBase(base24h, ratios) {
+function buildRatePayloadFromBase(base24h, ratios, pricingOptionType) {
   const applied24h = roundAmount(base24h)
+  const option = PRICING_OPTION_CONFIG[normalizePricingOptionType(pricingOptionType)]
   return {
     fee6h: roundAmount(applied24h * ratios.fee6h),
     fee12h: roundAmount(applied24h * ratios.fee12h),
     fee24h: applied24h,
-    fee1h: roundAmount(applied24h * ratios.fee1h),
-    week1Price: roundAmount(applied24h * ratios.week1Price),
-    week2Price: roundAmount(applied24h * ratios.week2Price),
-    month1Price: roundAmount(applied24h * ratios.month1Price),
+    fee1h: roundAmount(applied24h * option.hour1),
+    week1Price: roundAmount(applied24h * option.week1),
+    week2Price: roundAmount(applied24h * option.week2),
+    month1Price: roundAmount(applied24h * option.month1),
     long24hPrice: roundAmount(applied24h * ratios.long24hPrice),
     long1hPrice: roundAmount(applied24h * ratios.long1hPrice),
   }
 }
 
-function buildComputedRate(legacyPolicy, base24Input, weekdayRatePercentInput, weekendRatePercentInput) {
+function buildComputedRate(legacyPolicy, base24Input, weekdayRatePercentInput, weekendRatePercentInput, pricingOptionTypeInput) {
   const base24h = roundAmount(base24Input)
   const weekdayRatePercent = roundPercent(weekdayRatePercentInput, 100)
   const weekendRatePercent = roundPercent(weekendRatePercentInput, 100)
   const weekdayApplied24h = roundAmount(base24h * (weekdayRatePercent / 100))
   const weekendApplied24h = roundAmount(base24h * (weekendRatePercent / 100))
   const ratios = computeRatios(legacyPolicy)
+  const pricingOptionType = normalizePricingOptionType(pricingOptionTypeInput)
 
   return {
     base24h,
+    pricingOptionType,
     weekdayRatePercent,
     weekendRatePercent,
     weekdayApplied24h,
     weekendApplied24h,
-    common: buildRatePayloadFromBase(base24h, ratios),
-    weekday: buildRatePayloadFromBase(weekdayApplied24h, ratios),
-    weekend: buildRatePayloadFromBase(weekendApplied24h, ratios),
+    common: buildRatePayloadFromBase(base24h, ratios, pricingOptionType),
+    weekday: buildRatePayloadFromBase(weekdayApplied24h, ratios, pricingOptionType),
+    weekend: buildRatePayloadFromBase(weekendApplied24h, ratios, pricingOptionType),
   }
 }
 
@@ -161,17 +176,25 @@ function buildCurrentRateSummary(row, periods = [], ratesByPeriodId = {}, now = 
   return {
     activePeriodId: activePeriod?.id || null,
     activePeriodName: activePeriod?.period_name || null,
+    pricingOptionType: normalizePricingOptionType(row?.pricing_option_type),
     weekday24h,
     weekend24h,
   }
 }
 
-async function fetchEditorBase(supabaseClient, carGroupId) {
-  const { data, error } = await supabaseClient
+async function fetchEditorBase(supabaseClient, { carGroupId, pricePolicyGroupId }) {
+  let query = supabaseClient
     .from('v_pricing_hub_policy_editor')
     .select('*')
-    .eq('car_group_id', carGroupId)
     .order('policy_name', { ascending: true })
+
+  if (pricePolicyGroupId) {
+    query = query.eq('price_policy_group_id', pricePolicyGroupId)
+  } else {
+    query = query.eq('car_group_id', carGroupId)
+  }
+
+  const { data, error } = await query
 
   if (error) throw error
   return Array.isArray(data) ? data : []
@@ -263,6 +286,7 @@ function buildEditorState(baseRow, periods = [], ratesByPeriodId = {}, now = new
   return {
     activePeriodId: activePeriod?.id || null,
     activePeriodName: activePeriod?.period_name || null,
+    pricingOptionType: normalizePricingOptionType(baseRow?.pricing_option_type),
     base24h,
     weekdayPercent: base24h > 0 ? roundPercent((weekday24h / base24h) * 100, normalizeNumber(baseRow?.weekday_rate_percent, 100)) : roundPercent(baseRow?.weekday_rate_percent, 100),
     weekendPercent: base24h > 0 ? roundPercent((weekend24h / base24h) * 100, normalizeNumber(baseRow?.weekend_rate_percent, 100)) : roundPercent(baseRow?.weekend_rate_percent, 100),
@@ -310,8 +334,10 @@ async function handleList(req, res, supabaseClient) {
       carGroupId: row.car_group_id,
       imsGroupId: row.ims_group_id,
       groupName: row.group_name,
+      pricePolicyGroupId: row.price_policy_group_id,
       pricePolicyId: row.price_policy_id,
       policyName: row.policy_name,
+      pricingOptionType: normalizePricingOptionType(row.pricing_option_type),
       legacyPolicy: {
         baseDailyPrice: row.base_daily_price,
         weekdayRatePercent: row.weekday_rate_percent,
@@ -337,12 +363,13 @@ async function handleList(req, res, supabaseClient) {
 }
 
 async function handleGetPolicyEditor(req, res, supabaseClient) {
+  const pricePolicyGroupId = normalizeText(req.query?.pricePolicyGroupId)
   const carGroupId = normalizeText(req.query?.carGroupId)
-  if (!carGroupId) {
-    return res.status(400).json({ error: 'missing_car_group_id', message: 'carGroupId 가 필요합니다.' })
+  if (!pricePolicyGroupId && !carGroupId) {
+    return res.status(400).json({ error: 'missing_price_policy_group_id', message: 'pricePolicyGroupId 가 필요합니다.' })
   }
 
-  const baseRows = await fetchEditorBase(supabaseClient, carGroupId)
+  const baseRows = await fetchEditorBase(supabaseClient, { carGroupId, pricePolicyGroupId })
   if (baseRows.length === 0) {
     return res.status(404).json({ error: 'group_not_found', message: '대상 그룹을 찾지 못했습니다.' })
   }
@@ -400,6 +427,8 @@ async function handleGetPolicyEditor(req, res, supabaseClient) {
       carGroupId: baseRows[0].car_group_id,
       imsGroupId: baseRows[0].ims_group_id,
       groupName: baseRows[0].group_name,
+      pricePolicyGroupId: baseRows[0].price_policy_group_id,
+      pricingOptionType: normalizePricingOptionType(baseRows[0].pricing_option_type),
       carNumbers: carNumbersByGroupId[String(baseRows[0].ims_group_id)] || [],
     },
     editorState,
@@ -410,12 +439,13 @@ async function handleGetPolicyEditor(req, res, supabaseClient) {
 
 async function handleSaveEditor(req, res, supabaseClient, authUser) {
   const body = await parseJsonBody(req)
+  const pricePolicyGroupId = normalizeText(body.pricePolicyGroupId)
   const carGroupId = normalizeText(body.carGroupId)
-  if (!carGroupId) {
-    return res.status(400).json({ error: 'missing_car_group_id', message: 'carGroupId 가 필요합니다.' })
+  if (!pricePolicyGroupId && !carGroupId) {
+    return res.status(400).json({ error: 'missing_price_policy_group_id', message: 'pricePolicyGroupId 가 필요합니다.' })
   }
 
-  const baseRows = await fetchEditorBase(supabaseClient, carGroupId)
+  const baseRows = await fetchEditorBase(supabaseClient, { carGroupId, pricePolicyGroupId })
   if (baseRows.length === 0) {
     return res.status(404).json({ error: 'group_not_found', message: '대상 그룹을 찾지 못했습니다.' })
   }
@@ -446,7 +476,17 @@ async function handleSaveEditor(req, res, supabaseClient, authUser) {
     activePeriod = createdPeriod
   }
 
-  const computed = buildComputedRate(base, body.base24h, body.weekdayPercent, body.weekendPercent)
+  const computed = buildComputedRate(base, body.base24h, body.weekdayPercent, body.weekendPercent, body.pricingOptionType)
+
+  const { error: mappingError } = await supabaseClient
+    .from('price_policy_groups')
+    .update({ pricing_option_type: computed.pricingOptionType })
+    .eq('id', base.price_policy_group_id)
+
+  if (mappingError) {
+    return res.status(500).json({ error: 'save_editor_mapping_failed', message: mappingError.message })
+  }
+
   const metadata = {
     source: 'admin-pricing-hub-editor',
     savedBy: buildActorLabel(authUser),
@@ -454,6 +494,7 @@ async function handleSaveEditor(req, res, supabaseClient, authUser) {
     base24h: computed.base24h,
     weekdayPercent: computed.weekdayRatePercent,
     weekendPercent: computed.weekendRatePercent,
+    pricingOptionType: computed.pricingOptionType,
   }
 
   const rows = [
@@ -491,6 +532,7 @@ async function handleSaveEditor(req, res, supabaseClient, authUser) {
       editorState: {
         activePeriodId: activePeriod.id,
         activePeriodName: activePeriod.period_name,
+        pricingOptionType: computed.pricingOptionType,
         base24h: computed.base24h,
         weekdayPercent: computed.weekdayRatePercent,
         weekendPercent: computed.weekendRatePercent,

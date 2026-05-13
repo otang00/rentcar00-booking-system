@@ -35,11 +35,15 @@ export function listPricingHubGroups(session, params = {}) {
   })
 }
 
-export function getPricingHubPolicyEditor(session, carGroupId) {
+export function getPricingHubPolicyEditor(session, paramsOrPricePolicyGroupId) {
+  const params = typeof paramsOrPricePolicyGroupId === 'object'
+    ? paramsOrPricePolicyGroupId
+    : { pricePolicyGroupId: paramsOrPricePolicyGroupId }
+
   return request(session, {
     method: 'GET',
     action: 'get-policy-editor',
-    params: { carGroupId },
+    params,
     fallbackMessage: '통합 요금 편집 정보를 불러오지 못했습니다.',
   })
 }
