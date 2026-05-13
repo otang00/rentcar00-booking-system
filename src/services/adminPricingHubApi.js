@@ -75,20 +75,3 @@ export function savePricingHubEditor(session, payload) {
   })
 }
 
-export function savePricingHubOverride(session, payload) {
-  return request(session, {
-    method: 'POST',
-    action: 'save-override',
-    body: payload,
-    fallbackMessage: '예외 규칙 저장에 실패했습니다.',
-  })
-}
-
-export function buildPricingHubPreview(session, payload) {
-  return request(session, {
-    method: 'POST',
-    action: 'build-preview',
-    body: payload,
-    fallbackMessage: '미리보기에 실패했습니다.',
-  })
-}

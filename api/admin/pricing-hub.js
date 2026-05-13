@@ -228,21 +228,6 @@ async function fetchRates(supabaseClient, periodIds) {
   return Array.isArray(data) ? data : []
 }
 
-async function fetchOverrides(supabaseClient, { carGroupId, imsGroupId, pricePolicyIds }) {
-  const targetIds = [carGroupId, imsGroupId, ...(Array.isArray(pricePolicyIds) ? pricePolicyIds : [])].filter(Boolean).map(String)
-  if (targetIds.length === 0) return []
-
-  const { data, error } = await supabaseClient
-    .from('pricing_hub_overrides')
-    .select('*')
-    .in('target_id', targetIds)
-    .order('priority', { ascending: true })
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-  return Array.isArray(data) ? data : []
-}
-
 async function fetchCarNumbersByImsGroupIds(supabaseClient, imsGroupIds) {
   const normalizedIds = [...new Set((Array.isArray(imsGroupIds) ? imsGroupIds : []).filter(Boolean).map(Number))]
   if (normalizedIds.length === 0) return {}
@@ -317,18 +302,11 @@ async function handleList(req, res, supabaseClient) {
     : rows
 
   const pricePolicyIds = [...new Set(filteredRows.map((row) => row.price_policy_id).filter(Boolean))]
-  const carGroupIds = [...new Set(filteredRows.map((row) => row.car_group_id).filter(Boolean))]
-  const imsGroupIds = [...new Set(filteredRows.map((row) => row.ims_group_id).filter(Boolean))].map(String)
-
-  const [periodsResult, overridesResult] = await Promise.all([
-    fetchPeriods(supabaseClient, pricePolicyIds),
-    fetchOverrides(supabaseClient, { carGroupId: null, imsGroupId: null, pricePolicyIds: [...carGroupIds, ...imsGroupIds, ...pricePolicyIds] }),
-  ])
+  const periodsResult = await fetchPeriods(supabaseClient, pricePolicyIds)
   const ratesResult = await fetchRates(supabaseClient, periodsResult.map((item) => item.id))
 
   const periodsByPolicyId = toMap(periodsResult, 'price_policy_id')
   const ratesByPeriodId = toMap(ratesResult, 'pricing_hub_period_id')
-  const overridesByTargetId = toMap(overridesResult, 'target_id')
 
   const items = filteredRows.map((row) => {
     const relatedPeriods = periodsByPolicyId[row.price_policy_id] || []
@@ -355,11 +333,7 @@ async function handleList(req, res, supabaseClient) {
       },
       currentRateSummary,
       hubPeriodsCount: relatedPeriods.length,
-      hubOverridesCount: [
-        ...(overridesByTargetId[String(row.car_group_id)] || []),
-        ...(overridesByTargetId[String(row.ims_group_id)] || []),
-        ...(overridesByTargetId[String(row.price_policy_id)] || []),
-      ].length,
+      hubOverridesCount: 0,
     }
   })
 
@@ -382,11 +356,6 @@ async function handleGetPolicyEditor(req, res, supabaseClient) {
   const periods = await fetchPeriods(supabaseClient, pricePolicyIds)
   const rates = await fetchRates(supabaseClient, periods.map((item) => item.id))
   const carNumbersByGroupId = await fetchCarNumbersByImsGroupIds(supabaseClient, [baseRows[0]?.ims_group_id])
-  const overrides = await fetchOverrides(supabaseClient, {
-    carGroupId,
-    imsGroupId: baseRows[0]?.ims_group_id,
-    pricePolicyIds,
-  })
 
   const ratesByPeriodId = toMap(rates, 'pricing_hub_period_id')
   const editorState = buildEditorState(baseRows[0], periods, ratesByPeriodId)
@@ -437,7 +406,7 @@ async function handleGetPolicyEditor(req, res, supabaseClient) {
     },
     editorState,
     policies,
-    overrides,
+    overrides: [],
   })
 }
 
@@ -619,151 +588,6 @@ async function handleSaveRate(req, res, supabaseClient) {
   return res.status(200).json({ item: data })
 }
 
-async function handleSaveOverride(req, res, supabaseClient) {
-  const body = await parseJsonBody(req)
-  const id = normalizeText(body.id)
-  const payload = {
-    target_type: normalizeText(body.targetType),
-    target_id: normalizeText(body.targetId),
-    field_name: normalizeText(body.fieldName),
-    override_type: normalizeText(body.overrideType),
-    override_value: normalizeNumber(body.overrideValue, 0),
-    start_at: body.startAt || null,
-    end_at: body.endAt || null,
-    priority: normalizeNumber(body.priority, 100),
-    reason: normalizeText(body.reason) || null,
-    status: normalizeText(body.status) || 'active',
-    metadata: body.metadata && typeof body.metadata === 'object' ? body.metadata : {},
-  }
-
-  if (!payload.target_type || !payload.target_id || !payload.field_name || !payload.override_type) {
-    return res.status(400).json({ error: 'invalid_override_payload', message: 'override 필수값이 부족합니다.' })
-  }
-
-  const query = id
-    ? supabaseClient.from('pricing_hub_overrides').update(payload).eq('id', id).select('*').single()
-    : supabaseClient.from('pricing_hub_overrides').insert(payload).select('*').single()
-
-  const { data, error } = await query
-  if (error) {
-    return res.status(500).json({ error: 'save_override_failed', message: error.message })
-  }
-
-  return res.status(200).json({ item: data })
-}
-
-function computeDiff(beforeJson, afterJson) {
-  const diff = {}
-  const keys = [...new Set([...Object.keys(beforeJson || {}), ...Object.keys(afterJson || {})])]
-  for (const key of keys) {
-    const beforeValue = beforeJson?.[key] ?? null
-    const afterValue = afterJson?.[key] ?? null
-    if (JSON.stringify(beforeValue) !== JSON.stringify(afterValue)) {
-      diff[key] = { before: beforeValue, after: afterValue }
-    }
-  }
-  return diff
-}
-
-async function handleBuildPreview(req, res, supabaseClient, authUser) {
-  const body = await parseJsonBody(req)
-  const carGroupId = normalizeText(body.carGroupId)
-  if (!carGroupId) {
-    return res.status(400).json({ error: 'missing_car_group_id', message: 'carGroupId 가 필요합니다.' })
-  }
-
-  const baseRows = await fetchEditorBase(supabaseClient, carGroupId)
-  if (baseRows.length === 0) {
-    return res.status(404).json({ error: 'group_not_found', message: '대상 그룹을 찾지 못했습니다.' })
-  }
-
-  const group = baseRows[0]
-  const pricePolicyIds = [...new Set(baseRows.map((row) => row.price_policy_id).filter(Boolean))]
-  const periods = await fetchPeriods(supabaseClient, pricePolicyIds)
-  const rates = await fetchRates(supabaseClient, periods.map((item) => item.id))
-  const overrides = await fetchOverrides(supabaseClient, {
-    carGroupId,
-    imsGroupId: group.ims_group_id,
-    pricePolicyIds,
-  })
-
-  const beforeJson = {
-    imsGroupId: group.ims_group_id,
-    groupName: group.group_name,
-    policies: baseRows.map((row) => ({
-      pricePolicyId: row.price_policy_id,
-      policyName: row.policy_name,
-      baseDailyPrice: row.base_daily_price,
-      weekdayRatePercent: row.weekday_rate_percent,
-      weekendRatePercent: row.weekend_rate_percent,
-      hour1Price: row.hour_1_price,
-      hour6Price: row.hour_6_price,
-      hour12Price: row.hour_12_price,
-      effectiveFrom: row.effective_from,
-      effectiveTo: row.effective_to,
-    })),
-  }
-
-  const afterJson = {
-    group: {
-      carGroupId,
-      imsGroupId: group.ims_group_id,
-      groupName: group.group_name,
-    },
-    periods,
-    rates,
-    overrides,
-  }
-
-  const diffJson = computeDiff(beforeJson, afterJson)
-  const warnings = []
-  if (periods.length === 0) warnings.push('등록된 pricing_hub_periods 가 없습니다.')
-  if (rates.length === 0) warnings.push('등록된 pricing_hub_rates 가 없습니다.')
-
-  const { data: preview, error: previewError } = await supabaseClient
-    .from('pricing_hub_previews')
-    .insert({
-      run_label: `${group.group_name || group.ims_group_id}-preview-${new Date().toISOString()}`,
-      status: warnings.length > 0 ? 'warning' : 'ready',
-      summary_json: {
-        carGroupId,
-        imsGroupId: group.ims_group_id,
-        pricePolicyIds,
-        periodsCount: periods.length,
-        ratesCount: rates.length,
-        overridesCount: overrides.length,
-      },
-      created_by: buildActorLabel(authUser),
-    })
-    .select('*')
-    .single()
-
-  if (previewError) {
-    return res.status(500).json({ error: 'create_preview_failed', message: previewError.message })
-  }
-
-  const { data: previewItem, error: itemError } = await supabaseClient
-    .from('pricing_hub_preview_items')
-    .insert({
-      pricing_hub_preview_id: preview.id,
-      car_group_id: carGroupId,
-      target_type: 'ims_group',
-      target_id: String(group.ims_group_id),
-      before_json: beforeJson,
-      after_json: afterJson,
-      diff_json: diffJson,
-      warning_json: warnings,
-    })
-    .select('*')
-    .single()
-
-  if (itemError) {
-    return res.status(500).json({ error: 'create_preview_item_failed', message: itemError.message })
-  }
-
-  return res.status(200).json({ preview, item: previewItem })
-}
-
 module.exports = async function handler(req, res) {
   if (!['GET', 'POST'].includes(req.method)) {
     res.setHeader('Allow', 'GET, POST')
@@ -811,14 +635,6 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'POST' && action === 'save-editor') {
       return handleSaveEditor(req, res, supabaseClient, authUser)
-    }
-
-    if (req.method === 'POST' && action === 'save-override') {
-      return handleSaveOverride(req, res, supabaseClient)
-    }
-
-    if (req.method === 'POST' && action === 'build-preview') {
-      return handleBuildPreview(req, res, supabaseClient, authUser)
     }
 
     return res.status(404).json({ error: 'not_found' })
