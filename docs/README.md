@@ -19,6 +19,7 @@
 
 현재 active present:
 - `present/2026-05-14_RENTCAR00_ADMIN_PRICING_HUB_EXECUTION_READY_CURRENT.md`
+- `present/2026-05-14_RENTCAR00_PRICING_HUB_DB_CLEANUP_CURRENT.md`
 
 원칙:
 - present 는 실행 중인 작업이 있을 때만 사용한다.

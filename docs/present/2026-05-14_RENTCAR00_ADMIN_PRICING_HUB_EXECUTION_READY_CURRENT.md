@@ -13,6 +13,7 @@
 3. 옵션 타입 truth 는 `price_policy_groups.pricing_option_type` 기준이다.
 4. admin 미리보기/저장 계산도 천원단위 올림 기준까지 반영됐다.
 5. 다음 작업은 검색 연결이 아니라 **admin 운영 체계 정리**다.
+6. admin 개편 전에 DB / view / dead code cleanup 후보를 먼저 잠근다.
 
 ## 이번 current 범위
 - `api/admin/pricing-hub.js`
@@ -71,6 +72,7 @@
 
 ## 연결 문서
 - 장기 정책: `docs/policies/RENTCAR00_PRICING_HUB.md`
+- cleanup current: `docs/present/2026-05-14_RENTCAR00_PRICING_HUB_DB_CLEANUP_CURRENT.md`
 - 과거 search 연결 기준: `docs/past/present-history/2026-05-13_RENTCAR00_CURRENT_PAST.md`
 - 과거 계산식 기준: `docs/past/present-history/2026-05-13_RENTCAR00_PRICING_FORMULA_CURRENT_PAST.md`
 - 과거 옵션 baseline 기준: `docs/past/present-history/2026-05-14_RENTCAR00_PRICING_OPTION_BASELINE_CURRENT_PAST.md`
