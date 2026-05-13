@@ -49,6 +49,10 @@ function roundAmount(value) {
   return Math.max(0, Math.round(normalizeNumber(value, 0)))
 }
 
+function roundUpToThousand(value) {
+  return Math.max(0, Math.ceil(normalizeNumber(value, 0) / 1000) * 1000)
+}
+
 function roundPercent(value, fallback = 0) {
   const next = normalizeNumber(value, fallback)
   return Math.max(0, Math.round(next * 100) / 100)
@@ -94,27 +98,27 @@ function computeRatios(legacyPolicy) {
 }
 
 function buildRatePayloadFromBase(base24h, ratios, pricingOptionType) {
-  const applied24h = roundAmount(base24h)
+  const applied24h = roundUpToThousand(base24h)
   const option = PRICING_OPTION_CONFIG[normalizePricingOptionType(pricingOptionType)]
   return {
-    fee6h: roundAmount(applied24h * ratios.fee6h),
-    fee12h: roundAmount(applied24h * ratios.fee12h),
+    fee6h: roundUpToThousand(applied24h * ratios.fee6h),
+    fee12h: roundUpToThousand(applied24h * ratios.fee12h),
     fee24h: applied24h,
-    fee1h: roundAmount(applied24h * option.hour1),
-    week1Price: roundAmount(applied24h * option.week1),
-    week2Price: roundAmount(applied24h * option.week2),
-    month1Price: roundAmount(applied24h * option.month1),
-    long24hPrice: roundAmount(applied24h * ratios.long24hPrice),
-    long1hPrice: roundAmount(applied24h * ratios.long1hPrice),
+    fee1h: roundUpToThousand(applied24h * option.hour1),
+    week1Price: roundUpToThousand(applied24h * option.week1),
+    week2Price: roundUpToThousand(applied24h * option.week2),
+    month1Price: roundUpToThousand(applied24h * option.month1),
+    long24hPrice: roundUpToThousand(applied24h * ratios.long24hPrice),
+    long1hPrice: roundUpToThousand(applied24h * ratios.long1hPrice),
   }
 }
 
 function buildComputedRate(legacyPolicy, base24Input, weekdayRatePercentInput, weekendRatePercentInput, pricingOptionTypeInput) {
-  const base24h = roundAmount(base24Input)
+  const base24h = roundUpToThousand(base24Input)
   const weekdayRatePercent = roundPercent(weekdayRatePercentInput, 100)
   const weekendRatePercent = roundPercent(weekendRatePercentInput, 100)
-  const weekdayApplied24h = roundAmount(base24h * (weekdayRatePercent / 100))
-  const weekendApplied24h = roundAmount(base24h * (weekendRatePercent / 100))
+  const weekdayApplied24h = roundUpToThousand(base24h * (weekdayRatePercent / 100))
+  const weekendApplied24h = roundUpToThousand(base24h * (weekendRatePercent / 100))
   const ratios = computeRatios(legacyPolicy)
   const pricingOptionType = normalizePricingOptionType(pricingOptionTypeInput)
 

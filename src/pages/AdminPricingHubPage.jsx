@@ -18,6 +18,10 @@ function roundAmount(value) {
   return Math.max(0, Math.round(toNumber(value, 0)))
 }
 
+function roundUpToThousand(value) {
+  return Math.max(0, Math.ceil(toNumber(value, 0) / 1000) * 1000)
+}
+
 function roundPercent(value, fallback = 0) {
   const next = toNumber(value, fallback)
   return Math.max(0, Math.round(next * 100) / 100)
@@ -64,14 +68,14 @@ function computeLegacyRatios(legacyPolicy) {
 }
 
 function buildComputedRate(legacyPolicy, base24Input, weekdayRatePercentInput, weekendRatePercentInput, pricingOptionTypeInput) {
-  const base24h = roundAmount(base24Input)
+  const base24h = roundUpToThousand(base24Input)
   const optionType = normalizePricingOptionType(pricingOptionTypeInput)
   const option = PRICING_OPTION_CONFIG[optionType]
   const legacyRatios = computeLegacyRatios(legacyPolicy)
   const weekdayRatePercent = roundPercent(weekdayRatePercentInput, toNumber(legacyPolicy?.weekdayRatePercent, 100))
   const weekendRatePercent = roundPercent(weekendRatePercentInput, toNumber(legacyPolicy?.weekendRatePercent, 100))
-  const weekdayApplied24h = roundAmount(base24h * (weekdayRatePercent / 100))
-  const weekendApplied24h = roundAmount(base24h * (weekendRatePercent / 100))
+  const weekdayApplied24h = roundUpToThousand(base24h * (weekdayRatePercent / 100))
+  const weekendApplied24h = roundUpToThousand(base24h * (weekendRatePercent / 100))
 
   return {
     pricingOptionType: optionType,
@@ -80,14 +84,14 @@ function buildComputedRate(legacyPolicy, base24Input, weekdayRatePercentInput, w
     weekendRatePercent,
     weekdayApplied24h,
     weekendApplied24h,
-    fee6h: roundAmount(weekdayApplied24h * legacyRatios.fee6h),
-    fee12h: roundAmount(weekdayApplied24h * legacyRatios.fee12h),
-    fee1h: roundAmount(base24h * option.hour1),
-    week1Price: roundAmount(base24h * option.week1),
-    week2Price: roundAmount(base24h * option.week2),
-    month1Price: roundAmount(base24h * option.month1),
-    long24hPrice: roundAmount(weekdayApplied24h * legacyRatios.long24hPrice),
-    long1hPrice: roundAmount(weekdayApplied24h * legacyRatios.long1hPrice),
+    fee6h: roundUpToThousand(weekdayApplied24h * legacyRatios.fee6h),
+    fee12h: roundUpToThousand(weekdayApplied24h * legacyRatios.fee12h),
+    fee1h: roundUpToThousand(base24h * option.hour1),
+    week1Price: roundUpToThousand(base24h * option.week1),
+    week2Price: roundUpToThousand(base24h * option.week2),
+    month1Price: roundUpToThousand(base24h * option.month1),
+    long24hPrice: roundUpToThousand(weekdayApplied24h * legacyRatios.long24hPrice),
+    long1hPrice: roundUpToThousand(weekdayApplied24h * legacyRatios.long1hPrice),
   }
 }
 
