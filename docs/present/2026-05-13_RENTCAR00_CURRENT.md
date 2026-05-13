@@ -322,5 +322,53 @@ where pp.active = true
 - `fetchGroupPricePolicies.js` 가 이 view 를 읽도록 교체 준비
 - 테스트 fixture 는 common / weekday / weekend rate 3종 케이스로 준비
 
+## Phase 4 실행 준비
+### 4-1. Phase 4 범위 고정
+- Phase 4 는 **DB migration 으로 `v_search_pricing_hub_policies` view 를 추가하는 작업까지만** 포함한다.
+- 아래 항목은 **Phase 4 범위 밖**으로 고정한다.
+  - `fetchGroupPricePolicies.js` 전환
+  - `calculateGroupPrice.js` 계산식 변경
+  - 테스트 fixture 구조 변경
+  - admin / preview 해석 변경
+
+### 4-2. Phase 4 실행 순서
+1. migration SQL 작성
+2. 컬럼/조인/period 선택 규칙을 current 문서와 1:1 대조
+3. `supabase db push --linked --dry-run` 으로 반영 예정 migration 확인
+4. dry-run 결과가 예상과 일치하는지 확인
+5. 사용자 승인 후에만 실제 DB 반영 실행
+
+### 4-3. Phase 4 SQL 포함 대상
+- 식별 컬럼
+  - `ims_group_id`, `group_name`, `car_group_id`, `price_policy_id`, `policy_name`
+- 허브 기준 컬럼
+  - `base24h`, `weekday_24h_price`, `weekend_24h_price`, `hour_1_price`, `week_1_price`, `week_2_price`, `month_1_price`
+- 상태/검증 컬럼
+  - `active_period_id`, `active_period_name`
+  - `has_hub_common_rate`, `has_hub_weekday_rate`, `has_hub_weekend_rate`
+  - `uses_anchor_fallback`
+  - `legacy_base_daily_price`, `legacy_hour_1_price`
+  - `legacy_weekday_rate_percent`, `legacy_weekend_rate_percent`
+  - `legacy_weekday_7d_plus_price`, `legacy_weekend_7d_plus_price`
+
+### 4-4. Phase 4 실행 전 검증 체크리스트
+- [ ] migration 파일은 **새 view 추가만** 포함한다.
+- [ ] 기존 `v_active_group_price_policies` 는 수정하지 않는다.
+- [ ] `6h`, `12h` 는 새 view 컬럼에 넣지 않는다.
+- [ ] `7일 / 14일 / 30일` anchor fallback 은 `5.50 / 8.00 / 12.00` 기준과 일치한다.
+- [ ] period 선택 규칙은 `active=true` + 현재 시점 유효 + `created_at` 최신 우선으로 잠겼다.
+- [ ] `apply_mon ~ apply_sun` 은 Phase 4 에서 사용하지 않는다고 명시됐다.
+- [ ] `fetchGroupPricePolicies.js` 전환은 아직 안 건드린 상태다.
+- [ ] `calculateGroupPrice.js` 계산식은 아직 안 건드린 상태다.
+- [ ] dry-run 대상 migration 이 정확히 1건인지 확인한다.
+- [ ] dry-run 출력이 새 view 생성 외의 의도치 않은 변경을 포함하지 않는다.
+
+### 4-5. Phase 4 중단 조건
+- 새 view 에 계산코드 호환 컬럼을 추가해야 한다는 요구가 나오면 즉시 중단
+- repository 전환까지 함께 하자는 요구가 나오면 즉시 중단
+- 계산식 변경까지 함께 하자는 요구가 나오면 즉시 중단
+- dry-run 결과가 view 생성 외의 변경을 포함하면 즉시 중단
+- current 문서와 SQL 초안이 1개라도 어긋나면 즉시 중단
+
 ## 한 줄 결론
-현재 active 범위는 **PRICING_HUB를 자사플랫폼 검색 source에 연결하고, 그 다음 공식 계산식을 반영하는 작업**이며, Phase 3 에서는 **`v_search_pricing_hub_policies` 를 새 검색용 read model 로 설계하고, anchor 는 DB 우선 / 누락 시 공식 수치 fallback / 증분은 코드 변수** 원칙으로 구조를 확정한다.
+현재 active 범위는 **PRICING_HUB를 자사플랫폼 검색 source에 연결하고, 그 다음 공식 계산식을 반영하는 작업**이며, Phase 4 는 **새 검색용 view migration 준비와 dry-run 검증까지만**, 실제 검색 연결과 계산식 변경은 다음 phase 승인 전까지 분리한다.
