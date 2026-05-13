@@ -1,8 +1,8 @@
 # 2026-05-14 RENTCAR00 PRICING HUB DB CLEANUP CURRENT
 
 ## 문서 상태
-- 상태: active current
-- 목적: admin 통합요금체제 개편 전에 pricing hub 관련 DB / view / dead code 정리 후보를 먼저 잠근다.
+- 상태: completed current (to move past)
+- 목적: admin 통합요금체제 개편 전에 pricing hub 관련 DB / view / dead code 정리 후보를 먼저 잠갔고, 실제 cleanup 반영까지 끝난 상태를 기록한다.
 
 ## 현재 판단 기준
 이번 문서는 실제 코드 사용처를 기준으로 아래 3가지로 나눈다.
@@ -198,16 +198,68 @@ view 자체는 유지 대상이다.
 - admin 개편 후 legacy 컬럼 축소 여부 판단
 
 ## 다음 phase
-### Phase 1. 실데이터 확인
-- preview/publish/channel mapping/override 테이블 row 존재 여부 확인
-- `v_active_group_price_policies` 참조 가능성 재확인
+### Phase 1. 실데이터 확인 — 완료
+- preview/publish/channel mapping/override 테이블 row 존재 여부 확인 완료
+- `v_active_group_price_policies` 참조 가능성 1차 재확인 완료
 
-### Phase 2. 삭제안 잠금
-- drop 대상 / 보류 대상 최종 확정
+### Phase 2. 삭제안 잠금 — 완료
+- 1차/2차 drop 대상과 보류 대상을 확정했다.
 
-### Phase 3. 실행
-- 승인된 범위만 drop migration / 코드 제거 반영
+### Phase 3. 실행 — 부분 완료
+- 1차 cleanup 완료
+  - `pricing_hub_publishes`
+  - `pricing_hub_publish_items`
+  - `pricing_hub_channel_mappings`
+- 2차 cleanup 완료
+  - `pricing_hub_overrides`
+  - `pricing_hub_previews`
+  - `pricing_hub_preview_items`
+- 관련 dead code 제거 완료
+
+### Phase 4. view 슬림화 준비
+다음 정리 대상은 table 이 아니라 view shape 다.
+
+#### 4-1. `v_search_pricing_hub_policies`
+유지 대상이지만, search runtime 실사용 컬럼만 남기는 방향으로 슬림화한다.
+
+##### 유지 후보 컬럼
+- `ims_group_id`
+- `price_policy_id`
+- `policy_name`
+- `base24h`
+- `hour_1_price`
+- `weekday_24h_price`
+- `weekend_24h_price`
+- `week_1_price`
+- `week_2_price`
+- `month_1_price`
+
+##### 제거 후보 컬럼
+- `active_period_id`
+- `active_period_name`
+- `price_policy_group_id`
+- `pricing_option_type`
+- `has_hub_common_rate`
+- `has_hub_weekday_rate`
+- `has_hub_weekend_rate`
+- `uses_anchor_fallback`
+- `legacy_base_daily_price`
+- `legacy_hour_1_price`
+- `legacy_weekday_rate_percent`
+- `legacy_weekend_rate_percent`
+- `legacy_weekday_7d_plus_price`
+- `legacy_weekend_7d_plus_price`
+
+#### 4-2. `v_active_group_price_policies`
+- 현재 앱 코드 직접 참조는 보이지 않는다.
+- 다만 legacy 운영 조회 가능성을 아직 배제하지 않는다.
+- 따라서 다음 단계는 **즉시 drop이 아니라 최종 보류/삭제 판단 준비**로 본다.
+
+#### 4-3. 실행 전 확인 포인트
+1. `v_search_pricing_hub_policies` 의 보조 컬럼을 admin이나 수동 운영 SQL에서 쓰지 않는지
+2. `v_active_group_price_policies` 를 외부 수동 조회 기준으로 여전히 쓰는지
+3. view 슬림화 후 search 테스트 fixture 영향이 없는지
 
 ## 한 줄 결론
-- 지금 바로 지울 수 있는 것은 publish/channel 계열이 가장 유력하고,
-- preview/override 는 코드 제거 여부를 먼저 잠근 뒤 정리하는 것이 안전하다.
+- pricing hub cleanup 은 실제 반영까지 완료됐다.
+- 이 문서는 더 이상 active 실행 문서가 아니며, 다음 정리 시 `past/` 로 이동 대상이다.
