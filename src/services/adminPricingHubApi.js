@@ -75,3 +75,12 @@ export function savePricingHubEditor(session, payload) {
   })
 }
 
+export function savePricingHubGroupSetting(session, payload) {
+  return request(session, {
+    method: 'POST',
+    action: 'save-group-setting',
+    body: payload,
+    fallbackMessage: '그룹 설정 저장에 실패했습니다.',
+  })
+}
+

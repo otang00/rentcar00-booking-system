@@ -249,6 +249,44 @@ async function fetchCarNumbersByImsGroupIds(supabaseClient, imsGroupIds) {
   }, {})
 }
 
+async function fetchActiveCarGroups(supabaseClient) {
+  const { data, error } = await supabaseClient
+    .from('car_groups')
+    .select('id, ims_group_id, group_name, active')
+    .eq('active', true)
+    .order('ims_group_id', { ascending: true })
+
+  if (error) throw error
+  return Array.isArray(data) ? data : []
+}
+
+async function fetchActivePolicies(supabaseClient) {
+  const { data, error } = await supabaseClient
+    .from('price_policies')
+    .select('id, policy_name, active, base_daily_price, weekday_rate_percent, weekend_rate_percent')
+    .eq('active', true)
+    .order('policy_name', { ascending: true })
+
+  if (error) throw error
+  return Array.isArray(data) ? data : []
+}
+
+async function fetchGroupMappings(supabaseClient, carGroupIds) {
+  let query = supabaseClient
+    .from('price_policy_groups')
+    .select('id, car_group_id, price_policy_id, pricing_option_type, active, created_at, updated_at')
+    .order('updated_at', { ascending: false })
+
+  if (Array.isArray(carGroupIds) && carGroupIds.length > 0) {
+    query = query.in('car_group_id', carGroupIds)
+  }
+
+  const { data, error } = await query
+
+  if (error) throw error
+  return Array.isArray(data) ? data : []
+}
+
 function buildRateByScope(rates = []) {
   return (Array.isArray(rates) ? rates : []).reduce((acc, rate) => {
     const scope = normalizeText(rate?.rate_scope) || 'common'
@@ -304,6 +342,9 @@ async function handleList(req, res, supabaseClient) {
   const pricePolicyIds = [...new Set(filteredRows.map((row) => row.price_policy_id).filter(Boolean))]
   const periodsResult = await fetchPeriods(supabaseClient, pricePolicyIds)
   const ratesResult = await fetchRates(supabaseClient, periodsResult.map((item) => item.id))
+  const activeCarGroups = await fetchActiveCarGroups(supabaseClient)
+  const activePolicies = await fetchActivePolicies(supabaseClient)
+  const mappings = await fetchGroupMappings(supabaseClient, activeCarGroups.map((item) => item.id))
 
   const periodsByPolicyId = toMap(periodsResult, 'price_policy_id')
   const ratesByPeriodId = toMap(ratesResult, 'pricing_hub_period_id')
@@ -311,6 +352,7 @@ async function handleList(req, res, supabaseClient) {
   const items = filteredRows.map((row) => {
     const relatedPeriods = periodsByPolicyId[row.price_policy_id] || []
     const currentRateSummary = buildCurrentRateSummary(row, relatedPeriods, ratesByPeriodId)
+    const editorState = buildEditorState(row, relatedPeriods, ratesByPeriodId)
 
     return {
       carGroupId: row.car_group_id,
@@ -332,12 +374,47 @@ async function handleList(req, res, supabaseClient) {
         active: row.policy_active,
       },
       currentRateSummary,
+      currentVariables: {
+        base24h: editorState.base24h,
+        weekdayPercent: editorState.weekdayPercent,
+        weekendPercent: editorState.weekendPercent,
+      },
+      groupSettingActive: row.active !== false,
       hubPeriodsCount: relatedPeriods.length,
       hubOverridesCount: 0,
     }
+  }).sort((a, b) => {
+    const aValue = normalizeNumber(a?.currentRateSummary?.weekday24h, normalizeNumber(a?.currentVariables?.base24h, 0))
+    const bValue = normalizeNumber(b?.currentRateSummary?.weekday24h, normalizeNumber(b?.currentVariables?.base24h, 0))
+    if (aValue !== bValue) return aValue - bValue
+    return String(a?.groupName || '').localeCompare(String(b?.groupName || ''), 'ko')
   })
 
-  return res.status(200).json({ items })
+  const activeMappedCarGroupIds = new Set(
+    mappings
+      .filter((item) => item?.active !== false)
+      .map((item) => String(item?.car_group_id || ''))
+      .filter(Boolean),
+  )
+
+  const unconfiguredGroups = activeCarGroups
+    .filter((item) => !activeMappedCarGroupIds.has(String(item.id || '')))
+    .filter((row) => !q || [row.group_name, row.ims_group_id].some((value) => String(value || '').toLowerCase().includes(q)))
+    .map((row) => ({
+      carGroupId: row.id,
+      imsGroupId: row.ims_group_id,
+      groupName: row.group_name,
+    }))
+
+  const policyOptions = activePolicies.map((policy) => ({
+    pricePolicyId: policy.id,
+    policyName: policy.policy_name,
+    baseDailyPrice: policy.base_daily_price,
+    weekdayRatePercent: policy.weekday_rate_percent,
+    weekendRatePercent: policy.weekend_rate_percent,
+  }))
+
+  return res.status(200).json({ items, unconfiguredGroups, policyOptions })
 }
 
 async function handleGetPolicyEditor(req, res, supabaseClient) {
@@ -407,6 +484,84 @@ async function handleGetPolicyEditor(req, res, supabaseClient) {
     editorState,
     policies,
     overrides: [],
+  })
+}
+
+
+async function handleSaveGroupSetting(req, res, supabaseClient, authUser) {
+  const body = await parseJsonBody(req)
+  const id = normalizeText(body.id || body.pricePolicyGroupId)
+  const carGroupId = normalizeText(body.carGroupId)
+  const pricePolicyId = normalizeText(body.pricePolicyId)
+  const pricingOptionType = normalizePricingOptionType(body.pricingOptionType)
+  const active = body.active !== false
+
+  if (!carGroupId || !pricePolicyId) {
+    return res.status(400).json({ error: 'invalid_group_setting_payload', message: 'carGroupId 와 pricePolicyId 가 필요합니다.' })
+  }
+
+  const mappings = await fetchGroupMappings(supabaseClient, [carGroupId])
+  const duplicatePair = mappings.find((item) => item.car_group_id === carGroupId && item.price_policy_id === pricePolicyId)
+  let targetId = id
+
+  if (duplicatePair && (!id || duplicatePair.id !== id)) {
+    targetId = duplicatePair.id
+  }
+
+  if (active) {
+    const { error: deactivateError } = await supabaseClient
+      .from('price_policy_groups')
+      .update({ active: false })
+      .eq('car_group_id', carGroupId)
+
+    if (deactivateError) {
+      return res.status(500).json({ error: 'save_group_setting_deactivate_failed', message: deactivateError.message })
+    }
+  }
+
+  const metadata = {
+    source: 'admin-pricing-hub-group-setting',
+    savedBy: buildActorLabel(authUser),
+    savedAt: new Date().toISOString(),
+  }
+
+  const basePayload = {
+    price_policy_id: pricePolicyId,
+    pricing_option_type: pricingOptionType,
+    active,
+    metadata,
+  }
+
+  const query = targetId
+    ? supabaseClient
+        .from('price_policy_groups')
+        .update(basePayload)
+        .eq('id', targetId)
+        .select('*')
+        .single()
+    : supabaseClient
+        .from('price_policy_groups')
+        .insert({
+          car_group_id: carGroupId,
+          ...basePayload,
+          match_source: 'admin',
+        })
+        .select('*')
+        .single()
+
+  const { data, error } = await query
+  if (error) {
+    return res.status(500).json({ error: 'save_group_setting_failed', message: error.message })
+  }
+
+  return res.status(200).json({
+    item: {
+      pricePolicyGroupId: data.id,
+      carGroupId: data.car_group_id,
+      pricePolicyId: data.price_policy_id,
+      pricingOptionType: normalizePricingOptionType(data.pricing_option_type),
+      active: data.active !== false,
+    },
   })
 }
 
@@ -635,6 +790,10 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'POST' && action === 'save-editor') {
       return handleSaveEditor(req, res, supabaseClient, authUser)
+    }
+
+    if (req.method === 'POST' && action === 'save-group-setting') {
+      return handleSaveGroupSetting(req, res, supabaseClient, authUser)
     }
 
     return res.status(404).json({ error: 'not_found' })
