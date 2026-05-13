@@ -10,18 +10,22 @@ function createGroupPolicy({ imsGroupId, policyName, baseDailyPrice, weekdayPric
     ims_group_id: imsGroupId,
     price_policy_id: `policy_${imsGroupId}`,
     policy_name: policyName,
-    base_daily_price: baseDailyPrice,
-    weekday_1_2d_price: weekdayPrice,
-    weekday_3_4d_price: weekdayPrice,
-    weekday_5_6d_price: weekdayPrice,
-    weekday_7d_plus_price: weekdayPrice,
-    weekend_1_2d_price: weekdayPrice,
-    weekend_3_4d_price: weekdayPrice,
-    weekend_5_6d_price: weekdayPrice,
-    weekend_7d_plus_price: weekdayPrice,
+    base24h: baseDailyPrice,
+    weekday_24h_price: weekdayPrice,
+    weekend_24h_price: weekdayPrice,
     hour_1_price: Math.floor(weekdayPrice / 10),
-    hour_6_price: 0,
-    hour_12_price: 0,
+    week_1_price: Math.round(baseDailyPrice * 5.5),
+    week_2_price: Math.round(baseDailyPrice * 8.0),
+    month_1_price: Math.round(baseDailyPrice * 12.0),
+  }
+}
+
+function withDefaults(repositories = {}) {
+  return {
+    async fetchBlockingBookingOrders() {
+      return []
+    },
+    ...repositories,
   }
 }
 
@@ -34,7 +38,7 @@ test('dbSearchService filters unavailable cars and maps group pricing', async ()
     order: 'lower',
   }
 
-  const repositories = {
+  const repositories = withDefaults({
     async fetchCandidateCars() {
       return [
         { id: 'car_a', source_group_id: 101, name: '차A', seats: 5, model_year: 2024, rent_age: 26 },
@@ -54,7 +58,7 @@ test('dbSearchService filters unavailable cars and maps group pricing', async ()
     async fetchDeliveryRegions() {
       return []
     },
-  }
+  })
 
   const result = await dbSearchService.run({ search, repositories })
 
@@ -73,7 +77,7 @@ test('dbSearchService applies group policy pricing when available', async () => 
     order: 'lower',
   }
 
-  const repositories = {
+  const repositories = withDefaults({
     async fetchCandidateCars() {
       return [
         { id: 'car_a', source_group_id: 23069, name: '차A', seats: 5, model_year: 2024, rent_age: 26 },
@@ -90,7 +94,7 @@ test('dbSearchService applies group policy pricing when available', async () => 
     async fetchDeliveryRegions() {
       return []
     },
-  }
+  })
 
   const result = await dbSearchService.run({ search, repositories })
   assert.equal(result.totalCount, 1)
@@ -108,7 +112,7 @@ test('dbSearchService applies higher and newer ordering', async () => {
     driverAge: 26,
   }
 
-  const repositories = {
+  const repositories = withDefaults({
     async fetchCandidateCars() {
       return [
         { id: 'car_a', source_group_id: 101, name: '차A', seats: 5, model_year: 2022, rent_age: 26 },
@@ -129,7 +133,7 @@ test('dbSearchService applies higher and newer ordering', async () => {
     async fetchDeliveryRegions() {
       return []
     },
-  }
+  })
 
   const higherResult = await dbSearchService.run({ search: { ...baseSearch, order: 'higher' }, repositories })
   assert.deepEqual(higherResult.cars.map((car) => car.carId), ['car_b', 'car_a', 'car_c'])
@@ -148,7 +152,7 @@ test('dbSearchService applies delivery region price for valid dong', async () =>
     order: 'lower',
   }
 
-  const repositories = {
+  const repositories = withDefaults({
     async fetchCandidateCars() {
       return [
         { id: 'car_a', source_group_id: 101, name: '차A', seats: 5, model_year: 2024, rent_age: 26 },
@@ -177,7 +181,7 @@ test('dbSearchService applies delivery region price for valid dong', async () =>
       ]
       return dongId != null ? rows.filter((row) => row.dong_id === Number(dongId)) : rows
     },
-  }
+  })
 
   const result = await dbSearchService.run({ search, repositories })
 
@@ -196,7 +200,7 @@ test('dbSearchService returns zero cars when delivery dong is not allowed', asyn
     order: 'lower',
   }
 
-  const repositories = {
+  const repositories = withDefaults({
     async fetchCandidateCars() {
       return [
         { id: 'car_a', source_group_id: 101, name: '차A', seats: 5, model_year: 2024, rent_age: 26 },
@@ -225,7 +229,7 @@ test('dbSearchService returns zero cars when delivery dong is not allowed', asyn
       ]
       return dongId != null ? rows.filter((row) => row.dong_id === Number(dongId)) : rows
     },
-  }
+  })
 
   const result = await dbSearchService.run({ search, repositories })
 
@@ -242,7 +246,7 @@ test('dbSearchService blocks cars when reservation car_id matches source_car_id 
     order: 'lower',
   }
 
-  const repositories = {
+  const repositories = withDefaults({
     async fetchCandidateCars() {
       return [
         {
@@ -284,7 +288,7 @@ test('dbSearchService blocks cars when reservation car_id matches source_car_id 
     async fetchDeliveryRegions() {
       return []
     },
-  }
+  })
 
   const result = await dbSearchService.run({ search, repositories })
 

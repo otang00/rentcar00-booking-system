@@ -15,7 +15,7 @@
 5. 현재 Phase 5 검산은 통과로 본다.
 
 ## 현재 truth
-- 검색용 truth 후보 값:
+- 이제 search truth 는 후보가 아니라 아래 값으로 잠근다.
   - `base24h`
   - `hour_1_price`
   - `weekday_24h_price`
@@ -23,34 +23,62 @@
   - `week_1_price`
   - `week_2_price`
   - `month_1_price`
-- 현재 검색 코드는 아직 `v_active_group_price_policies` 를 읽는다.
-- 현재 계산 코드는 아직 legacy `calculateGroupPrice.js` 구조다.
+- 위 값은 `v_search_pricing_hub_policies` 기준으로 search 와 계산이 함께 읽어야 한다.
+- legacy bucket 컬럼은 더 이상 기준으로 보지 않는다.
 
 ## 바로 다음 phase
-### Phase 6. 조회 전환 설계
+### Phase 6. 새 조회값 + 새 계산식 전환 설계
 목적:
-- `fetchGroupPricePolicies.js` 를 `v_search_pricing_hub_policies` 기준으로 전환할 준비를 끝낸다.
+- `fetchGroupPricePolicies.js` 조회 source 와 `calculateGroupPrice.js` 계산 입력을 함께 새 계약으로 전환할 준비를 끝낸다.
+- legacy passthrough / 임시 호환 컬럼 추가는 하지 않는다.
 
 핵심 질문:
-1. `effective_from / effective_to` 없는 새 view 를 현재 searchWindow 계약과 어떻게 맞출지
-2. 조회 전환 시 보조 상태 컬럼을 같이 제거할지, 분리할지
-3. 조회 전환과 계산식 변경을 어느 경계에서 분리할지
+1. `v_search_pricing_hub_policies` 가 search 계산에 필요한 입력을 빠짐없이 제공하는지
+2. `7일 미만`, `7~14일`, `15~30일`, `다음 1일 cap` 을 함수 구조로 어떻게 나눌지
+3. 보조 상태 컬럼을 이 단계에서 바로 제거할지
 
 ## 토의 체크포인트
-1. search 조회는 당장 **새 view로만 교체**할지
-2. 아니면 **compatibility adapter**를 한 번 둘지
-3. `v_search_pricing_hub_policies` 에서 아래 컬럼을 바로 제거할지
+1. `fetchGroupPricePolicies.js` 를 새 view 기준으로 바꾸면서 반환 shape 를 어떻게 단순화할지
+2. `calculateGroupPrice.js` 를 어떤 helper 구조로 쪼갤지
+3. `v_search_pricing_hub_policies` 에서 아래 보조 상태 컬럼을 바로 제거할지
    - `has_hub_common_rate`
    - `has_hub_weekday_rate`
    - `has_hub_weekend_rate`
    - `uses_anchor_fallback`
-4. 계산식 반영 전 Phase 6 에서 필요한 최소 호환 컬럼을 어디까지 볼지
 
-## 권장 다음 순서
-1. 조회 전환 계약 잠금
-2. 보조 상태 컬럼 제거 범위 잠금
-3. Phase 6 실행 승인
-4. 그 다음 Phase 7 계산식 설계/반영으로 이동
+## 이번 기준에서 버린 것
+- legacy bucket 컬럼 재사용
+- `effective_from / effective_to` 호환 맞추기
+- passthrough / compatibility adapter / 임시 호환 컬럼 추가
+- 조회만 먼저 바꾸고 계산은 나중에 바꾸는 2단 분리안
+
+## Phase 6 진행계획
+### Step 1. 입력 계약 잠금
+- search 와 계산이 같이 읽을 입력값을 최종 확정한다.
+- 기준 입력값:
+  - `base24h`
+  - `hour_1_price`
+  - `weekday_24h_price`
+  - `weekend_24h_price`
+  - `week_1_price`
+  - `week_2_price`
+  - `month_1_price`
+
+### Step 2. view 정리
+- `v_search_pricing_hub_policies` 에서 search 계산에 필요 없는 과거 기준/보조 컬럼을 제거 대상 확정한다.
+- search 계산에 필요한 컬럼만 남기는 방향으로 정리한다.
+
+### Step 3. 조회 함수 교체
+- `fetchGroupPricePolicies.js` 를 `v_search_pricing_hub_policies` 기준으로 교체한다.
+- searchWindow 호환은 legacy 기간컬럼이 아니라 active period 선택 결과를 그대로 사용한다.
+
+### Step 4. 계산식 교체
+- `calculateGroupPrice.js` 를 `PRICING_FORMULA_CURRENT` 기준으로 새로 바꾼다.
+- `7일 미만`, `7~14일`, `15~30일`, `다음 1일 cap` 을 새 입력값 기준으로 구현한다.
+
+### Step 5. 검증
+- 샘플 그룹 기준으로 search 결과와 검산표를 대조한다.
+- 기존 결과 동일성 검증이 아니라 **새 공식 일치 여부**를 본다.
 
 ## 한 줄 결론
-지금 체크포인트 기준으로는 **검산은 끝났고, 다음 토의 주제는 조회 전환 계약과 보조 컬럼 제거 범위**다.
+지금 체크포인트 기준으로는 **검산은 끝났고, 다음은 `v_search_pricing_hub_policies` 값과 새 계산식을 한 세트로 바로 연결하는 단계**다.

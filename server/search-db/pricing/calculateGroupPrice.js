@@ -1,19 +1,26 @@
 'use strict'
 
-function ceilHours(startAt, endAt) {
+const SHORT_HOURLY_RATE = 0.12
+const SHORT_BUCKET_WEIGHTS = [
+  { maxDays: 2, weight: 1.0 },
+  { maxDays: 4, weight: 0.9 },
+  { maxDays: 6, weight: 0.85 },
+]
+const WEEK1_DAILY_INCREMENT_RATE = 0.5
+const WEEK2_DAILY_INCREMENT_RATE = 0.35
+
+function getTotalHours(startAt, endAt) {
   const diffMs = endAt.getTime() - startAt.getTime()
   return diffMs / (1000 * 60 * 60)
 }
 
 function getBucket(totalHours) {
   if (totalHours <= 1) return 'hour_1'
-  if (totalHours <= 6) return 'hour_6'
-  if (totalHours <= 12) return 'hour_12'
-  if (totalHours < 24) return 'hour_12_plus'
-  if (totalHours <= 48) return 'days_1_2'
-  if (totalHours <= 96) return 'days_3_4'
-  if (totalHours <= 144) return 'days_5_6'
-  return 'days_7_plus'
+  if (totalHours < 24) return 'hours_under_24'
+  if (totalHours < 24 * 7) return 'days_under_7'
+  if (totalHours <= 24 * 14) return 'days_7_14'
+  if (totalHours <= 24 * 30) return 'days_15_30'
+  return 'over_30_days'
 }
 
 function getDayNameInSeoul(date) {
@@ -32,77 +39,96 @@ function addHours(date, hours) {
   return new Date(date.getTime() + (hours * 60 * 60 * 1000))
 }
 
-function getDurationBucketPrices(policy = {}, bucket) {
-  switch (bucket) {
-    case 'days_1_2':
-      return {
-        weekday: Number(policy.weekday_1_2d_price || 0),
-        weekend: Number(policy.weekend_1_2d_price || 0),
-      }
-    case 'days_3_4':
-      return {
-        weekday: Number(policy.weekday_3_4d_price || 0),
-        weekend: Number(policy.weekend_3_4d_price || 0),
-      }
-    case 'days_5_6':
-      return {
-        weekday: Number(policy.weekday_5_6d_price || 0),
-        weekend: Number(policy.weekend_5_6d_price || 0),
-      }
-    default:
-      return {
-        weekday: Number(policy.weekday_7d_plus_price || 0),
-        weekend: Number(policy.weekend_7d_plus_price || 0),
-      }
-  }
+function toNumber(value) {
+  return Number(value || 0)
 }
 
-function calculateHourlyPrice(policy = {}, totalHours, bucket) {
-  const roundedHours = Math.ceil(totalHours)
-  const hour1 = Number(policy.hour_1_price || 0)
-  const hour6 = Number(policy.hour_6_price || 0)
-  const hour12 = Number(policy.hour_12_price || 0)
-
-  if (bucket === 'hour_1') {
-    return hour1
-  }
-
-  if (bucket === 'hour_6') {
-    return hour6 > 0 ? hour6 : hour1 * roundedHours
-  }
-
-  if (bucket === 'hour_12') {
-    if (hour12 > 0) return hour12
-    if (hour6 > 0) return hour6 * Math.ceil(roundedHours / 6)
-    return hour1 * roundedHours
-  }
-
-  const extraHours = Math.max(roundedHours - 12, 0)
-  return (hour12 > 0 ? hour12 : hour1 * 12) + (hour1 * extraHours)
+function getShortBucketWeight(days) {
+  return SHORT_BUCKET_WEIGHTS.find((item) => days <= item.maxDays)?.weight || SHORT_BUCKET_WEIGHTS[SHORT_BUCKET_WEIGHTS.length - 1].weight
 }
 
-function calculateDailyPrice(policy = {}, startAt, billableDays, bucket) {
-  const unitPrices = getDurationBucketPrices(policy, bucket)
+function countDayTypes(startAt, days) {
   let weekdayDays = 0
   let weekendDays = 0
-  let discountPrice = 0
 
-  for (let index = 0; index < billableDays; index += 1) {
+  for (let index = 0; index < days; index += 1) {
     const dayPoint = addHours(startAt, index * 24)
     if (isWeekendInSeoul(dayPoint)) {
       weekendDays += 1
-      discountPrice += unitPrices.weekend
     } else {
       weekdayDays += 1
-      discountPrice += unitPrices.weekday
     }
   }
 
   return {
     weekdayDays,
     weekendDays,
+  }
+}
+
+function calculateShortRentalPrice({ policy = {}, startAt, days } = {}) {
+  if (days <= 0) {
+    return {
+      weekdayDays: 0,
+      weekendDays: 0,
+      discountPrice: 0,
+    }
+  }
+
+  const weekdayDaily = toNumber(policy.weekday_24h_price)
+  const weekendDaily = toNumber(policy.weekend_24h_price)
+  const bucketWeight = getShortBucketWeight(days)
+  const dayCounts = countDayTypes(startAt, days)
+  const discountPrice = (dayCounts.weekdayDays * weekdayDaily * bucketWeight) + (dayCounts.weekendDays * weekendDaily * bucketWeight)
+
+  return {
+    ...dayCounts,
     discountPrice,
   }
+}
+
+function calculateWeek1To2AnchorPrice({ policy = {}, days } = {}) {
+  const base24h = toNumber(policy.base24h)
+  const anchor7 = toNumber(policy.week_1_price)
+  const anchor14 = toNumber(policy.week_2_price)
+  return Math.min(anchor14, anchor7 + ((days - 7) * base24h * WEEK1_DAILY_INCREMENT_RATE))
+}
+
+function calculateWeek2ToMonthAnchorPrice({ policy = {}, days } = {}) {
+  const base24h = toNumber(policy.base24h)
+  const anchor14 = toNumber(policy.week_2_price)
+  const anchor30 = toNumber(policy.month_1_price)
+  return Math.min(anchor30, anchor14 + ((days - 14) * base24h * WEEK2_DAILY_INCREMENT_RATE))
+}
+
+function calculateWholeDaysPrice({ policy = {}, startAt, days } = {}) {
+  if (days <= 0) return 0
+  if (days < 7) return calculateShortRentalPrice({ policy, startAt, days }).discountPrice
+  if (days <= 14) return calculateWeek1To2AnchorPrice({ policy, days })
+  if (days <= 30) return calculateWeek2ToMonthAnchorPrice({ policy, days })
+  throw new Error('search window exceeds 30 days')
+}
+
+function calculateNextDayCapPrice({ policy = {}, startAt, days, partialPrice } = {}) {
+  return Math.min(partialPrice, calculateWholeDaysPrice({ policy, startAt, days: days + 1 }))
+}
+
+function calculateDiscountPrice({ policy = {}, startAt, totalHours } = {}) {
+  const days = Math.floor(totalHours / 24)
+  const hours = Math.ceil(totalHours - (days * 24))
+  const fullDaysPrice = calculateWholeDaysPrice({ policy, startAt, days })
+
+  if (hours <= 0) {
+    return fullDaysPrice
+  }
+
+  const hourlyBase = toNumber(policy.hour_1_price)
+  return calculateNextDayCapPrice({
+    policy,
+    startAt,
+    days,
+    partialPrice: fullDaysPrice + (hours * hourlyBase),
+  })
 }
 
 function calculateGroupPrice({ policy, searchWindow, deliveryPrice = 0 } = {}) {
@@ -116,50 +142,41 @@ function calculateGroupPrice({ policy, searchWindow, deliveryPrice = 0 } = {}) {
 
   const startAt = new Date(searchWindow.startAt)
   const endAt = new Date(searchWindow.endAt)
-  const totalHours = ceilHours(startAt, endAt)
+  const totalHours = getTotalHours(startAt, endAt)
   if (!(totalHours > 0)) {
     throw new Error('invalid search window')
   }
 
   const durationBucket = getBucket(totalHours)
-  const baseDailyPrice = Number(policy.base_daily_price || 0)
-
-  if (durationBucket.startsWith('hour_')) {
-    return {
-      price: baseDailyPrice,
-      discountPrice: calculateHourlyPrice(policy, totalHours, durationBucket),
-      deliveryPrice: Number(deliveryPrice || 0),
-      baseDailyPrice,
-      appliedPolicyId: policy.price_policy_id || policy.id || null,
-      appliedPolicyName: policy.policy_name || null,
-      imsGroupId: Number(policy.ims_group_id || 0),
-      durationBucket,
-      billableDays: 1,
-      weekdayDays: 0,
-      weekendDays: 0,
-    }
+  if (durationBucket === 'over_30_days') {
+    throw new Error('search window exceeds 30 days')
   }
 
-  const billableDays = Math.ceil(totalHours / 24)
-  const daily = calculateDailyPrice(policy, startAt, billableDays, durationBucket)
+  const base24h = toNumber(policy.base24h)
+  const billableDays = Math.max(1, Math.ceil(totalHours / 24))
+  const dayCounts = countDayTypes(startAt, Math.floor(totalHours / 24))
 
   return {
-    price: baseDailyPrice * billableDays,
-    discountPrice: daily.discountPrice,
+    price: base24h * billableDays,
+    discountPrice: calculateDiscountPrice({ policy, startAt, totalHours }),
     deliveryPrice: Number(deliveryPrice || 0),
-    baseDailyPrice,
+    baseDailyPrice: base24h,
     appliedPolicyId: policy.price_policy_id || policy.id || null,
     appliedPolicyName: policy.policy_name || null,
     imsGroupId: Number(policy.ims_group_id || 0),
     durationBucket,
     billableDays,
-    weekdayDays: daily.weekdayDays,
-    weekendDays: daily.weekendDays,
+    weekdayDays: dayCounts.weekdayDays,
+    weekendDays: dayCounts.weekendDays,
   }
 }
 
 module.exports = {
   calculateGroupPrice,
+  calculateNextDayCapPrice,
+  calculateShortRentalPrice,
+  calculateWeek1To2AnchorPrice,
+  calculateWeek2ToMonthAnchorPrice,
   getBucket,
   isWeekendInSeoul,
 }

@@ -13,21 +13,15 @@
 - `server/search-db/pricing/calculateGroupPrice.js`
 - `server/search-db/repositories/fetchGroupPricePolicies.js`
 
-### 관리자 가격 입력/편집
-- `api/admin/pricing-hub.js`
-- `src/pages/AdminPricingHubPage.jsx`
-- `src/services/pricing.js`
-
 ### 데이터 소스
-- `v_active_group_price_policies`
-- `price_policies`
+- `v_search_pricing_hub_policies`
 - `pricing_hub_periods`
 - `pricing_hub_rates`
 
 ## 현재 구조 판단
 1. 실검색 가격 계산은 현재 `calculateGroupPrice.js` 가 담당한다.
-2. 현재 구현은 `hour_1 / hour_6 / hour_12 / days_1_2 / days_3_4 / days_5_6 / days_7_plus` 버킷 중심이다.
-3. 이번 문서는 이 legacy 구조를 대체하는 최종 구현이 아니라, **이후 계산식 반영 시 따라야 할 공식 기준**을 잠근다.
+2. 이번 단계에서는 legacy bucket 구조를 더 이상 기준으로 유지하지 않는다.
+3. search 와 계산은 `v_search_pricing_hub_policies` 의 새 입력값을 직접 읽는 방향으로 잠근다.
 4. 특히 `7일 미만`은 단일 버킷 고정가가 아니라 **일자별 주중/주말 합산 + 추가시간 cap** 규칙으로 본다.
 
 ## 고정 기준값
@@ -48,15 +42,22 @@
 
 ## 입력값
 - `base24h`: 기준 24시간 금액
-- `weekdayRate`: 주중 적용 비율
-- `weekendRate`: 주말 적용 비율
+- `hour_1_price`: 1시간 금액
+- `weekday_24h_price`: 주중 24시간 금액
+- `weekend_24h_price`: 주말 24시간 금액
+- `week_1_price`: 7일 금액
+- `week_2_price`: 14일 금액
+- `month_1_price`: 30일 금액
 - `startAt`: 대여 시작 시각
 - `endAt`: 대여 종료 시각
 
 ## 파생 기준값
-- `weekdayDaily = base24h * weekdayRate`
-- `weekendDaily = base24h * weekendRate`
-- `hourlyBase = base24h * 0.12`
+- `weekdayDaily = weekday_24h_price`
+- `weekendDaily = weekend_24h_price`
+- `hourlyBase = hour_1_price`
+- `anchor7 = week_1_price`
+- `anchor14 = week_2_price`
+- `anchor30 = month_1_price`
 
 주의
 - `7일 미만`은 시작일 기준이 아니라 **대여 구간에 포함된 실제 각 날짜의 요일을 순회**해서 계산한다.
@@ -94,25 +95,32 @@
 - `3일 + 5시간 = min(3일 금액 + 5 * hourlyBase, 4일 금액)`
 
 ## 7~14일 계산식
-7일 이상부터는 요일별 합산이 아니라 `base24h` 기준 앵커/증분형으로 계산한다.
+7일 이상부터는 요일별 합산이 아니라 저장된 앵커값 기준 증분형으로 계산한다.
 
-- `anchor7 = base24h * 5.50`
-- `anchor14 = base24h * 8.00`
+- `anchor7 = week_1_price`
+- `anchor14 = week_2_price`
 - `price(d) = min(anchor14, anchor7 + (d - 7) * base24h * 0.50)`
 - 적용 범위: `7 <= d <= 14`
 
 ## 15~30일 계산식
-- `anchor14 = base24h * 8.00`
-- `anchor30 = base24h * 12.00`
+- `anchor14 = week_2_price`
+- `anchor30 = month_1_price`
 - `price(d) = min(anchor30, anchor14 + (d - 14) * base24h * 0.35)`
 - 적용 범위: `15 <= d <= 30`
 
+## 30일 초과
+- 검색에서는 30일 초과 예약을 받지 않는다.
+- 따라서 `30일 초과` 계산 규칙은 이번 공식 범위에 없다.
+- 코드에서도 30일 초과 입력은 오류로 본다.
+
 ## 구현 관점 메모
-1. 현재 `calculateGroupPrice.js` 는 `7일 미만`을 이미 `days_1_2 / days_3_4 / days_5_6` 버킷 금액 합산으로 처리 중이다.
-2. 그러나 이번 기준은 **관리자 입력값 기준으로 24h / 주중% / 주말% / 7일 / 14일 / 30일을 사용해 재계산**하는 방향이다.
-3. 따라서 실제 코드 반영 시에는 아래가 같이 바뀌어야 한다.
+1. 이번 기준은 더 이상 legacy bucket 금액을 읽지 않는다.
+2. 실제 코드 반영 시에는 아래가 같이 바뀌어야 한다.
+   - `fetchGroupPricePolicies.js`: `v_search_pricing_hub_policies` 기준 조회
+   - `calculateGroupPrice.js`: 새 입력값 기준 계산
+3. 실제 계산은 아래를 따른다.
    - `7일 미만`: 날짜별 주중/주말 순회 + 시간 cap
-   - `7일 이상`: 7/14/30 anchor + 구간 daily add
+   - `7일 이상`: `week_1 / week_2 / month_1` anchor + 구간 daily add
 4. `nextDayPrice` 계산도 같은 규칙으로 재귀/헬퍼 계산해야 한다.
 
 ## 한 줄 결론

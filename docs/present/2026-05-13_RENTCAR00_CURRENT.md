@@ -35,6 +35,7 @@
 4. weekday / weekend baseline 선행 current 를 별도로 진행해 기준을 다시 잠갔다.
 5. `weekday -10%`, `weekend +15%` 기준으로 허브 baseline 재적용과 천원단위 올림 반영까지 마쳤다.
 6. 검토용 엑셀 재업로드까지 마쳤다.
+7. 차량 row 전환안은 검토했지만, 현재 범위 확장을 막기 위해 이번 작업에서는 기존 그룹 기반 구조를 유지하기로 했다.
 
 ### 현재 완료 상태에서 truth
 - DB 에는 `v_search_pricing_hub_policies` view 가 존재한다.
@@ -93,23 +94,27 @@
 - `pricing_hub_rates` / `v_search_pricing_hub_policies` / 최신 엑셀 기준 일치 확인 완료
 - search 입력 truth 후보 값 잠금 완료
 
-#### Phase 6. 검색 조회 전환 구조 설계
-- `fetchGroupPricePolicies.js` 를 어떤 방식으로 새 view 로 바꿀지 정한다.
-- legacy fallback 유지 여부와 중단 조건을 잠근다.
-- 계산식 반영 전까지 필요한 호환 범위를 판단한다.
+#### Phase 6. 새 조회값 + 새 계산식 전환 설계
+- `fetchGroupPricePolicies.js` 조회 source 와 `calculateGroupPrice.js` 입력값을 한 세트로 같이 바꾼다.
+- legacy bucket / passthrough / 임시 호환 컬럼 추가는 하지 않는다.
+- 실제 search truth 는 `v_search_pricing_hub_policies` 의 아래 값으로 잠근다.
+  - `base24h`
+  - `hour_1_price`
+  - `weekday_24h_price`
+  - `weekend_24h_price`
+  - `week_1_price`
+  - `week_2_price`
+  - `month_1_price`
+- `7일 미만`, `7~14일`, `15~30일`, `다음 1일 cap` 계산을 이 입력값 기준으로 다시 설계한다.
 
-#### Phase 7. 계산식 반영 설계
-- `PRICING_FORMULA_CURRENT` 기준으로 `calculateGroupPrice.js` 교체 구조를 설계한다.
-- `7일 미만`, `7~14일`, `15~30일`, `다음 1일 cap` 케이스를 함수 단위로 정리한다.
-- 입력 컬럼과 계산 결과 필드를 명확히 매핑한다.
+#### Phase 7. 실행 반영
+- `fetchGroupPricePolicies.js` 를 `v_search_pricing_hub_policies` 기준으로 교체한다.
+- `calculateGroupPrice.js` 를 `PRICING_FORMULA_CURRENT` 기준 새 계산식으로 교체한다.
+- `mapDbCarsToDto.js` / 테스트 / 샘플 검산 기준을 새 계약에 맞춘다.
 
-#### Phase 8. admin / preview / search 정렬 설계
-- 운영 입력값, preview 결과, search 계산 결과의 의미를 맞춘다.
-- `week_1 / week_2 / month_1` 해석 차이가 없는지 잠근다.
-
-#### Phase 9. 검증/반영 실행 계획
-- 테스트 묶음, 샘플 검산표, 반영 순서, 중단 조건을 고정한다.
-- 실행 전 어떤 증거가 있어야 통과인지 잠근다.
+#### Phase 8. 검증/정렬
+- search 결과, 검산표, view 값이 서로 같은 truth 를 보고 있는지 확인한다.
+- 필요 시 그 다음에만 admin / preview 의미 정렬을 후속으로 본다.
 
 ## phase별 종료 조건
 1. **Phase 1**: 이번 작업 범위와 입력값 목록이 흔들리지 않는다.
@@ -117,107 +122,42 @@
 3. **Phase 3**: 검색 연결 목표 구조를 설명할 수 있다.
 4. **Phase 4**: 허브 값을 읽는 DB 경로가 준비되고 remote DB 반영 확인까지 끝난다.
 5. **Phase 5**: 샘플 허브 값이 신뢰 가능하고 search 입력 truth 가 숫자로 잠긴다. — 완료
-6. **Phase 6**: 조회 전환 방식과 fallback/중단 조건을 설명할 수 있다.
-7. **Phase 7**: 공식 계산식을 코드 구조로 바꾸기 전 함수/케이스/입력 매핑 설계가 잠긴다.
-8. **Phase 8**: admin / preview / 검색 의미 차이가 없다고 설명할 수 있다.
-9. **Phase 9**: 운영 반영 전 검증 기준, 실행 순서, 중단 조건이 모두 잠긴다.
+6. **Phase 6**: 새 조회값과 새 계산식을 어떤 입력 계약으로 함께 전환할지 설명할 수 있다.
+7. **Phase 7**: `fetchGroupPricePolicies.js` 와 `calculateGroupPrice.js` 가 새 계약 기준으로 실제 교체된다.
+8. **Phase 8**: search 결과, 검산표, view 값이 같은 truth 로 정렬됐다고 설명할 수 있다.
 
-## Phase 2 결과
-### 2-1. 현행 source 분리 상태
-- 검색 계산 truth:
-  - `price_policies`
-  - `v_active_group_price_policies`
-- 허브 저장 truth:
-  - `pricing_hub_periods`
-  - `pricing_hub_rates`
-- 현재 구조상 검색 계산은 `pricing_hub_rates` 를 직접 읽지 않는다.
-
-### 2-2. 필요 입력값 대비표
-| 항목 | 공식 기준 필요 여부 | 현행 검색 source | 허브 source | 판단 |
-| --- | --- | --- | --- | --- |
-| `base24h` | 필요 | `price_policies.base_daily_price` | `pricing_hub_rates.fee_24h` | 양쪽 모두 가능 |
-| 주중/주말 기준값 | 필요 | `weekday_rate_percent`, `weekend_rate_percent` + bucket day price | `rate_scope=weekday/weekend` 의 `fee_24h` | 허브 쪽은 비율이 아니라 값 중심이라 해석 규칙 필요 |
-| `1h` 값 | 필요 | `hour_1_price` | `fee_1h` | 양쪽 모두 가능 |
-| `7일` 기준값 | 필요 | 없음 (`7d+` 일당만 있음) | `week_1_price` | 허브 기준으로 읽어야 함 |
-| `14일` 기준값 | 필요 | 없음 | `week_2_price` | 허브 기준으로 읽어야 함 |
-| `30일` 기준값 | 필요 | 없음 | `month_1_price` | 허브 기준으로 읽어야 함 |
-| `7+ daily` 증분 | 필요 | 없음 | 없음 | 현재는 코드 상수로 둘지, 허브 값으로 뺄지 결정 필요 |
-| `14+ daily` 증분 | 필요 | 없음 | 없음 | 현재는 코드 상수로 둘지, 허브 값으로 뺄지 결정 필요 |
-| `1~2일 / 3~4일 / 5~6일` 가중치 | 필요 | legacy 일당 가격으로만 간접 보유 | 없음 | 현재 공식 기준에선 코드 상수 처리 가능 |
-| 다음 1일 cap 계산 기준 | 필요 | 없음 | 없음 | 계산 로직에서 구현 필요 |
-
-### 2-3. 현행 구조 판단
-1. 검색 계산은 아직 `7일 / 14일 / 30일` anchor 구조가 아니라 `7d+` 일당 반복 구조다.
-2. 허브는 `7일 / 14일 / 30일` 값을 저장할 수 있지만 검색은 아직 그 값을 읽지 않는다.
-3. 새 공식을 검색에 반영하려면 `pricing_hub_rates` 쪽 값을 검색 source 로 연결하는 DB 경로가 먼저 필요하다.
-4. 특히 `14일`, `30일`, 증분값, cap 계산 기준은 legacy source 만으로는 공식 반영이 어렵다.
-
-### 2-4. Phase 3 진입 전 결정 초안
-1. 검색이 읽을 기준 source 는 `pricing_hub_rates` 중심으로 옮긴다.
-2. `6h`, `12h` 값은 검색 연결 목표 구조에서 제거한다.
-3. `7+ daily`, `14+ daily` 증분은 허브 저장값으로 늘리지 않고, 코드 안의 **수정 가능한 정책 변수**로 둔다.
-4. 검색 연결 경로는 기존 legacy view 를 바로 뜯지 않고, **검색 전용 새 view** 를 만든다.
-
-### 2-5. 새 view 설계 기준 초안
-- 가칭: `v_search_pricing_hub_policies`
-- 역할: PRICING_HUB 값을 자사플랫폼 검색 계산이 바로 읽을 수 있게 만든 검색 전용 read model
-- 기존 `v_active_group_price_policies` 는 유지한다.
-
-새 view 에 우선 포함할 값:
-- 식별값: `ims_group_id`, `group_name`, `car_group_id`, `price_policy_id`, `policy_name`
-- 허브 기준값: `base24h`, `weekday_24h_price`, `weekend_24h_price`, `hour_1_price`, `week_1_price`, `week_2_price`, `month_1_price`
-- 검증용 legacy 값: `legacy_base_daily_price`, `legacy_weekday_rate_percent`, `legacy_weekend_rate_percent`, `legacy_weekday_7d_plus_price`, `legacy_weekend_7d_plus_price`
-- 코드 정책 변수(`WEEK1_DAILY_INCREMENT_RATE`, `WEEK2_DAILY_INCREMENT_RATE`, cap 관련 변수`)는 **view 컬럼이 아니라 계산 코드 상수/변수 영역**으로 관리한다.
-
-### 2-6. anchor / 증분 처리 원칙
-1. `week_1_price`, `week_2_price`, `month_1_price` 는 기본적으로 허브 값을 우선 사용한다.
-2. 허브 anchor 값이 비어 있으면 문서에 잠근 공식 기준값으로 계산한다.
-   - `7일 = base24h * 5.50`
-   - `14일 = base24h * 8.00`
-   - `30일 = base24h * 12.00`
-3. `7+ daily`, `14+ daily` 증분은 DB 값이 아니라 코드의 수정 가능한 정책 변수로 계산한다.
-4. 즉 **anchor 값은 DB**, **증분 규칙은 코드 변수**로 잠근다.
-
-## Phase 3 설계 확정안
-### 3-1. 새 view 이름과 역할
-- view 이름: `v_search_pricing_hub_policies`
-- 역할: PRICING_HUB 값을 자사플랫폼 검색 계산이 바로 읽을 수 있게 만든 검색 전용 read model
-- 원칙: 기존 `v_active_group_price_policies` 는 유지하고, 검색 연결 전환은 새 view 기준으로 진행한다.
-
-### 3-2. 새 view 기준 테이블 연결
-1. `price_policy_groups`
-   - 그룹과 정책의 기본 연결 source
-2. `car_groups`
-   - `ims_group_id`, `group_name`, `car_group_id` 제공
-3. `price_policies`
-   - legacy 비교값과 기존 정책 식별값 제공
-4. `pricing_hub_periods`
-   - `price_policy_id` 기준으로 연결
-   - 검색 계산에 사용할 허브 period 선택 source
-5. `pricing_hub_rates`
-   - `pricing_hub_period_id` 기준으로 연결
-   - `rate_scope = common / weekday / weekend` 값을 검색용 컬럼으로 펼친다.
-
-### 3-3. 검색이 실제로 읽을 컬럼
-#### 식별 컬럼
-- `ims_group_id`
-- `group_name`
-- `car_group_id`
-- `price_policy_id`
-- `policy_name`
-
-#### 허브 기준 계산 컬럼
+## 현재 실행 기준 요약
+### search 가 바로 읽을 값
 - `base24h`
-  - 우선값: `common.fee_24h`
-  - fallback: `price_policies.base_daily_price`
 - `hour_1_price`
-  - 우선값: `common.fee_1h`
-  - fallback: `price_policies.hour_1_price`
 - `weekday_24h_price`
-  - 우선값: `weekday.fee_24h`
-  - fallback: `base24h`
 - `weekend_24h_price`
-  - 우선값: `weekend.fee_24h`
+- `week_1_price`
+- `week_2_price`
+- `month_1_price`
+
+### source of truth
+- `v_search_pricing_hub_policies`
+- `pricing_hub_periods`
+- `pricing_hub_rates`
+
+### 이번 작업에서 버린 것
+- legacy bucket 컬럼 재사용
+- `v_active_group_price_policies` 기준 조회 유지
+- passthrough / 임시 호환 컬럼 추가
+- 조회만 먼저 전환하는 분리안
+
+### Phase 6 설계 기준
+1. `fetchGroupPricePolicies.js` 는 `v_search_pricing_hub_policies` 를 읽는다.
+2. `calculateGroupPrice.js` 는 `PRICING_FORMULA_CURRENT` 기준 새 계산식으로 바뀐다.
+3. 두 변경은 한 세트로 같이 간다.
+4. search 결과 검증 기준은 기존 결과 동일성이 아니라 **새 공식 일치 여부**다.
+
+### Phase 7 실행 기준
+1. 조회 함수 교체
+2. 계산 함수 교체
+3. 관련 테스트/검산 기준 교체
+4. 샘플 그룹 검증
   - fallback: `base24h`
 - `week_1_price`
   - 우선값: `common.week_1_price`
@@ -573,4 +513,4 @@ where pp.active = true
 - admin / preview / search 의미 충돌 미해결
 
 ## 한 줄 결론
-현재 active 범위는 다시 **메인 current 기준의 PRICING_HUB ↔ 자사플랫폼 검색 연결 작업**이며, 선행 weekday / weekend baseline 작업과 Phase 5 검산은 끝났다. 다음은 **Phase 6 조회 전환 설계**다.
+현재 active 범위는 다시 **메인 current 기준의 PRICING_HUB ↔ 자사플랫폼 검색 연결 작업**이며, 선행 weekday / weekend baseline 작업과 Phase 5 검산은 끝났다. 다음은 **legacy 계약을 버리고 `v_search_pricing_hub_policies` 값과 새 계산식을 한 번에 연결하는 Phase 6 설계**다.

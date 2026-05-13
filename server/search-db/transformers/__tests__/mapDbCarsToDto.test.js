@@ -5,18 +5,29 @@ const assert = require('node:assert/strict')
 
 const { mapDbCarsToDto } = require('../mapDbCarsToDto')
 
+function createPriceRule() {
+  return {
+    ims_group_id: 23069,
+    price_policy_id: 'policy_1',
+    policy_name: '아반떼',
+    base24h: 160000,
+    weekday_24h_price: 56000,
+    weekend_24h_price: 80000,
+    hour_1_price: 5300,
+    week_1_price: 880000,
+    week_2_price: 1280000,
+    month_1_price: 1920000,
+  }
+}
+
 test('mapDbCarsToDto maps group policy pricing only', () => {
   const cars = [
     { id: 'car_a', source_car_id: 220644, source_group_id: 23069, name: '아반떼', seats: 5, model_year: 2024, rent_age: 26 },
   ]
 
-  const priceRules = [
-    { ims_group_id: 23069, price_policy_id: 'policy_1', policy_name: '아반떼', base_daily_price: 160000, weekday_1_2d_price: 56000, weekday_3_4d_price: 52000, weekday_5_6d_price: 50000, weekday_7d_plus_price: 48000, weekend_1_2d_price: 80000, weekend_3_4d_price: 76000, weekend_5_6d_price: 72000, weekend_7d_plus_price: 70000, hour_1_price: 5300, hour_6_price: 0, hour_12_price: 0 },
-  ]
-
   const dto = mapDbCarsToDto({
     cars,
-    priceRules,
+    priceRules: [createPriceRule()],
     search: { pickupOption: 'delivery' },
     searchWindow: {
       startAt: new Date('2026-04-16T01:00:00.000Z'),
@@ -37,13 +48,9 @@ test('mapDbCarsToDto maps group policy pricing only', () => {
     { id: 'car_b', source_car_id: 220503, source_group_id: 23069, name: '아반떼B', seats: 5, model_year: 2023, rent_age: 26 },
   ]
 
-  const priceRules = [
-    { ims_group_id: 23069, price_policy_id: 'policy_1', policy_name: '아반떼', base_daily_price: 160000, weekday_1_2d_price: 56000, weekday_3_4d_price: 52000, weekday_5_6d_price: 50000, weekday_7d_plus_price: 48000, weekend_1_2d_price: 80000, weekend_3_4d_price: 76000, weekend_5_6d_price: 72000, weekend_7d_plus_price: 70000, hour_1_price: 5300, hour_6_price: 0, hour_12_price: 0 },
-  ]
-
   const dto = mapDbCarsToDto({
     cars,
-    priceRules,
+    priceRules: [createPriceRule()],
     search: { pickupOption: 'pickup' },
     searchWindow: {
       startAt: new Date('2026-04-16T01:00:00.000Z'),
@@ -80,29 +87,9 @@ test('mapDbCarsToDto applies group policy pricing when available', () => {
     { id: 'car_a', source_car_id: 220644, source_group_id: 23069, name: '아반떼', seats: 5, model_year: 2024, rent_age: 26 },
   ]
 
-  const priceRules = [
-    {
-      ims_group_id: 23069,
-      price_policy_id: 'policy_1',
-      policy_name: '아반떼',
-      base_daily_price: 160000,
-      weekday_1_2d_price: 56000,
-      weekday_3_4d_price: 52000,
-      weekday_5_6d_price: 50000,
-      weekday_7d_plus_price: 48000,
-      weekend_1_2d_price: 80000,
-      weekend_3_4d_price: 76000,
-      weekend_5_6d_price: 72000,
-      weekend_7d_plus_price: 70000,
-      hour_1_price: 5300,
-      hour_6_price: 0,
-      hour_12_price: 0,
-    },
-  ]
-
   const dto = mapDbCarsToDto({
     cars,
-    priceRules,
+    priceRules: [createPriceRule()],
     search: { pickupOption: 'delivery' },
     searchWindow: {
       startAt: new Date('2026-04-16T01:00:00.000Z'),
