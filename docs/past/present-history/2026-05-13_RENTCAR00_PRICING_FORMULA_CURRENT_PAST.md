@@ -7,6 +7,7 @@
 연결 문서:
 - 장기 허브 정책: `docs/policies/RENTCAR00_PRICING_HUB.md`
 - 현재 active 작업 요약: `docs/present/2026-05-13_RENTCAR00_CURRENT.md`
+- 옵션 baseline current: `docs/present/2026-05-14_RENTCAR00_PRICING_OPTION_BASELINE_CURRENT.md`
 
 ## 기준 경로
 ### 실제 계산 코드
@@ -26,15 +27,14 @@
 
 ## 고정 기준값
 ### 단기 버킷 가중치
-- `1h = 0.12`
 - `1~2일 = 1.00`
 - `3~4일 = 0.90`
 - `5~6일 = 0.85`
 
-### 앵커
-- `7일 anchor = 5.50`
-- `14일 anchor = 8.00`
-- `30일 anchor = 12.00`
+### 옵션별 입력 baseline
+- 구체적인 `hour_1_price / week_1_price / week_2_price / month_1_price` baseline 표는
+  `docs/present/2026-05-14_RENTCAR00_PRICING_OPTION_BASELINE_CURRENT.md` 를 기준으로 본다.
+- 이 문서는 구간 계산식만 잠그고, 옵션별 입력 배수표는 별도 current 로 분리한다.
 
 ### 구간 일증가값
 - `7+ daily = 0.50`
