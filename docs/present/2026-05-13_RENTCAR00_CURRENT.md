@@ -142,8 +142,8 @@
 새 view 에 우선 포함할 값:
 - 식별값: `ims_group_id`, `group_name`, `car_group_id`, `price_policy_id`, `policy_name`
 - 허브 기준값: `base24h`, `weekday_24h_price`, `weekend_24h_price`, `hour_1_price`, `week_1_price`, `week_2_price`, `month_1_price`
-- 코드 정책 변수: `WEEK1_DAILY_INCREMENT_RATE`, `WEEK2_DAILY_INCREMENT_RATE`, cap 관련 변수
 - 검증용 legacy 값: `legacy_base_daily_price`, `legacy_weekday_rate_percent`, `legacy_weekend_rate_percent`, `legacy_weekday_7d_plus_price`, `legacy_weekend_7d_plus_price`
+- 코드 정책 변수(`WEEK1_DAILY_INCREMENT_RATE`, `WEEK2_DAILY_INCREMENT_RATE`, cap 관련 변수`)는 **view 컬럼이 아니라 계산 코드 상수/변수 영역**으로 관리한다.
 
 ### 2-6. anchor / 증분 처리 원칙
 1. `week_1_price`, `week_2_price`, `month_1_price` 는 기본적으로 허브 값을 우선 사용한다.
@@ -154,5 +154,173 @@
 3. `7+ daily`, `14+ daily` 증분은 DB 값이 아니라 코드의 수정 가능한 정책 변수로 계산한다.
 4. 즉 **anchor 값은 DB**, **증분 규칙은 코드 변수**로 잠근다.
 
+## Phase 3 설계 확정안
+### 3-1. 새 view 이름과 역할
+- view 이름: `v_search_pricing_hub_policies`
+- 역할: PRICING_HUB 값을 자사플랫폼 검색 계산이 바로 읽을 수 있게 만든 검색 전용 read model
+- 원칙: 기존 `v_active_group_price_policies` 는 유지하고, 검색 연결 전환은 새 view 기준으로 진행한다.
+
+### 3-2. 새 view 기준 테이블 연결
+1. `price_policy_groups`
+   - 그룹과 정책의 기본 연결 source
+2. `car_groups`
+   - `ims_group_id`, `group_name`, `car_group_id` 제공
+3. `price_policies`
+   - legacy 비교값과 기존 정책 식별값 제공
+4. `pricing_hub_periods`
+   - `price_policy_id` 기준으로 연결
+   - 검색 계산에 사용할 허브 period 선택 source
+5. `pricing_hub_rates`
+   - `pricing_hub_period_id` 기준으로 연결
+   - `rate_scope = common / weekday / weekend` 값을 검색용 컬럼으로 펼친다.
+
+### 3-3. 검색이 실제로 읽을 컬럼
+#### 식별 컬럼
+- `ims_group_id`
+- `group_name`
+- `car_group_id`
+- `price_policy_id`
+- `policy_name`
+
+#### 허브 기준 계산 컬럼
+- `base24h`
+  - 우선값: `common.fee_24h`
+  - fallback: `price_policies.base_daily_price`
+- `hour_1_price`
+  - 우선값: `common.fee_1h`
+  - fallback: `price_policies.hour_1_price`
+- `weekday_24h_price`
+  - 우선값: `weekday.fee_24h`
+  - fallback: `base24h`
+- `weekend_24h_price`
+  - 우선값: `weekend.fee_24h`
+  - fallback: `base24h`
+- `week_1_price`
+  - 우선값: `common.week_1_price`
+  - fallback: `base24h * 5.50`
+- `week_2_price`
+  - 우선값: `common.week_2_price`
+  - fallback: `base24h * 8.00`
+- `month_1_price`
+  - 우선값: `common.month_1_price`
+  - fallback: `base24h * 12.00`
+
+#### 상태/검증 컬럼
+- `active_period_id`
+- `active_period_name`
+- `has_hub_common_rate`
+- `has_hub_weekday_rate`
+- `has_hub_weekend_rate`
+- `uses_anchor_fallback`
+- `legacy_base_daily_price`
+- `legacy_hour_1_price`
+- `legacy_weekday_rate_percent`
+- `legacy_weekend_rate_percent`
+- `legacy_weekday_7d_plus_price`
+- `legacy_weekend_7d_plus_price`
+
+### 3-4. period 선택 규칙
+- `pricing_hub_periods.active = true` 인 row 만 대상
+- `price_policy_id` 가 현재 정책과 연결된 row 만 대상
+- 이번 검색 연결 1차 범위에서는 `apply_mon ~ apply_sun` 요일 플래그는 사용하지 않고, `start_at ~ end_at` 유효기간만 본다.
+- period 가 여러 개면 아래 순서로 1개를 고른다.
+  1. `start_at`, `end_at` 기준 현재 시점 포함 row 우선
+  2. 여러 개면 `created_at` 최신 row 우선
+- 즉 검색은 정책별로 **현재 시점에 유효한 period 1개**만 읽는다.
+
+### 3-5. rate scope 해석 규칙
+- `rate_scope = common`
+  - `base24h`, `hour_1_price`, `week_1_price`, `week_2_price`, `month_1_price` source
+- `rate_scope = weekday`
+  - `weekday_24h_price` source
+- `rate_scope = weekend`
+  - `weekend_24h_price` source
+- `6h`, `12h` 관련 컬럼은 새 검색 연결 구조에서 사용하지 않는다.
+
+### 3-6. anchor / fallback 규칙
+1. `7일`, `14일`, `30일` anchor 는 허브 값을 우선 사용한다.
+2. 허브 anchor 값이 비어 있으면 아래 기준으로 수치화한다.
+   - `week_1_price = round(base24h * 5.50)`
+   - `week_2_price = round(base24h * 8.00)`
+   - `month_1_price = round(base24h * 12.00)`
+3. 이 fallback 은 검색 제외가 아니라 **공식 기준 수치 fallback** 이다.
+4. 증분값은 view 에 넣지 않고 계산 코드의 정책 변수로 관리한다.
+
+### 3-7. SQL 초안 구조
+```sql
+create or replace view public.v_search_pricing_hub_policies as
+with ranked_periods as (
+  select
+    php.*,
+    row_number() over (
+      partition by php.price_policy_id
+      order by
+        case
+          when (php.start_at is null or php.start_at <= now())
+           and (php.end_at is null or php.end_at >= now())
+          then 0 else 1
+        end,
+        php.created_at desc
+    ) as rn
+  from public.pricing_hub_periods php
+  where php.active = true
+),
+active_periods as (
+  select *
+  from ranked_periods
+  where rn = 1
+),
+common_rates as (
+  select * from public.pricing_hub_rates where rate_scope = 'common'
+),
+weekday_rates as (
+  select * from public.pricing_hub_rates where rate_scope = 'weekday'
+),
+weekend_rates as (
+  select * from public.pricing_hub_rates where rate_scope = 'weekend'
+)
+select
+  cg.ims_group_id,
+  cg.group_name,
+  cg.id as car_group_id,
+  pp.id as price_policy_id,
+  pp.policy_name,
+  ap.id as active_period_id,
+  ap.period_name as active_period_name,
+  coalesce(cr.fee_24h, pp.base_daily_price) as base24h,
+  coalesce(cr.fee_1h, pp.hour_1_price) as hour_1_price,
+  coalesce(wdr.fee_24h, coalesce(cr.fee_24h, pp.base_daily_price)) as weekday_24h_price,
+  coalesce(wer.fee_24h, coalesce(cr.fee_24h, pp.base_daily_price)) as weekend_24h_price,
+  coalesce(cr.week_1_price, round((coalesce(cr.fee_24h, pp.base_daily_price) * 5.50)::numeric)) as week_1_price,
+  coalesce(cr.week_2_price, round((coalesce(cr.fee_24h, pp.base_daily_price) * 8.00)::numeric)) as week_2_price,
+  coalesce(cr.month_1_price, round((coalesce(cr.fee_24h, pp.base_daily_price) * 12.00)::numeric)) as month_1_price,
+  (cr.id is not null) as has_hub_common_rate,
+  (wdr.id is not null) as has_hub_weekday_rate,
+  (wer.id is not null) as has_hub_weekend_rate,
+  (cr.week_1_price is null or cr.week_2_price is null or cr.month_1_price is null) as uses_anchor_fallback,
+  pp.base_daily_price as legacy_base_daily_price,
+  pp.hour_1_price as legacy_hour_1_price,
+  pp.weekday_rate_percent as legacy_weekday_rate_percent,
+  pp.weekend_rate_percent as legacy_weekend_rate_percent,
+  pp.weekday_7d_plus_price as legacy_weekday_7d_plus_price,
+  pp.weekend_7d_plus_price as legacy_weekend_7d_plus_price
+from public.price_policy_groups ppg
+join public.car_groups cg on cg.id = ppg.car_group_id
+join public.price_policies pp on pp.id = ppg.price_policy_id
+left join active_periods ap on ap.price_policy_id = pp.id
+left join common_rates cr on cr.pricing_hub_period_id = ap.id
+left join weekday_rates wdr on wdr.pricing_hub_period_id = ap.id
+left join weekend_rates wer on wer.pricing_hub_period_id = ap.id
+where pp.active = true
+  and ppg.active = true
+  and cg.active = true;
+```
+
+### 3-8. Phase 4 입력으로 넘길 항목
+- migration 에 새 view 추가
+- 필요 시 `has_hub_*`, `uses_anchor_fallback` 보조 컬럼 포함
+- `fetchGroupPricePolicies.js` 가 이 view 를 읽도록 교체 준비
+- 테스트 fixture 는 common / weekday / weekend rate 3종 케이스로 준비
+
 ## 한 줄 결론
-현재 active 범위는 **PRICING_HUB를 자사플랫폼 검색 source에 연결하고, 그 다음 공식 계산식을 반영하는 작업**이며, Phase 2 확인 결과 **새 공식의 핵심 anchor 값은 허브에 있고 검색은 아직 legacy source 만 읽는 상태**다. Phase 3 에서는 이를 위해 **검색 전용 새 view, 6h/12h 제거, anchor는 DB / 증분은 코드 변수 원칙**을 기준으로 구조를 설계한다.
+현재 active 범위는 **PRICING_HUB를 자사플랫폼 검색 source에 연결하고, 그 다음 공식 계산식을 반영하는 작업**이며, Phase 3 에서는 **`v_search_pricing_hub_policies` 를 새 검색용 read model 로 설계하고, anchor 는 DB 우선 / 누락 시 공식 수치 fallback / 증분은 코드 변수** 원칙으로 구조를 확정한다.
