@@ -130,14 +130,31 @@
 3. 새 공식을 검색에 반영하려면 `pricing_hub_rates` 쪽 값을 검색 source 로 연결하는 DB 경로가 먼저 필요하다.
 4. 특히 `14일`, `30일`, 증분값, cap 계산 기준은 legacy source 만으로는 공식 반영이 어렵다.
 
-### 2-4. Phase 3 진입 전 결정 필요 항목
-1. 검색이 읽을 기준 source 를 `pricing_hub_rates` 중심으로 옮길지
-2. `6h`, `12h` 를 새 검색 공식의 필수 입력으로 볼지
-3. `7+ daily`, `14+ daily` 를 코드 고정 상수로 둘지, 허브 저장값으로 확장할지
-4. 검색 연결 경로를
-   - 기존 `v_active_group_price_policies` 확장으로 갈지
-   - 검색 전용 view 신설로 갈지
-   - 서버 조합 방식으로 갈지
+### 2-4. Phase 3 진입 전 결정 초안
+1. 검색이 읽을 기준 source 는 `pricing_hub_rates` 중심으로 옮긴다.
+2. `6h`, `12h` 값은 새 공식의 핵심값으로 확정하지 않고, 과도기 호환값으로만 유지한다.
+3. `7+ daily`, `14+ daily` 증분은 허브 저장값으로 늘리지 않고, 공식 문서에 잠근 배수 기준을 코드에서 사용한다.
+4. 검색 연결 경로는 기존 legacy view 를 바로 뜯지 않고, **검색 전용 새 view** 를 만든다.
+
+### 2-5. 새 view 설계 기준 초안
+- 가칭: `v_search_pricing_hub_policies`
+- 역할: PRICING_HUB 값을 자사플랫폼 검색 계산이 바로 읽을 수 있게 만든 검색 전용 read model
+- 기존 `v_active_group_price_policies` 는 유지한다.
+
+새 view 에 우선 포함할 값:
+- 식별값: `ims_group_id`, `group_name`, `car_group_id`, `price_policy_id`, `policy_name`
+- 허브 기준값: `base24h`, `weekday_24h_price`, `weekend_24h_price`, `hour_1_price`, `week_1_price`, `week_2_price`, `month_1_price`
+- 과도기 유지값: `hour_6_price`, `hour_12_price`
+- 검증용 legacy 값: `legacy_base_daily_price`, `legacy_weekday_rate_percent`, `legacy_weekend_rate_percent`, `legacy_weekday_7d_plus_price`, `legacy_weekend_7d_plus_price`
+
+### 2-6. anchor 누락 처리 원칙
+1. `week_1_price`, `week_2_price`, `month_1_price` 는 기본적으로 허브 값을 우선 사용한다.
+2. 허브 anchor 값이 비어 있으면 문서에 잠근 공식 기준값으로 계산한다.
+   - `7일 = base24h * 5.50`
+   - `14일 = base24h * 8.00`
+   - `30일 = base24h * 12.00`
+3. 즉 anchor 누락 시 검색 제외로 보내지 않고, **공식 기준 수치 fallback** 으로 처리한다.
+4. 이 fallback 은 임시 추정이 아니라 `PRICING_FORMULA_CURRENT` 에 잠근 기준을 따른다.
 
 ## 한 줄 결론
-현재 active 범위는 **PRICING_HUB를 자사플랫폼 검색 source에 연결하고, 그 다음 공식 계산식을 반영하는 작업**이며, Phase 2 확인 결과 **새 공식의 핵심 anchor 값은 허브에 있고 검색은 아직 legacy source 만 읽는 상태**다.
+현재 active 범위는 **PRICING_HUB를 자사플랫폼 검색 source에 연결하고, 그 다음 공식 계산식을 반영하는 작업**이며, Phase 2 확인 결과 **새 공식의 핵심 anchor 값은 허브에 있고 검색은 아직 legacy source 만 읽는 상태**다. Phase 3 에서는 이를 위해 **검색 전용 새 view 와 anchor fallback 원칙**을 기준으로 구조를 설계한다.
