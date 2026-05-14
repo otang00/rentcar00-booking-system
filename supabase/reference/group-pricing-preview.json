@@ -526,8 +526,6 @@
         "모델 3 (2017년)_전기"
       ],
       "baseDailyPrice": 240000,
-      "weekdayRatePercent": 45,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 108000,
       "weekday_3_4d_price": 96000,
       "weekday_5_6d_price": 90000,
@@ -576,8 +574,6 @@
         "2024 모델 Y (2020년)_전기"
       ],
       "baseDailyPrice": 380000,
-      "weekdayRatePercent": 45,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 171000,
       "weekday_3_4d_price": 152000,
       "weekday_5_6d_price": 142500,
@@ -626,8 +622,6 @@
         "E 클래스 (W214) (2024년)_가솔린"
       ],
       "baseDailyPrice": 400000,
-      "weekdayRatePercent": 45,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 180000,
       "weekday_3_4d_price": 160000,
       "weekday_5_6d_price": 150000,
@@ -675,8 +669,6 @@
         "더 뉴 K5 3세대 (2024년)_LPG"
       ],
       "baseDailyPrice": 280000,
-      "weekdayRatePercent": 30,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 84000,
       "weekday_3_4d_price": 70000,
       "weekday_5_6d_price": 63000,
@@ -724,8 +716,6 @@
         "올 뉴 K7 (2016년~)_LPG"
       ],
       "baseDailyPrice": 180000,
-      "weekdayRatePercent": 45,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 81000,
       "weekday_3_4d_price": 72000,
       "weekday_5_6d_price": 67500,
@@ -777,8 +767,6 @@
         "더 뉴 카니발(KA4) (2023년)_디젤"
       ],
       "baseDailyPrice": 260000,
-      "weekdayRatePercent": 40,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 104000,
       "weekday_3_4d_price": 91000,
       "weekday_5_6d_price": 84500,
@@ -828,8 +816,6 @@
         "디 올 뉴 싼타페 (MX5) (2025년)_가솔린"
       ],
       "baseDailyPrice": 240000,
-      "weekdayRatePercent": 35,
-      "weekendRatePercent": 45,
       "weekday_1_2d_price": 84000,
       "weekday_3_4d_price": 72000,
       "weekday_5_6d_price": 66000,
@@ -877,8 +863,6 @@
         "GV80 (2020년)_가솔린"
       ],
       "baseDailyPrice": 520000,
-      "weekdayRatePercent": 45,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 234000,
       "weekday_3_4d_price": 208000,
       "weekday_5_6d_price": 195000,
@@ -926,8 +910,6 @@
         "GV70 (2021년)_가솔린"
       ],
       "baseDailyPrice": 380000,
-      "weekdayRatePercent": 45,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 171000,
       "weekday_3_4d_price": 152000,
       "weekday_5_6d_price": 142500,
@@ -975,8 +957,6 @@
         "더 뉴 카니발(KA4) (2023년)_가솔린"
       ],
       "baseDailyPrice": 275000,
-      "weekdayRatePercent": 40,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 110000,
       "weekday_3_4d_price": 96300,
       "weekday_5_6d_price": 89400,
@@ -1024,8 +1004,6 @@
         "더 뉴 팰리세이드 (2022년)_가솔린_7인승"
       ],
       "baseDailyPrice": 380000,
-      "weekdayRatePercent": 45,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 171000,
       "weekday_3_4d_price": 152000,
       "weekday_5_6d_price": 142500,
@@ -1073,8 +1051,6 @@
         "디 올 뉴 스포티지 (NQ5) (2021년)_가솔린"
       ],
       "baseDailyPrice": 220000,
-      "weekdayRatePercent": 35,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 77000,
       "weekday_3_4d_price": 66000,
       "weekday_5_6d_price": 60500,
@@ -1125,8 +1101,6 @@
         "[특가] 더 뉴 셀토스_가솔린"
       ],
       "baseDailyPrice": 180000,
-      "weekdayRatePercent": 40,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 72000,
       "weekday_3_4d_price": 63000,
       "weekday_5_6d_price": 58500,
@@ -1175,8 +1149,6 @@
         "더 뉴 코나 (2022년~)_가솔린"
       ],
       "baseDailyPrice": 160000,
-      "weekdayRatePercent": 45,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 72000,
       "weekday_3_4d_price": 64000,
       "weekday_5_6d_price": 60000,
@@ -1226,8 +1198,6 @@
         "더 뉴 아반떼 (CN7) (2023년)_가솔린"
       ],
       "baseDailyPrice": 160000,
-      "weekdayRatePercent": 35,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 56000,
       "weekday_3_4d_price": 48000,
       "weekday_5_6d_price": 44000,
@@ -1273,8 +1243,6 @@
       "policyName": "쏘나타DN8",
       "appliedGroups": [],
       "baseDailyPrice": 150000,
-      "weekdayRatePercent": 35,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 52500,
       "weekday_3_4d_price": 45000,
       "weekday_5_6d_price": 41300,
@@ -1322,8 +1290,6 @@
         "더 뉴 K5 3세대 (2025년)_가솔린"
       ],
       "baseDailyPrice": 180000,
-      "weekdayRatePercent": 35,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 63000,
       "weekday_3_4d_price": 54000,
       "weekday_5_6d_price": 49500,
@@ -1372,8 +1338,6 @@
         "그랜저 IG (2016년~)_LPG"
       ],
       "baseDailyPrice": 200000,
-      "weekdayRatePercent": 35,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 70000,
       "weekday_3_4d_price": 60000,
       "weekday_5_6d_price": 55000,
@@ -1421,8 +1385,6 @@
         "모델 Y 주니퍼 (2025년)_전기"
       ],
       "baseDailyPrice": 650000,
-      "weekdayRatePercent": 45,
-      "weekendRatePercent": 50,
       "weekday_1_2d_price": 292500,
       "weekday_3_4d_price": 260000,
       "weekday_5_6d_price": 243800,

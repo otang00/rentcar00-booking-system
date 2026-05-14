@@ -33,6 +33,8 @@ function formatMoney(value) {
 }
 
 const DEFAULT_PRICING_OPTION_TYPE = 'semi_premium'
+const DEFAULT_WEEKDAY_PERCENT = 90
+const DEFAULT_WEEKEND_PERCENT = 115
 const PRICING_OPTION_CONFIG = {
   basic: { hour1: 0.12, week1: 5.5, week2: 7.5, month1: 10.5 },
   semi_premium: { hour1: 0.12, week1: 5.5, week2: 8.0, month1: 12.0 },
@@ -73,8 +75,8 @@ function buildComputedRate(legacyPolicy, base24Input, weekdayRatePercentInput, w
   const optionType = normalizePricingOptionType(pricingOptionTypeInput)
   const option = PRICING_OPTION_CONFIG[optionType]
   const legacyRatios = computeLegacyRatios(legacyPolicy)
-  const weekdayRatePercent = roundPercent(weekdayRatePercentInput, toNumber(legacyPolicy?.weekdayRatePercent, 100))
-  const weekendRatePercent = roundPercent(weekendRatePercentInput, toNumber(legacyPolicy?.weekendRatePercent, 100))
+  const weekdayRatePercent = roundPercent(weekdayRatePercentInput, DEFAULT_WEEKDAY_PERCENT)
+  const weekendRatePercent = roundPercent(weekendRatePercentInput, DEFAULT_WEEKEND_PERCENT)
   const weekdayApplied24h = roundUpToThousand(base24h * (weekdayRatePercent / 100))
   const weekendApplied24h = roundUpToThousand(base24h * (weekendRatePercent / 100))
 
@@ -236,8 +238,8 @@ export default function AdminPricingHubPage() {
   const [policyEditorError, setPolicyEditorError] = useState('')
   const [policyPreviewOptionTypeInput, setPolicyPreviewOptionTypeInput] = useState(DEFAULT_PRICING_OPTION_TYPE)
   const [base24hInput, setBase24hInput] = useState('0')
-  const [weekdayPercentInput, setWeekdayPercentInput] = useState(100)
-  const [weekendPercentInput, setWeekendPercentInput] = useState(100)
+  const [weekdayPercentInput, setWeekdayPercentInput] = useState(DEFAULT_WEEKDAY_PERCENT)
+  const [weekendPercentInput, setWeekendPercentInput] = useState(DEFAULT_WEEKEND_PERCENT)
   const [saving, setSaving] = useState(false)
   const [savingGroupSetting, setSavingGroupSetting] = useState(false)
   const [searchInput, setSearchInput] = useState('')
@@ -432,8 +434,8 @@ export default function AdminPricingHubPage() {
         const legacyPolicy = result?.policies?.[0]?.legacyPolicy || {}
         const editorState = result?.editorState || {}
         setBase24hInput(String(roundAmount(editorState.base24h || legacyPolicy.baseDailyPrice || 0)))
-        setWeekdayPercentInput(roundPercent(editorState.weekdayPercent, toNumber(legacyPolicy.weekdayRatePercent, 100)))
-        setWeekendPercentInput(roundPercent(editorState.weekendPercent, toNumber(legacyPolicy.weekendRatePercent, 100)))
+        setWeekdayPercentInput(roundPercent(editorState.weekdayPercent, DEFAULT_WEEKDAY_PERCENT))
+        setWeekendPercentInput(roundPercent(editorState.weekendPercent, DEFAULT_WEEKEND_PERCENT))
         setPolicyPreviewOptionTypeInput(connectionPricingOptionTypeInput || DEFAULT_PRICING_OPTION_TYPE)
       })
       .catch((error) => {
@@ -531,8 +533,8 @@ export default function AdminPricingHubPage() {
       const legacyPolicy = nextPolicyEditor?.policies?.[0]?.legacyPolicy || {}
       const editorState = nextPolicyEditor?.editorState || {}
       setBase24hInput(String(roundAmount(editorState.base24h || legacyPolicy.baseDailyPrice || 0)))
-      setWeekdayPercentInput(roundPercent(editorState.weekdayPercent, toNumber(legacyPolicy.weekdayRatePercent, 100)))
-      setWeekendPercentInput(roundPercent(editorState.weekendPercent, toNumber(legacyPolicy.weekendRatePercent, 100)))
+      setWeekdayPercentInput(roundPercent(editorState.weekdayPercent, DEFAULT_WEEKDAY_PERCENT))
+      setWeekendPercentInput(roundPercent(editorState.weekendPercent, DEFAULT_WEEKEND_PERCENT))
       setSubmitMessage('정책 가격이 저장되었습니다.')
     } catch (error) {
       setSubmitMessage(error.message || '정책 저장에 실패했습니다.')

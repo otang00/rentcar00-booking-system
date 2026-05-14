@@ -97,6 +97,10 @@ admin 이 직접 수정하는 값은 아래 4개다.
 
 이미 `45 / 50` 으로 들어간 metadata 는 후속 current 에서 정정 대상이다.
 
+후속 정리 기준:
+- `price_policies.weekday_rate_percent`, `price_policies.weekend_rate_percent` 는 삭제 대상이다.
+- pricing hub admin/import/search 코드에서는 위 legacy 컬럼을 참조하지 않는다.
+
 ### 3-3. 결과
 - 대상: `pricing_hub_rates` 54 row
 - backfill 완료: 54 row

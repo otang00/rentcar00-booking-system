@@ -59,6 +59,8 @@ function roundPercent(value, fallback = 0) {
 }
 
 const DEFAULT_PRICING_OPTION_TYPE = 'semi_premium'
+const DEFAULT_WEEKDAY_PERCENT = 90
+const DEFAULT_WEEKEND_PERCENT = 115
 const PRICING_OPTION_CONFIG = {
   basic: { hour1: 0.12, week1: 5.5, week2: 7.5, month1: 10.5 },
   semi_premium: { hour1: 0.12, week1: 5.5, week2: 8.0, month1: 12.0 },
@@ -115,8 +117,8 @@ function buildRatePayloadFromBase(base24h, ratios, pricingOptionType) {
 
 function buildComputedRate(legacyPolicy, base24Input, weekdayRatePercentInput, weekendRatePercentInput, pricingOptionTypeInput) {
   const base24h = roundUpToThousand(base24Input)
-  const weekdayRatePercent = roundPercent(weekdayRatePercentInput, 100)
-  const weekendRatePercent = roundPercent(weekendRatePercentInput, 100)
+  const weekdayRatePercent = roundPercent(weekdayRatePercentInput, DEFAULT_WEEKDAY_PERCENT)
+  const weekendRatePercent = roundPercent(weekendRatePercentInput, DEFAULT_WEEKEND_PERCENT)
   const weekdayApplied24h = roundUpToThousand(base24h * (weekdayRatePercent / 100))
   const weekendApplied24h = roundUpToThousand(base24h * (weekendRatePercent / 100))
   const ratios = computeRatios(legacyPolicy)
@@ -171,11 +173,11 @@ function buildCurrentRateSummary(row, periods = [], ratesByPeriodId = {}, now = 
   }, {})
 
   const base24h = roundAmount(row?.base_daily_price)
-  const legacyWeekday24h = roundAmount(base24h * (normalizeNumber(row?.weekday_rate_percent, 100) / 100))
-  const legacyWeekend24h = roundAmount(base24h * (normalizeNumber(row?.weekend_rate_percent, 100) / 100))
+  const defaultWeekday24h = roundAmount(base24h * (DEFAULT_WEEKDAY_PERCENT / 100))
+  const defaultWeekend24h = roundAmount(base24h * (DEFAULT_WEEKEND_PERCENT / 100))
   const common24h = roundAmount(rateByScope.common?.fee_24h)
-  const weekday24h = roundAmount(rateByScope.weekday?.fee_24h) || common24h || legacyWeekday24h
-  const weekend24h = roundAmount(rateByScope.weekend?.fee_24h) || common24h || legacyWeekend24h
+  const weekday24h = roundAmount(rateByScope.weekday?.fee_24h) || common24h || defaultWeekday24h
+  const weekend24h = roundAmount(rateByScope.weekend?.fee_24h) || common24h || defaultWeekend24h
 
   return {
     activePeriodId: activePeriod?.id || null,
@@ -263,7 +265,7 @@ async function fetchActiveCarGroups(supabaseClient) {
 async function fetchActivePolicies(supabaseClient) {
   const { data, error } = await supabaseClient
     .from('price_policies')
-    .select('id, policy_name, active, base_daily_price, weekday_rate_percent, weekend_rate_percent, weekday_1_2d_price, weekday_3_4d_price, weekday_5_6d_price, weekday_7d_plus_price, weekend_1_2d_price, weekend_3_4d_price, weekend_5_6d_price, weekend_7d_plus_price, hour_1_price, hour_6_price, hour_12_price, effective_from, effective_to')
+    .select('id, policy_name, active, base_daily_price, weekday_1_2d_price, weekday_3_4d_price, weekday_5_6d_price, weekday_7d_plus_price, weekend_1_2d_price, weekend_3_4d_price, weekend_5_6d_price, weekend_7d_plus_price, hour_1_price, hour_6_price, hour_12_price, effective_from, effective_to')
     .eq('active', true)
     .order('policy_name', { ascending: true })
 
@@ -276,7 +278,7 @@ async function fetchPolicyBase(supabaseClient, pricePolicyId) {
 
   const { data, error } = await supabaseClient
     .from('price_policies')
-    .select('id, policy_name, active, base_daily_price, weekday_rate_percent, weekend_rate_percent, weekday_1_2d_price, weekday_3_4d_price, weekday_5_6d_price, weekday_7d_plus_price, weekend_1_2d_price, weekend_3_4d_price, weekend_5_6d_price, weekend_7d_plus_price, hour_1_price, hour_6_price, hour_12_price, effective_from, effective_to')
+    .select('id, policy_name, active, base_daily_price, weekday_1_2d_price, weekday_3_4d_price, weekday_5_6d_price, weekday_7d_plus_price, weekend_1_2d_price, weekend_3_4d_price, weekend_5_6d_price, weekend_7d_plus_price, hour_1_price, hour_6_price, hour_12_price, effective_from, effective_to')
     .eq('id', pricePolicyId)
     .maybeSingle()
 
@@ -287,8 +289,6 @@ async function fetchPolicyBase(supabaseClient, pricePolicyId) {
     price_policy_id: data.id,
     policy_name: data.policy_name,
     base_daily_price: data.base_daily_price,
-    weekday_rate_percent: data.weekday_rate_percent,
-    weekend_rate_percent: data.weekend_rate_percent,
     weekday_1_2d_price: data.weekday_1_2d_price,
     weekday_3_4d_price: data.weekday_3_4d_price,
     weekday_5_6d_price: data.weekday_5_6d_price,
@@ -351,8 +351,8 @@ function buildEditorState(baseRow, periods = [], ratesByPeriodId = {}, now = new
   const savedWeekdayPercent = weekdayMetadata.weekdayPercent
   const savedWeekendPercent = weekendMetadata.weekendPercent
   const base24h = roundAmount(savedBase24h || rateByScope.common?.fee_24h || baseRow?.base_daily_price)
-  const fallbackWeekday24h = roundAmount(base24h * (normalizeNumber(baseRow?.weekday_rate_percent, 100) / 100))
-  const fallbackWeekend24h = roundAmount(base24h * (normalizeNumber(baseRow?.weekend_rate_percent, 100) / 100))
+  const fallbackWeekday24h = roundAmount(base24h * (DEFAULT_WEEKDAY_PERCENT / 100))
+  const fallbackWeekend24h = roundAmount(base24h * (DEFAULT_WEEKEND_PERCENT / 100))
   const weekday24h = roundAmount(rateByScope.weekday?.fee_24h || fallbackWeekday24h)
   const weekend24h = roundAmount(rateByScope.weekend?.fee_24h || fallbackWeekend24h)
 
@@ -362,11 +362,11 @@ function buildEditorState(baseRow, periods = [], ratesByPeriodId = {}, now = new
     pricingOptionType: normalizePricingOptionType(commonMetadata.pricingOptionType || baseRow?.pricing_option_type),
     base24h,
     weekdayPercent: savedWeekdayPercent != null
-      ? roundPercent(savedWeekdayPercent, normalizeNumber(baseRow?.weekday_rate_percent, 100))
-      : roundPercent(baseRow?.weekday_rate_percent, 100),
+      ? roundPercent(savedWeekdayPercent, DEFAULT_WEEKDAY_PERCENT)
+      : DEFAULT_WEEKDAY_PERCENT,
     weekendPercent: savedWeekendPercent != null
-      ? roundPercent(savedWeekendPercent, normalizeNumber(baseRow?.weekend_rate_percent, 100))
-      : roundPercent(baseRow?.weekend_rate_percent, 100),
+      ? roundPercent(savedWeekendPercent, DEFAULT_WEEKEND_PERCENT)
+      : DEFAULT_WEEKEND_PERCENT,
     weekday24h,
     weekend24h,
   }
@@ -423,8 +423,6 @@ async function handleList(req, res, supabaseClient) {
       pricingOptionType: normalizePricingOptionType(row.pricing_option_type),
       legacyPolicy: {
         baseDailyPrice: row.base_daily_price,
-        weekdayRatePercent: row.weekday_rate_percent,
-        weekendRatePercent: row.weekend_rate_percent,
         hour1Price: row.hour_1_price,
         hour6Price: row.hour_6_price,
         hour12Price: row.hour_12_price,
@@ -473,8 +471,6 @@ async function handleList(req, res, supabaseClient) {
     pricePolicyId: policy.id,
     policyName: policy.policy_name,
     baseDailyPrice: policy.base_daily_price,
-    weekdayRatePercent: policy.weekday_rate_percent,
-    weekendRatePercent: policy.weekend_rate_percent,
   }))
 
   return res.status(200).json({ items, unconfiguredGroups, policyOptions })
@@ -520,8 +516,6 @@ async function handleGetPolicyEditor(req, res, supabaseClient) {
       policyName: base?.policy_name || '-',
       legacyPolicy: {
         baseDailyPrice: base?.base_daily_price,
-        weekdayRatePercent: base?.weekday_rate_percent,
-        weekendRatePercent: base?.weekend_rate_percent,
         weekday12dPrice: base?.weekday_1_2d_price,
         weekday34dPrice: base?.weekday_3_4d_price,
         weekday56dPrice: base?.weekday_5_6d_price,

@@ -69,8 +69,6 @@ function parsePricePolicies(filePath) {
       policyName: weekday.A,
       appliedGroups,
       baseDailyPrice: parseMoney(basePriceRaw),
-      weekdayRatePercent: parsePercent(weekday.D || weekday.A),
-      weekendRatePercent: parsePercent(weekend.D || weekend.A),
       weekday_1_2d_price: parseMoney(weekday.E),
       weekday_3_4d_price: parseMoney(weekday.F),
       weekday_5_6d_price: parseMoney(weekday.G),
@@ -86,6 +84,8 @@ function parsePricePolicies(filePath) {
       metadata: {
         rawRows: [weekday, weekend],
         shiftedBasePrice,
+        imsLegacyWeekdayPercent: parsePercent(weekday.D || weekday.A),
+        imsLegacyWeekendPercent: parsePercent(weekend.D || weekend.A),
       },
     })
   }

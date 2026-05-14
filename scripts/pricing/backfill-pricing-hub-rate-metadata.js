@@ -16,7 +16,7 @@ async function main() {
 
   const { data: periods, error: periodsError } = await supabase
     .from('pricing_hub_periods')
-    .select('id, period_name, price_policy_id, price_policies:price_policy_id (id, policy_name, weekday_rate_percent, weekend_rate_percent)')
+    .select('id, period_name, price_policy_id, price_policies:price_policy_id (id, policy_name)')
     .order('created_at', { ascending: true })
 
   if (periodsError) throw periodsError
@@ -45,8 +45,8 @@ async function main() {
     const commonRate = periodRates.find((rate) => rate.rate_scope === 'common') || periodRates[0]
     const commonMetadata = isObject(commonRate?.metadata) ? commonRate.metadata : {}
     const base24h = commonMetadata.base24h ?? commonRate?.fee_24h ?? null
-    const weekdayPercent = period.price_policies?.weekday_rate_percent ?? null
-    const weekendPercent = period.price_policies?.weekend_rate_percent ?? null
+    const weekdayPercent = 90
+    const weekendPercent = 115
 
     for (const rate of periodRates) {
       const metadata = isObject(rate.metadata) ? { ...rate.metadata } : {}

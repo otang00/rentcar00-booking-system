@@ -67,8 +67,6 @@ async function upsertPricePolicies(client, pricePolicies) {
     const payload = {
       policy_name: policy.policyName,
       base_daily_price: policy.baseDailyPrice,
-      weekday_rate_percent: policy.weekdayRatePercent,
-      weekend_rate_percent: policy.weekendRatePercent,
       weekday_1_2d_price: policy.weekday_1_2d_price,
       weekday_3_4d_price: policy.weekday_3_4d_price,
       weekday_5_6d_price: policy.weekday_5_6d_price,

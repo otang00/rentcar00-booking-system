@@ -43,32 +43,49 @@ pricing hub admin 의 기본 주중/주말 기준은 아래다.
 - metadata 를 다시 backfill 할 때 legacy percent 를 재사용하지 않는다.
 - DB metadata 정정 없이 화면만 숨기는 방식으로 끝내지 않는다.
 
-## 다음 phase 제안
+## 실행 phase
+
+### Phase 0. 롤백포인트
+- 커밋: `d031300 docs: lock pricing hub percent rollback point`
+- 역할: legacy percent 삭제 작업 전 문서 기준점
 
 ### Phase 1. 코드 기준 정정
 - 대상:
   - `api/admin/pricing-hub.js`
-  - `src/pages/AdminPricingHubPage.jsx` 필요 시
+  - `src/pages/AdminPricingHubPage.jsx`
   - `scripts/pricing/backfill-pricing-hub-rate-metadata.js`
+  - `scripts/pricing/apply-group-pricing.js`
+  - `scripts/pricing/build-group-pricing-preview.js`
 - 종료 조건:
   - 신규/누락 metadata 의 기본 percent 가 `90 / 115` 로 고정된다.
-  - legacy `45 / 50` 은 admin percent fallback 으로 사용되지 않는다.
+  - admin/API/import 코드에서 `price_policies.weekday_rate_percent`, `price_policies.weekend_rate_percent` 참조가 제거된다.
 
-### Phase 2. DB metadata 정정 계획 수립
+### Phase 2. DB 컬럼 삭제 migration
+- 대상:
+  - `price_policies.weekday_rate_percent`
+  - `price_policies.weekend_rate_percent`
+  - `v_pricing_hub_policy_editor`
+  - `v_search_pricing_hub_policies`
+- 종료 조건:
+  - 새 migration 에서 legacy percent 컬럼을 drop 한다.
+  - 관련 view 는 legacy percent 없이 재생성한다.
+
+### Phase 3. metadata 정정 스크립트 준비
 - 대상:
   - `pricing_hub_rates.metadata.weekdayPercent`
   - `pricing_hub_rates.metadata.weekendPercent`
 - 종료 조건:
-  - 운영 DB에서 `45 / 50` 으로 잘못 들어간 row 정정 SQL 또는 스크립트가 검토된다.
-  - DB 반영은 별도 승인 전까지 실행하지 않는다.
+  - `45 / 50` 류 legacy 오염값을 `90 / 115` 로 정정하는 dry-run/apply 스크립트를 준비한다.
+  - 운영 DB 반영은 별도 실행 승인을 받아야 한다.
 
-### Phase 3. 검증
+### Phase 4. 검증
 - 대상:
-  - `/admin/pricing-hub`
-  - `v_search_pricing_hub_policies`
+  - 코드 정적 확인
   - `npm run build`
+  - `npm run test:zzimcar-sync`
+  - 필요 시 `/admin/pricing-hub`
 - 종료 조건:
-  - 관리자 화면 비율이 `90 / 115` 로 표시된다.
+  - 관리자 화면 비율이 `90 / 115` 기준으로 표시된다.
   - 계산 주중24/주말24가 `base24h * 0.90 / 1.15` 기준과 일치한다.
   - search 가격이 의도한 절대값을 읽는다.
 
