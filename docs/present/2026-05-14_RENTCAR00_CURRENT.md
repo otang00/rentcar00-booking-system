@@ -1,25 +1,89 @@
 # 2026-05-14 RENTCAR00 CURRENT
 
 ## 문서 상태
-- 상태: no active implementation current
-- 목적: 완료된 작업을 current 에 남기지 않고, 다음 active 작업이 정해질 때까지 비워둔다.
+- 상태: active issue lock
+- 목적: pricing hub admin 의 주중/주말 비율 오적용을 잠그고, 수정 전 기준점을 명확히 한다.
 
-## 방금 완료된 작업
-- route-level code splitting 1차 완료
-- 완료 문서:
-  - `docs/complete/2026-05-14_RENTCAR00_ROUTE_SPLITTING_COMPLETE.md`
+## 긴급 잠금: pricing hub weekday/weekend 비율 오적용
 
-## current 운영 원칙
-- active current 는 진행 중인 구현 기준만 담는다.
-- 완료된 작업은 complete 문서로 이동한다.
-- 보류된 작업은 past/present-history 또는 parked 문서로 이동한다.
-- 다음 구현 우선순위가 정해지면 이 문서를 새 current 기준으로 다시 작성한다.
+### 문제
+관리자 pricing hub 화면에서 주중/주말 비율이 `45% / 50%` 로 보이는 문제가 확인됐다.
 
-## 현재 active 범위
-- 없음
+### 원인
+`45% / 50%` 는 IMS/legacy `price_policies.weekday_rate_percent`, `price_policies.weekend_rate_percent` 값이다.
+이 값이 admin pricing hub 의 `weekdayPercent`, `weekendPercent` backfill/fallback 기준으로 잘못 승격됐다.
 
-## 다음 후보
-- 미정
+문제 지점:
+- `api/admin/pricing-hub.js`
+  - `buildEditorState()` 가 metadata 누락 시 `price_policies.weekday_rate_percent`, `price_policies.weekend_rate_percent` 를 fallback 으로 사용한다.
+  - `fallbackWeekday24h`, `fallbackWeekend24h` 도 같은 legacy percent 를 기준으로 계산한다.
+- `scripts/pricing/backfill-pricing-hub-rate-metadata.js`
+  - metadata backfill 시 `weekdayPercent`, `weekendPercent` 를 `price_policies` 의 legacy percent 로 채운다.
+- `docs/complete/2026-05-14_RENTCAR00_PRICING_HUB_ADMIN_COMPLETE.md`
+  - backfill 기준을 legacy percent 로 적어 둔 문서 오류가 있었다.
+
+### 고정 기준
+pricing hub admin 의 기본 주중/주말 기준은 아래다.
+
+- `base24h` 는 공통 기준 24시간 금액이다.
+- `weekdayPercent` 기본값은 `90` 이다. 즉 `weekday = base24h * 0.90` 이다.
+- `weekendPercent` 기본값은 `115` 이다. 즉 `weekend = base24h * 1.15` 이다.
+- 운영 표현으로는 주중 `-10%`, 주말 `+15%` 다.
+- `price_policies.weekday_rate_percent = 45`, `price_policies.weekend_rate_percent = 50` 은 IMS/legacy 값이며 pricing hub admin 기본 비율 truth 로 쓰면 안 된다.
+
+### truth 해석
+- search/read model 이 실제로 읽는 최종 가격 truth 는 `pricing_hub_rates.fee_24h` 절대값이다.
+- `pricing_hub_rates.metadata.weekdayPercent`, `metadata.weekendPercent` 는 admin 입력/표시용 변수다.
+- 이 변수의 기본 기준은 `90 / 115` 이며, legacy `45 / 50` 에서 가져오면 안 된다.
+- 그룹별 조정은 가능하지만, 조정 전 baseline 은 반드시 `90 / 115` 다.
+
+### 수정 전 금지 사항
+- `45 / 50` 을 pricing hub admin 의 정상 비율로 문서화하지 않는다.
+- `price_policies.weekday_rate_percent`, `weekend_rate_percent` 를 admin percent fallback 으로 계속 쓰지 않는다.
+- metadata 를 다시 backfill 할 때 legacy percent 를 재사용하지 않는다.
+- DB metadata 정정 없이 화면만 숨기는 방식으로 끝내지 않는다.
+
+## 다음 phase 제안
+
+### Phase 1. 코드 기준 정정
+- 대상:
+  - `api/admin/pricing-hub.js`
+  - `src/pages/AdminPricingHubPage.jsx` 필요 시
+  - `scripts/pricing/backfill-pricing-hub-rate-metadata.js`
+- 종료 조건:
+  - 신규/누락 metadata 의 기본 percent 가 `90 / 115` 로 고정된다.
+  - legacy `45 / 50` 은 admin percent fallback 으로 사용되지 않는다.
+
+### Phase 2. DB metadata 정정 계획 수립
+- 대상:
+  - `pricing_hub_rates.metadata.weekdayPercent`
+  - `pricing_hub_rates.metadata.weekendPercent`
+- 종료 조건:
+  - 운영 DB에서 `45 / 50` 으로 잘못 들어간 row 정정 SQL 또는 스크립트가 검토된다.
+  - DB 반영은 별도 승인 전까지 실행하지 않는다.
+
+### Phase 3. 검증
+- 대상:
+  - `/admin/pricing-hub`
+  - `v_search_pricing_hub_policies`
+  - `npm run build`
+- 종료 조건:
+  - 관리자 화면 비율이 `90 / 115` 로 표시된다.
+  - 계산 주중24/주말24가 `base24h * 0.90 / 1.15` 기준과 일치한다.
+  - search 가격이 의도한 절대값을 읽는다.
+
+## 현재 확인한 근거
+- `docs/past/present-history/2026-05-13_RENTCAR00_PRICING_HUB_WEEKDAY_WEEKEND_BASELINE_CURRENT_PAST.md`
+  - `weekday = base24h의 -10%`
+  - `weekend = base24h의 +15%`
+- `server/search-db/pricing/calculateGroupPrice.js`
+  - search 계산은 `weekday_24h_price`, `weekend_24h_price` 절대값을 사용한다.
+- `supabase/migrations/20260514024500_slim_search_pricing_hub_view.sql`
+  - search view 는 `pricing_hub_rates.fee_24h` 를 우선 읽는다.
+- `api/admin/pricing-hub.js`
+  - admin editor state 에서 legacy percent fallback 이 남아 있다.
+- `scripts/pricing/backfill-pricing-hub-rate-metadata.js`
+  - metadata backfill 이 legacy percent 를 사용한다.
 
 ## 한 줄 결론
-현재 active current 는 비어 있으며, route splitting 작업은 complete 로 종료 처리했다.
+현재 pricing hub admin 의 `45% / 50%` 표시는 IMS/legacy 비율을 새 허브 변수로 잘못 사용한 오류이며, 정상 baseline 은 `weekday 90%`, `weekend 115%` 로 잠근다.

@@ -51,6 +51,8 @@ admin 이 직접 수정하는 값은 아래 4개다.
 단,
 - `pricingOptionType` 은 연결 truth 로서 `price_policy_groups.pricing_option_type` 기준이다.
 - 정책 수정 하단의 옵션타입은 저장값이 아니라 미리보기용이다.
+- `weekdayPercent`, `weekendPercent` 의 기본 baseline 은 `90 / 115` 다.
+- `price_policies.weekday_rate_percent = 45`, `price_policies.weekend_rate_percent = 50` 은 IMS/legacy 값이며 admin pricing hub 기본 비율 truth 로 쓰면 안 된다.
 
 ---
 
@@ -85,10 +87,15 @@ admin 이 직접 수정하는 값은 아래 4개다.
 `90.7`, `115.12` 같은 소수점 비율이 보였다.
 
 ### 3-2. backfill 기준
-`pricing_hub_rates.metadata` 에 아래를 일괄 채웠다.
+> 정정: 최초 문서에는 `weekdayPercent`, `weekendPercent` 를 `price_policies.weekday_rate_percent`, `price_policies.weekend_rate_percent` 에서 가져온다고 기록했으나 이는 오류다.
+> 해당 값은 IMS/legacy `45 / 50` 이며 pricing hub admin baseline 으로 쓰면 안 된다.
+
+정상 기준:
 - `base24h` → 같은 period 의 `common.fee_24h`
-- `weekdayPercent` → `price_policies.weekday_rate_percent`
-- `weekendPercent` → `price_policies.weekend_rate_percent`
+- `weekdayPercent` → 기본 `90`
+- `weekendPercent` → 기본 `115`
+
+이미 `45 / 50` 으로 들어간 metadata 는 후속 current 에서 정정 대상이다.
 
 ### 3-3. 결과
 - 대상: `pricing_hub_rates` 54 row
@@ -98,8 +105,9 @@ admin 이 직접 수정하는 값은 아래 4개다.
 ### 3-4. fallback 원칙
 이후 editor state 해석은 아래 순서로 본다.
 1. `metadata.weekdayPercent`, `metadata.weekendPercent`
-2. 없으면 `price_policies.weekday_rate_percent`, `price_policies.weekend_rate_percent`
+2. 없으면 pricing hub baseline 기본값 `90 / 115`
 
+`price_policies.weekday_rate_percent`, `price_policies.weekend_rate_percent` 는 IMS/legacy 값이므로 admin percent fallback 으로 쓰지 않는다.
 `fee_24h / base24h` 역산 fallback 은 운영 기준에서 더 이상 truth 로 쓰지 않는다.
 
 ---
