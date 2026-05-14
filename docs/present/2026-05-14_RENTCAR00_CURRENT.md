@@ -2,19 +2,20 @@
 
 ## 문서 상태
 - 상태: active current
-- 목적: 다음 구현 우선순위인 비밀번호 재설정과 로그인 보호를 한 문서로 잠근다.
+- 목적: 전체 페이지 초기 로드 부담을 줄이기 위해 route-level code splitting 과 admin 분리를 현재 우선 작업으로 잠근다.
 
 ## 현재 active 범위
-현재 active 범위는 **비밀번호 재설정 기능 정비 + 로그인 실패 방어 설계/구현** 이다.
+현재 active 범위는 **페이지 분리 / lazy loading / admin 번들 분리** 다.
 
-### 방금 완료된 묶음
-- 인증/비회원 흐름 관련 완료 기준은 아래 complete 문서로 분리했다.
-- `docs/complete/2026-05-14_RENTCAR00_AUTH_AND_GUEST_FLOW_COMPLETE.md`
+### 우선순위 변경 메모
+- 기존 비밀번호 재설정 + 로그인 보호 current 초안은 아래 parked 문서로 이동했다.
+- `docs/past/present-history/2026-05-14_RENTCAR00_AUTH_HARDENING_PARKED.md`
 
 ### 지금 바로 다룰 것
-1. 비밀번호 재설정 흐름을 현재 서비스 식별자 기준으로 재설계
-2. 로그인 실패 누적 시도 방어 구조 설계
-3. CAPTCHA/잠금 정책 적용 위치 결정
+1. 현재 라우트 로딩 구조 확인
+2. 초기 번들에 같이 묶이는 페이지 범위 확인
+3. admin 페이지 분리
+4. auth/guest/member 페이지 lazy loading 적용 범위 확정
 
 ## 현재 기준
 - 장기 구조 기준은 `docs/policies/RENTCAR00_POLICY.md`
@@ -22,210 +23,146 @@
 - 방금 완료된 인증/비회원 흐름 기준은 `docs/complete/2026-05-14_RENTCAR00_AUTH_AND_GUEST_FLOW_COMPLETE.md`
 
 ## 현재 문제
-### 1. 비밀번호 재설정 UX 불일치
-- 현재 로그인 UX 는 휴대폰 번호 + 비밀번호다.
-- 그러나 `ForgotPasswordPage.jsx` 는 아직 이메일 입력 + email reset link 기준이다.
-- 이메일은 선택값이라, 현재 회원 식별 UX 와 맞지 않는다.
+### 1. 초기 로드 번들 부담
+- 최근 build 에서 500kB 초과 chunk warning 이 계속 보였다.
+- 현재 구조는 초기 진입과 무관한 페이지까지 함께 묶일 가능성이 있다.
 
-### 2. 로그인 보호 구조 부족
-- 현재 `LoginPage.jsx` 는 브라우저에서 Supabase `signInWithPassword` 를 직접 호출한다.
-- 이 구조에서는 실패 횟수 누적, 번호/IP 기준 잠금, CAPTCHA 강제 같은 정책을 서버에서 일관되게 제어하기 어렵다.
+### 2. admin 화면의 불필요한 동반 로드
+- admin 페이지는 일반 고객 흐름과 사용자가 완전히 다르다.
+- 따라서 일반 사용자 초기 로드에 admin 관련 코드가 섞이면 낭비가 크다.
+
+### 3. 저빈도 페이지의 상시 포함 가능성
+- 로그인 / 회원가입 / 비밀번호 재설정 / 비회원 예약조회 / 회원 예약내역 / admin 은 메인 검색보다 진입 빈도가 낮다.
+- 이런 페이지는 route 단위로 분리하는 편이 맞다.
 
 ## 방향 잠금
-### 비밀번호 재설정
-- 이메일 링크 기반이 아니라 **휴대폰 OTP 기반 재설정** 으로 전환한다.
-- OTP 인증 후 짧은 만료시간의 reset session/token 을 발급한다.
-- 유효한 reset session 이 있을 때만 새 비밀번호 저장을 허용한다.
+### 핵심 방향
+- `App.jsx` 라우트 기준으로 page-level lazy loading 을 적용한다.
+- 최소 1차 범위는 admin / auth / guest/member reservation 페이지를 분리한다.
+- 메인 검색과 상세 흐름은 UX 영향을 보고 유지 또는 2차 분리 대상으로 본다.
 
-### 로그인 보호
-- 로그인 시도는 서버 API 를 한 번 거치게 재구성한다.
-- 서버에서 실패 횟수 누적, 잠금 상태, CAPTCHA 요구 여부를 판단한다.
-- 성공 로그인 시 실패 카운터를 초기화한다.
+### 1차 분리 대상
+- `AdminPricingHubPage.jsx`
+- `AdminBookingsPage.jsx`
+- `AdminBookingConfirmPage.jsx`
+- `LoginPage.jsx`
+- `SignupPage.jsx`
+- `ForgotPasswordPage.jsx`
+- `ResetPasswordPage.jsx`
+- `GuestBookingsPage.jsx`
+- `MemberReservationsPage.jsx`
+- `MemberReservationDetailPage.jsx`
 
-## 비밀번호 재설정 목표 UX
-1. 휴대폰 번호 입력
-2. 회원 존재 여부 확인 가능한 범위에서 재설정 흐름 진입
-3. `password_reset` 목적 OTP 발송
-4. OTP 인증 성공
-5. reset session/token 발급
-6. 새 비밀번호 입력
-7. 서버가 비밀번호 변경 처리
-8. 로그인 화면으로 복귀
+### 2차 검토 대상
+- `ReservationCompletePage.jsx`
+- `LegalPage.jsx`
+- `PostcodeTestPage.jsx`
+- 필요 시 `CarsPage.jsx` 와 `CarDetail` 계열 내부 분리
 
-## 로그인 보호 목표 UX
-1. 휴대폰 번호 + 비밀번호 입력
-2. 서버 로그인 API 호출
-3. 잠금 전 단계에서는 일반 로그인 시도
-4. 실패 누적이 기준치를 넘으면 대기시간 또는 CAPTCHA 요구
-5. 성공 시 로그인 완료 + 카운터 초기화
+## 목표 UX
+1. 메인 진입 시 필요한 최소 번들만 먼저 로드
+2. 특정 페이지 이동 시 해당 route chunk 만 추가 로드
+3. admin 진입은 admin chunk 만 별도 로드
+4. 로딩 중에는 가벼운 fallback UI 표시
+5. 기존 URL 구조와 라우팅 동작은 유지
 
 ## 정책 잠금
-### 비밀번호 재설정 정책
-- 전화번호 기반 회원 계정만 대상이다.
-- reset token/session 은 짧게 유지한다.
-- 새 비밀번호 규칙은 회원가입과 동일 기준을 사용한다.
-- 재설정 완료 후 기존 세션 정리 여부를 검토한다.
-- OTP 발송 단계에서는 회원 존재 여부를 외부에 과도하게 노출하지 않되, UX는 휴대폰 번호 기준으로 자연스럽게 유지한다.
+### 코드 분리 정책
+- 분리 기준은 page route 단위 우선이다.
+- component 내부를 과하게 잘게 쪼개기보다, 먼저 page route 를 나눈다.
+- 기존 기능/권한/URL 구조는 바꾸지 않는다.
 
-### 로그인 실패 방어 정책
-- 번호 기준 + IP 기준을 함께 본다.
-- 1차 잠금 초안은 아래로 고정한다.
-  - 같은 전화번호 기준 5회 실패: 5분 대기
-  - 같은 전화번호 기준 8회 실패: 15분 대기
-  - 같은 전화번호 기준 10회 이상 또는 같은 IP 기준 과다 실패: CAPTCHA 필수
-- 성공 로그인 시 해당 번호와 관련된 실패 카운터는 초기화한다.
-- 잠금 중에는 Supabase 로그인 시도 전에 서버가 먼저 차단 응답을 반환한다.
+### admin 분리 정책
+- admin 관련 페이지는 일반 사용자 주요 번들에서 우선 분리한다.
+- admin 공통 컴포넌트가 있다면 2차에서 묶음 최적화를 검토한다.
 
-### CAPTCHA 방향
-- 1차 후보는 Cloudflare Turnstile 로 잠근다.
-- 이유
-  - 프론트 삽입이 비교적 가볍다.
-  - 서버 검증이 명확하다.
-  - 로그인 API 래핑 구조와 맞는다.
+### fallback 정책
+- lazy route 는 사용자에게 빈 화면이 아니라 간단한 loading UI 를 보여준다.
+- fallback 은 과한 skeleton 보다 현재 UI 톤에 맞는 가벼운 문구형 로딩을 우선한다.
 
-### 저장/추적 방향
-- 로그인 실패 기록은 서버가 제어 가능한 저장소에 남긴다.
-- 최소 저장 축은 아래를 본다.
-  - normalized phone
-  - client ip
-  - attempt count
-  - locked until
-  - last attempted at
-- 구현 시 별도 테이블과 기존 OTP/verification 테이블 재사용 중 하나를 선택하되, 로그인 실패 상태와 OTP 상태를 섞지 않는 방향을 우선한다.
+### 검증 정책
+- 기준 검증은 `npm run build` 와 chunk 변화 확인이다.
+- 가능하면 build 결과에서 초기 진입 chunk 와 분리 chunk 변화를 같이 확인한다.
 
 ## 다음 구현 phase
 ### 목적
-- 비밀번호 재설정을 휴대폰 OTP 기준으로 정리하고,
-- 로그인 실패 누적 방어를 서버 통제 구조로 바꾼다.
+- 일반 사용자 초기 로드를 가볍게 만들고,
+- admin/auth/예약 관련 저빈도 페이지를 route chunk 로 분리한다.
 
 ### 기준점
-- 현재 로그인은 클라이언트에서 Supabase 직접 호출 구조다.
-- 현재 비밀번호 재설정은 이메일 reset link 구조다.
-- 기존 OTP 인프라는 signup / guest_booking / guest_lookup 에 이미 존재한다.
+- 현재 앱은 `App.jsx` 에서 라우트를 직접 묶고 있을 가능성이 높다.
+- 최근 build warning 상 500kB 초과 chunk 가 존재한다.
+- 우선은 route-level lazy loading 으로 접근하고, 더 세밀한 manualChunks 는 2차로 미룬다.
 
 ### 예상 수정 파일
-- `src/pages/ForgotPasswordPage.jsx`
-- `src/pages/ResetPasswordPage.jsx`
-- `src/pages/LoginPage.jsx`
-- `api/auth/[action].js`
-- `api/auth/otp/[action].js`
-- `server/auth/*`
-- 필요 시 `src/lib/supabaseClient.js` 또는 auth hook 사용 경로
-- 필요 시 `vercel.json` (CAPTCHA 도메인 추가가 필요할 때만)
+- `src/App.jsx`
+- 필요 시 `src/components/Layout.jsx`
+- 필요 시 로딩 fallback 공통 컴포넌트 파일
+- build 설정을 건드려야 할 때만 `vite.config.*`
 
-### Phase 1. 현재 구조/경계 확정
+### Phase 1. 현재 라우트/번들 구조 확인
 #### 작업
-- 현재 Supabase direct login 과 email reset link 경로를 정확히 확인한다.
-- 서버 API 래핑 범위를 잠근다.
-- reset 전용 OTP purpose / reset token 구조를 잠근다.
-- 로그인 실패 기록 저장 위치 후보를 확인한다.
-
-#### 예상 수정 파일
-- `src/pages/LoginPage.jsx`
-- `src/pages/ForgotPasswordPage.jsx`
-- `src/pages/ResetPasswordPage.jsx`
-- `api/auth/[action].js`
-- `api/auth/otp/[action].js`
-- `server/auth/*`
+- `src/App.jsx` 라우트 import 구조 확인
+- 어떤 page 가 eager import 인지 확인
+- 현재 build 결과를 기준점으로 남긴다.
 
 #### 종료조건
-- 로그인과 재설정 각각의 서버/프론트 책임 경계가 문장으로 고정된다.
+- 어떤 route 를 1차 분리할지 파일 기준으로 고정된다.
 
-### Phase 2. 비밀번호 재설정 서버 계약 잠금
+### Phase 2. admin route lazy loading 적용
 #### 작업
-- `password_reset` purpose 추가
-- OTP verify 성공 후 reset session/token 발급 계약 정의
-- reset session 검증 후 새 비밀번호 저장 API 계약 정의
-- 성공/실패/만료 응답 코드를 잠근다.
-
-#### 응답 기준 초안
-- OTP 발송: `password_reset_otp_sent`
-- OTP 확인: `password_reset_verified`
-- reset session 만료: `password_reset_session_expired`
-- 비밀번호 변경 성공: `password_reset_completed`
+- admin 3개 페이지를 `React.lazy` 로 전환
+- route fallback UI 연결
 
 #### 종료조건
-- 휴대폰 OTP → reset session → 비밀번호 변경 흐름이 끊기지 않는다.
+- admin 페이지가 일반 주요 번들에서 우선 분리된다.
 
-### Phase 3. 로그인 서버 API 계약 잠금
+### Phase 3. auth / guest / member route lazy loading 적용
 #### 작업
-- `api/auth/login` 신설 또는 `api/auth/[action].js?action=login` 확장 중 하나를 선택한다.
-- 번호/IP 기준 실패 누적 저장 구조를 정의한다.
-- 성공/실패/잠금/CAPTCHA 요구 응답 포맷을 정의한다.
-
-#### 응답 기준 초안
-- 로그인 성공: 세션 발급 또는 성공 payload
-- 일반 실패: `invalid_login_credentials`
-- 잠금 상태: `login_temporarily_locked`
-- CAPTCHA 필요: `captcha_required`
+- 로그인/회원가입/비밀번호 재설정/비회원예약조회/회원예약내역 계열을 lazy loading 으로 전환
+- redirect 와 기존 route path 는 유지
 
 #### 종료조건
-- 클라이언트가 서버 응답만으로 로그인 UI 상태를 분기할 수 있다.
+- 저빈도 페이지가 초기 번들에서 분리된다.
 
-### Phase 4. 잠금/CAPTCHA 구현 기준 확정
+### Phase 4. 2차 대상 판단
 #### 작업
-- 실패 횟수 임계치와 대기시간을 위 정책값으로 잠근다.
-- Turnstile 도입 시 프론트 토큰 수집 + 서버 verify 흐름을 잠근다.
-- CSP 추가 필요 여부를 확인한다.
+- 예약완료 / 법률 / 테스트 페이지 분리 여부 판단
+- 필요 시 Cars/Detail 내부 분리까지 갈지 판단
 
 #### 종료조건
-- 임계치와 차단 단계, CAPTCHA 검증 경로가 문서 기준으로 고정된다.
+- 2차 분리 대상이 명확해진다.
 
-### Phase 5. 구현 1차 범위
-#### 작업
-- 휴대폰 OTP 기반 비밀번호 재설정 구현
-- 로그인 서버 API 래핑 구현
-- 실패 누적 / 잠금 응답 구현
-- CAPTCHA는 1차에서 포함 또는 Phase 5-B 로 분리 여부를 구현 직전 확정
-
-#### 종료조건
-- 현재 UX 기준으로 재설정/로그인 보호가 동작한다.
-
-### Phase 6. 프론트 연결
-#### 작업
-- `ForgotPasswordPage` 를 휴대폰 OTP UI 로 교체
-- `ResetPasswordPage` 를 reset session 기반 저장 화면으로 조정
-- `LoginPage` 를 서버 로그인 API 호출 구조로 전환
-- 잠금/캡차 요구 응답에 맞는 안내 문구를 연결
-
-#### 종료조건
-- 프론트가 새 서버 계약에 맞게 동작한다.
-
-### Phase 7. 검증
+### Phase 5. build 검증
 #### 검증 항목
-- 회원 휴대폰 비밀번호 재설정 OTP 발송
-- OTP 인증 후 reset session 발급
-- 새 비밀번호 변경 성공
-- 잘못된 OTP / 만료 token 차단
-- 로그인 실패 누적
-- 잠금 응답
-- CAPTCHA 요구 단계
-- build 검증
+- `npm run build`
+- 생성 chunk 구조 확인
+- 기존 라우트 path 유지 확인
+- lazy fallback 노출 확인
 
 #### 종료조건
-- 재설정과 로그인 보호가 모두 일관되게 동작한다.
+- 기능 변화 없이 chunk 분리와 초기 부담 감소가 확인된다.
 
 ## 리스크
-- 로그인 API 를 서버로 감싸면 기존 세션 처리 방식과 충돌할 수 있다.
-- CAPTCHA 도입 시 CSP 도메인 추가가 필요할 수 있다.
-- reset session 설계를 느슨하게 하면 계정 탈취 리스크가 생긴다.
-- 회원 존재 여부 노출 수준은 UX와 보안 사이 균형이 필요하다.
-- 로그인 실패 저장 구조를 잘못 잡으면 OTP 차단 상태와 로그인 차단 상태가 섞여 운영 판단이 어려워질 수 있다.
+- lazy route fallback 처리가 어색하면 첫 화면 전환 체감이 나빠질 수 있다.
+- Layout/shared import 구조에 따라 기대만큼 분리가 안 될 수 있다.
+- admin page 가 공용 모듈을 많이 끌고 있으면 1차 분리 효과가 제한될 수 있다.
+- 과도한 세분화는 오히려 chunk 요청 수를 늘릴 수 있다.
 
 ## 구현 전 확인 필요 사항
-1. 로그인 실패 기록을 저장할 기존 테이블 재사용이 가능한지
-2. 별도 테이블/migration 이 필요한지
-3. Turnstile 도입 시 `vercel.json` CSP 추가가 필요한지
-4. 비밀번호 변경 후 기존 세션 강제 만료를 할지
+1. 현재 `App.jsx` 의 route import 구조
+2. Suspense fallback 공통 위치
+3. admin/page 공용 의존도가 큰지 여부
+4. build 결과에서 가장 큰 chunk 가 어떤 경로인지
 
 ## 구현 상태
 - 아직 미구현이다.
-- 현재는 문서 기준 정리 단계다.
+- 현재는 route splitting 기준을 잠그는 단계다.
 
 ## current 운영 원칙
 - active current 는 이 문서 1개만 유지한다.
-- 방금 끝난 구현은 complete 로 올리고 current 에 누적하지 않는다.
+- 밀린 우선순위는 parked/past 로 빼고 current 에 중첩 적재하지 않는다.
 - 다음 구현은 이 문서 phase 기준으로만 진행한다.
 
 ## 한 줄 결론
-지금 active current 는 **휴대폰 OTP 기반 비밀번호 재설정 + 로그인 실패 방어 구조 설계/구현** 이다.
+지금 active current 는 **route-level code splitting + admin 분리 + 초기 번들 경량화** 다.
