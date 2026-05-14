@@ -181,10 +181,10 @@
 ---
 
 ## 8. 현재 작업과 연결되는 참조 문서
-- 자사플랫폼 계산식 current:
-  - `docs/present/2026-05-13_RENTCAR00_PRICING_FORMULA_CURRENT.md`
-- 현재 active 작업 요약:
-  - `docs/present/2026-05-13_RENTCAR00_CURRENT.md`
+- 현재 active 요약:
+  - `docs/present/2026-05-14_RENTCAR00_CURRENT.md`
+- pricing hub admin 완료 기준:
+  - `docs/complete/2026-05-14_RENTCAR00_PRICING_HUB_ADMIN_COMPLETE.md`
 - 제품/예약/인증/API 정책:
   - `docs/policies/RENTCAR00_POLICY.md`
 

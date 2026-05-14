@@ -1,50 +1,68 @@
 # docs
 
-문서는 아래 구조로 잠근다.
+문서는 아래 4개 축으로만 관리한다.
 
-## 1. policies
-지속적으로 참고할 운영 기준과 정책 파일을 둔다.
+## 1. main skeleton
+프로젝트의 메인 뼈대 문서다.
+구조, 정책, 해석 순서를 잠그는 문서만 둔다.
 
-현재 정책 파일:
+대상:
+- `../README.md`
 - `policies/RENTCAR00_POLICY.md`
 - `policies/RENTCAR00_PRICING_HUB.md`
 
 원칙:
-- 정책 파일은 `current`, `past` 같은 상태 꼬리표를 붙이지 않는다.
-- 제품/보안/API/회원/운영 기준처럼 계속 참고할 문서는 `policies/` 에 둔다.
-- 상태 문서가 아니라 기준 문서다.
+- 장기 기준은 여기만 남긴다.
+- 실행 로그, 임시 phase, 완료 보고는 넣지 않는다.
+- 새 세션이 먼저 읽어야 하는 기준만 유지한다.
 
-## 1-1. present
-실행 중인 작업에 한해 임시 current 문서를 둘 수 있다.
+## 2. complete
+기능 구현이 끝난 상태를 남기는 문서다.
+실행 중 문서 여러 개를 남기지 말고 완료되면 complete 1개 문서로 통합한다.
 
-현재 active present:
-- `present/2026-05-14_RENTCAR00_ADMIN_PRICING_HUB_EXECUTION_READY_CURRENT.md`
+현재 complete:
+- `complete/2026-05-14_RENTCAR00_PRICING_HUB_ADMIN_COMPLETE.md`
 
 원칙:
-- present 는 실행 중인 작업이 있을 때만 사용한다.
-- 작업이 끝나면 `past/` 로 내린다.
-- 정책 자체는 `policies/` 에 남기고, 진행 상태는 `present/` 에만 둔다.
+- 구현 완료 범위
+- 저장 truth
+- 실제 반영 결과
+- 남은 리스크 / 후속 후보
+정도만 남긴다.
+- 실행 준비 문서와 완료 문서를 따로 여러 개 늘리지 않는다.
 
-## 2. past
-현재 기준에서 내려온 문서와 과거 실행 기록.
+## 3. current
+현재 실행 중인 문서는 1개만 유지한다.
+작업이 끝나면 complete 또는 past 로 이동한다.
 
-정리 원칙:
-- 완료된 실행 문서, 예전 current 문서, 시점 기록은 `past/` 로 내린다.
-- 상태가 끝난 문서는 policy 로 남기지 않는다.
+현재 active current:
+- `present/2026-05-14_RENTCAR00_CURRENT.md`
 
-## 3. archive
-현재 기준에서 직접 쓰지 않는 오래된 설계/메모.
+원칙:
+- active current 는 한 번에 1개만 둔다.
+- 새 current 를 만들기 전에 기존 current 에 합칠 수 있는지 먼저 본다.
+- complete 로 올릴 수 있으면 current 에 오래 남기지 않는다.
 
-## 4. references
-현재/과거와 별개로 계속 참고하는 외부 레퍼런스.
+## 4. past
+아이디어, 스냅샷, 지나간 current, 과거 실행 기록은 전부 past / archive 로 내린다.
 
-## 운영 원칙
-- 외부 SDK, 지도, 주소검색, 인증 위젯 변경은 기능 코드보다 먼저 `policies/RENTCAR00_POLICY.md` 와 `vercel.json` CSP를 같이 확인한다.
-- Kakao 계열은 1차 로더 도메인만 보고 끝내지 않는다. 실제 하위 로딩 도메인까지 확인한 뒤 `script-src`, `connect-src`, `frame-src` 를 각각 점검한다.
-- Kakao 우편번호는 popup 기준이라도 내부 iframe 로딩 여부까지 확인한다.
-- 예약/회원/보안/API/운영 기준은 모두 `policies/RENTCAR00_POLICY.md` 를 먼저 본다.
-- 완료된 실행 기록은 `past/present-history/` 에 보관한다.
-- 상태가 끝난 체크리스트는 남기지 않는다.
-- 예약 연동처럼 구현 완료된 current 문서는 active 에 두지 않고 `past/present-history/` 로 내린다.
-- 가격 허브 장기 구조 문서는 `policies/` 에 두고, current 문서로 두지 않는다.
-- 구기준 문서는 과감하게 active 영역에서 제거한다.
+대상:
+- `past/`
+- `archive/`
+- `references/`
+
+원칙:
+- 현재 기준에서 직접 안 쓰는 문서는 active 영역에 두지 않는다.
+- 아이디어/스냅샷/중간메모는 current 나 policy 로 올리지 않는다.
+- 과거 문서를 되살릴 때는 복사해서 새 current 를 만들지 말고 현재 문서에 필요한 판단만 옮긴다.
+
+## 운영 규칙
+- 문서는 먼저 기존 4축 안에 합칠 수 있는지 본다.
+- 비슷한 역할 문서가 있으면 새로 만들지 말고 통합한다.
+- `present` 문서가 2개 이상 생기면 정리 실패로 본다.
+- pricing hub 같이 겹치기 쉬운 주제도
+  - 정책은 `policies/`
+  - 완료 상태는 `complete/`
+  - 현재 실행은 `present/`
+  - 옛 판단은 `past/`
+  로만 나눈다.
