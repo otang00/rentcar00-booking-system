@@ -164,9 +164,33 @@ B. 회원 예약 운전자 정보 수정 허용
 
 ---
 
+## 후속 이슈 후보. 딜리버리 비용 관리자 관리 화면
+
+### 배경
+현재 딜리버리 배송비는 `public.delivery_regions.round_trip_price` 기준으로 관리되고, 프론트에는 `company.deliveryCostList` 로 변환되어 노출된다.
+
+### 현재 관리 지점
+- DB 테이블: `delivery_regions`
+- 원본/동기화 참고: `supabase/reference/delivery-cost-list.json`, `scripts/sync-delivery-regions.js`
+- 조회: `server/search-db/repositories/fetchDeliveryRegions.js`
+- 변환: `server/search-db/transformers/mapDeliveryRegionsToCompany.js`
+
+### 다음 구현 기준
+- 관리자 페이지에서 지역별 왕복 배송비(`round_trip_price`)를 조회/수정할 수 있게 한다.
+- 관리자 메뉴에 딜리버리 비용 관리 진입점을 추가한다.
+- 수정 시 `active`, 지역명, 금액 변경 이력/실패 처리 기준을 함께 검토한다.
+- 기존 `scripts/sync-delivery-regions.js` 는 일괄 동기화/복구용으로 보존한다.
+
+### 종료 조건 후보
+- 관리자 권한으로 배송비 목록 조회/검색이 가능하다.
+- 지역별 왕복 배송비 수정 후 검색/상세 화면 가격 계산에 반영된다.
+- `npm run build`, 관련 API 테스트 또는 최소 수동 검증 기준이 통과된다.
+
+---
+
 ## 완료로 넘긴 항목
 - pricing hub admin legacy percent 정리 current 는 past 로 이동했다.
 - 최종 완료 내용은 `docs/complete/2026-05-14_RENTCAR00_PRICING_HUB_ADMIN_COMPLETE.md` 에 통합한다.
 
 ## 한 줄 결론
-현재 active 기준은 **예약 상세 UI 정리, pricing hub 카드 순서, 회원/비회원 예약 경계, 운전자 연령 검증**이다.
+현재 active 기준은 **예약 상세 UI 정리, pricing hub 카드 순서, 회원/비회원 예약 경계, 운전자 연령 검증, 후속 딜리버리 비용 관리자 관리 화면**이다.

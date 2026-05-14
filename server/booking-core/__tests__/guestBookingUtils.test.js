@@ -10,6 +10,8 @@ const {
   validateGuestCancelInput,
   validateGuestLookupInput,
   validateGuestBookingCreateInput,
+  calculateKoreanAgeAtDate,
+  validateDriverAgeRequirement,
   canGuestCancelBooking,
   resolveCancelSyncStatus,
   resolveCancelledPaymentStatus,
@@ -61,6 +63,18 @@ test('validateGuestCancelInput requires reservation code', () => {
 
   assert.equal(result.isValid, false)
   assert.equal(result.errors.reservationCode, '예약번호를 확인해 주세요.')
+})
+
+test('calculateKoreanAgeAtDate calculates full age against pickup date', () => {
+  assert.equal(calculateKoreanAgeAtDate('20000515', '2026-05-15 10:00'), 26)
+  assert.equal(calculateKoreanAgeAtDate('20000516', '2026-05-15 10:00'), 25)
+})
+
+test('validateDriverAgeRequirement enforces 21 and 26 year conditions', () => {
+  assert.equal(validateDriverAgeRequirement({ customerBirth: '20050515', deliveryDateTime: '2026-05-15 10:00', requiredDriverAge: 21 }).isValid, true)
+  assert.equal(validateDriverAgeRequirement({ customerBirth: '20050516', deliveryDateTime: '2026-05-15 10:00', requiredDriverAge: 21 }).isValid, false)
+  assert.equal(validateDriverAgeRequirement({ customerBirth: '20000515', deliveryDateTime: '2026-05-15 10:00', requiredDriverAge: 26 }).isValid, true)
+  assert.equal(validateDriverAgeRequirement({ customerBirth: '20000516', deliveryDateTime: '2026-05-15 10:00', requiredDriverAge: 26 }).isValid, false)
 })
 
 test('filterActiveGuestLookupOrders keeps active statuses and sorts by pickup asc then created desc', () => {

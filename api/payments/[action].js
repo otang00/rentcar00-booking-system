@@ -10,7 +10,7 @@ const { ensureBookingAvailability } = require('../../server/booking-core/booking
 const { buildSearchWindow } = require('../../server/search-db/helpers/buildSearchWindow')
 const { validateDetailSearch } = require('../../server/search/searchState')
 const { verifyDetailToken } = require('../../server/security/detailToken')
-const { validateGuestBookingCreateInput, serializeBookingOrder } = require('../../server/booking-core/guestBookingUtils')
+const { validateGuestBookingCreateInput, validateDriverAgeRequirement, serializeBookingOrder } = require('../../server/booking-core/guestBookingUtils')
 const { getAccessTokenFromRequest } = require('../../server/auth/getAccessTokenFromRequest')
 const { getUserFromAccessToken } = require('../../server/auth/getUserFromAccessToken')
 const { ensureProfileForUser } = require('../../server/auth/ensureProfileForUser')
@@ -559,6 +559,21 @@ async function handlePrepare(req, res) {
       return res.status(400).json({
         error: 'invalid_detail_query',
         errors: detailSearchValidation.errors,
+      })
+    }
+
+    const driverAgeValidation = validateDriverAgeRequirement({
+      customerBirth: validation.normalized.customerBirth,
+      deliveryDateTime: validation.normalized.deliveryDateTime,
+      requiredDriverAge: detailSearchValidation.normalized.driverAge,
+    })
+    if (!driverAgeValidation.isValid) {
+      return res.status(400).json({
+        error: 'driver_age_requirement_not_met',
+        message: driverAgeValidation.message,
+        errors: {
+          customerBirth: driverAgeValidation.message,
+        },
       })
     }
 

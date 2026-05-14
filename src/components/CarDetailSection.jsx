@@ -465,8 +465,11 @@ export default function CarDetailSection() {
   }, [authLoading, driverFormLockReason, isAuthenticated, profile])
 
   const reservationValidation = useMemo(
-    () => validateReservationForm(reservationForm),
-    [reservationForm],
+    () => validateReservationForm(reservationForm, {
+      deliveryDateTime: parsedSearchState.deliveryDateTime,
+      requiredDriverAge: parsedSearchState.driverAge,
+    }),
+    [parsedSearchState.deliveryDateTime, parsedSearchState.driverAge, reservationForm],
   )
   const reservationOtpContext = useMemo(
     () => buildReservationOtpContextInput({
