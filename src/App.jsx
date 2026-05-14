@@ -7,9 +7,9 @@ import LegalPage from './pages/LegalPage'
 import ReservationCompletePage from './pages/ReservationCompletePage'
 import LoginPage from './pages/LoginPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
-import MemberReservationsPage from './pages/MemberReservationsPage'
 import PostcodeTestPage from './pages/PostcodeTestPage'
-import MemberReservationDetailPage from './pages/MemberReservationDetailPage'
+const MemberReservationsPage = lazy(() => import('./pages/MemberReservationsPage'))
+const MemberReservationDetailPage = lazy(() => import('./pages/MemberReservationDetailPage'))
 const GuestBookingsPage = lazy(() => import('./pages/GuestBookingsPage'))
 const SignupPage = lazy(() => import('./pages/SignupPage'))
 const AdminBookingConfirmPage = lazy(() => import('./pages/AdminBookingConfirmPage'))
@@ -31,8 +31,8 @@ export default function App() {
       <Route path="/landing" element={<Navigate to="/" replace />} />
       <Route path="/cars" element={<CarsPage />} />
       <Route path="/cars/:carId" element={<LandingPage />} />
-      <Route path="/reservations" element={<MemberReservationsPage />} />
-      <Route path="/reservations/:reservationCode" element={<MemberReservationDetailPage />} />
+      <Route path="/reservations" element={<LazyRoute><MemberReservationsPage /></LazyRoute>} />
+      <Route path="/reservations/:reservationCode" element={<LazyRoute><MemberReservationDetailPage /></LazyRoute>} />
       <Route path="/guest-bookings" element={<LazyRoute><GuestBookingsPage /></LazyRoute>} />
       <Route path="/reservation-complete" element={<ReservationCompletePage />} />
       <Route path="/login" element={<LoginPage />} />
