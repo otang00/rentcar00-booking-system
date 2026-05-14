@@ -131,6 +131,23 @@ function getGroupCardStyle(isActive, isSelected) {
   return { textAlign: 'left' }
 }
 
+function buildPolicySummary(editor, pricingOptionType) {
+  const policy = editor?.policies?.[0] || null
+  const editorState = editor?.editorState || {}
+  if (!policy) return null
+  return buildComputedRate(
+    policy.legacyPolicy,
+    editorState.base24h,
+    editorState.weekdayPercent,
+    editorState.weekendPercent,
+    pricingOptionType,
+  )
+}
+
+function ResultMoneyRow({ label, value }) {
+  return <div className="reservation-result-row"><span>{label}</span><strong>{formatMoney(value)}</strong></div>
+}
+
 export default function AdminPricingHubPage() {
   const navigate = useNavigate()
   const { loading, isAuthenticated, session, user, profile } = useAuth()
@@ -139,15 +156,22 @@ export default function AdminPricingHubPage() {
   const [groupsLoading, setGroupsLoading] = useState(true)
   const [groupsError, setGroupsError] = useState('')
   const [selectedPricePolicyGroupId, setSelectedPricePolicyGroupId] = useState('')
-  const [editor, setEditor] = useState(null)
-  const [editorLoading, setEditorLoading] = useState(false)
-  const [editorError, setEditorError] = useState('')
+  const [groupEditor, setGroupEditor] = useState(null)
+  const [groupEditorLoading, setGroupEditorLoading] = useState(false)
+  const [groupEditorError, setGroupEditorError] = useState('')
+  const [selectedConnectionPolicyId, setSelectedConnectionPolicyId] = useState('')
+  const [connectionPricingOptionTypeInput, setConnectionPricingOptionTypeInput] = useState(DEFAULT_PRICING_OPTION_TYPE)
+  const [connectionPolicyEditor, setConnectionPolicyEditor] = useState(null)
+  const [connectionPolicyLoading, setConnectionPolicyLoading] = useState(false)
+  const [connectionPolicyError, setConnectionPolicyError] = useState('')
+  const [policyEditorPolicyId, setPolicyEditorPolicyId] = useState('')
+  const [policyEditor, setPolicyEditor] = useState(null)
+  const [policyEditorLoading, setPolicyEditorLoading] = useState(false)
+  const [policyEditorError, setPolicyEditorError] = useState('')
+  const [policyPreviewOptionTypeInput, setPolicyPreviewOptionTypeInput] = useState(DEFAULT_PRICING_OPTION_TYPE)
   const [base24hInput, setBase24hInput] = useState('0')
   const [weekdayPercentInput, setWeekdayPercentInput] = useState(100)
   const [weekendPercentInput, setWeekendPercentInput] = useState(100)
-  const [pricingOptionTypeInput, setPricingOptionTypeInput] = useState(DEFAULT_PRICING_OPTION_TYPE)
-  const [groupSettingPolicyIdInput, setGroupSettingPolicyIdInput] = useState('')
-  const [groupSettingActiveInput, setGroupSettingActiveInput] = useState(true)
   const [saving, setSaving] = useState(false)
   const [savingGroupSetting, setSavingGroupSetting] = useState(false)
   const [searchInput, setSearchInput] = useState('')
@@ -158,13 +182,36 @@ export default function AdminPricingHubPage() {
   const hasAdminHint = useMemo(() => isAdminUser(user) || isAdminUser(profile), [profile, user])
   const sortedGroups = useMemo(() => sortGroupsByPrice(groups), [groups])
   const selectedGroup = sortedGroups.find((item) => item.pricePolicyGroupId === selectedPricePolicyGroupId) || null
-  const selectedPolicy = editor?.policies?.[0] || null
-  const originalBase24h = roundAmount(selectedPolicy?.legacyPolicy?.baseDailyPrice || selectedGroup?.legacyPolicy?.baseDailyPrice || 0)
-  const computedPreview = useMemo(
-    () => buildComputedRate(selectedPolicy?.legacyPolicy, base24hInput, weekdayPercentInput, weekendPercentInput, pricingOptionTypeInput),
-    [selectedPolicy, base24hInput, weekdayPercentInput, weekendPercentInput, pricingOptionTypeInput],
+  const selectedConnectionPolicyOption = useMemo(
+    () => policyOptions.find((item) => item.pricePolicyId === selectedConnectionPolicyId) || null,
+    [policyOptions, selectedConnectionPolicyId],
   )
-  const selectedPolicyOptionLabel = PRICING_OPTION_LABELS[normalizePricingOptionType(pricingOptionTypeInput)]
+  const selectedEditPolicyOption = useMemo(
+    () => policyOptions.find((item) => item.pricePolicyId === policyEditorPolicyId) || null,
+    [policyOptions, policyEditorPolicyId],
+  )
+
+  const currentAppliedPreview = useMemo(() => {
+    if (!selectedGroup) return null
+    return buildComputedRate(
+      selectedGroup.legacyPolicy,
+      selectedGroup.currentVariables?.base24h,
+      selectedGroup.currentVariables?.weekdayPercent,
+      selectedGroup.currentVariables?.weekendPercent,
+      selectedGroup.pricingOptionType,
+    )
+  }, [selectedGroup])
+
+  const connectionPolicyPreview = useMemo(
+    () => buildPolicySummary(connectionPolicyEditor, connectionPricingOptionTypeInput),
+    [connectionPolicyEditor, connectionPricingOptionTypeInput],
+  )
+
+  const policyEditorPreview = useMemo(() => {
+    const legacyPolicy = policyEditor?.policies?.[0]?.legacyPolicy || null
+    if (!legacyPolicy) return null
+    return buildComputedRate(legacyPolicy, base24hInput, weekdayPercentInput, weekendPercentInput, policyPreviewOptionTypeInput)
+  }, [policyEditor, base24hInput, weekdayPercentInput, weekendPercentInput, policyPreviewOptionTypeInput])
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -197,7 +244,6 @@ export default function AdminPricingHubPage() {
     } else {
       setSelectedPricePolicyGroupId('')
     }
-
   }
 
   useEffect(() => {
@@ -230,34 +276,27 @@ export default function AdminPricingHubPage() {
   useEffect(() => {
     let ignore = false
     if (!session?.access_token || !selectedPricePolicyGroupId) {
-      setEditor(null)
+      setGroupEditor(null)
       return () => {
         ignore = true
       }
     }
 
-    setEditorLoading(true)
+    setGroupEditorLoading(true)
     getPricingHubPolicyEditor(session, { pricePolicyGroupId: selectedPricePolicyGroupId })
       .then((result) => {
         if (ignore) return
-        setEditor(result)
-        setEditorError('')
-        const legacyPolicy = result?.policies?.[0]?.legacyPolicy || {}
-        const editorState = result?.editorState || {}
-        setBase24hInput(String(roundAmount(editorState.base24h || legacyPolicy.baseDailyPrice || 0)))
-        setWeekdayPercentInput(roundPercent(editorState.weekdayPercent, toNumber(legacyPolicy.weekdayRatePercent, 100)))
-        setWeekendPercentInput(roundPercent(editorState.weekendPercent, toNumber(legacyPolicy.weekendRatePercent, 100)))
-        setPricingOptionTypeInput(normalizePricingOptionType(editorState.pricingOptionType || result?.group?.pricingOptionType))
-        setSubmitMessage('')
+        setGroupEditor(result)
+        setGroupEditorError('')
       })
       .catch((error) => {
         if (ignore) return
-        setEditor(null)
-        setEditorError(error.message || '편집 정보를 불러오지 못했습니다.')
+        setGroupEditor(null)
+        setGroupEditorError(error.message || '차량그룹 상세를 불러오지 못했습니다.')
       })
       .finally(() => {
         if (ignore) return
-        setEditorLoading(false)
+        setGroupEditorLoading(false)
       })
 
     return () => {
@@ -272,9 +311,78 @@ export default function AdminPricingHubPage() {
 
   useEffect(() => {
     if (!selectedGroup) return
-    setGroupSettingPolicyIdInput(selectedGroup.pricePolicyId || '')
-    setGroupSettingActiveInput(selectedGroup.groupSettingActive !== false)
+    setSelectedConnectionPolicyId(selectedGroup.pricePolicyId || '')
+    setConnectionPricingOptionTypeInput(normalizePricingOptionType(selectedGroup.pricingOptionType))
+    setPolicyEditorPolicyId((prev) => prev || selectedGroup.pricePolicyId || '')
   }, [selectedGroup])
+
+  useEffect(() => {
+    let ignore = false
+    if (!session?.access_token || !selectedConnectionPolicyId) {
+      setConnectionPolicyEditor(null)
+      return () => {
+        ignore = true
+      }
+    }
+
+    setConnectionPolicyLoading(true)
+    getPricingHubPolicyEditor(session, { pricePolicyId: selectedConnectionPolicyId })
+      .then((result) => {
+        if (ignore) return
+        setConnectionPolicyEditor(result)
+        setConnectionPolicyError('')
+      })
+      .catch((error) => {
+        if (ignore) return
+        setConnectionPolicyEditor(null)
+        setConnectionPolicyError(error.message || '선택 정책 정보를 불러오지 못했습니다.')
+      })
+      .finally(() => {
+        if (ignore) return
+        setConnectionPolicyLoading(false)
+      })
+
+    return () => {
+      ignore = true
+    }
+  }, [session, selectedConnectionPolicyId])
+
+  useEffect(() => {
+    let ignore = false
+    if (!session?.access_token || !policyEditorPolicyId) {
+      setPolicyEditor(null)
+      return () => {
+        ignore = true
+      }
+    }
+
+    setPolicyEditorLoading(true)
+    getPricingHubPolicyEditor(session, { pricePolicyId: policyEditorPolicyId })
+      .then((result) => {
+        if (ignore) return
+        setPolicyEditor(result)
+        setPolicyEditorError('')
+        const legacyPolicy = result?.policies?.[0]?.legacyPolicy || {}
+        const editorState = result?.editorState || {}
+        setBase24hInput(String(roundAmount(editorState.base24h || legacyPolicy.baseDailyPrice || 0)))
+        setWeekdayPercentInput(roundPercent(editorState.weekdayPercent, toNumber(legacyPolicy.weekdayRatePercent, 100)))
+        setWeekendPercentInput(roundPercent(editorState.weekendPercent, toNumber(legacyPolicy.weekendRatePercent, 100)))
+        setPolicyPreviewOptionTypeInput(connectionPricingOptionTypeInput || DEFAULT_PRICING_OPTION_TYPE)
+      })
+      .catch((error) => {
+        if (ignore) return
+        setPolicyEditor(null)
+        setPolicyEditorError(error.message || '정책 수정 정보를 불러오지 못했습니다.')
+      })
+      .finally(() => {
+        if (ignore) return
+        setPolicyEditorLoading(false)
+      })
+
+    return () => {
+      ignore = true
+    }
+  }, [session, policyEditorPolicyId])
 
   function handlePercentChange(kind, value) {
     const nextValue = value === '' ? 0 : roundPercent(value, 0)
@@ -303,7 +411,7 @@ export default function AdminPricingHubPage() {
   }
 
   async function handleSaveGroupSetting() {
-    if (!session?.access_token || !selectedGroup || savingGroupSetting) return
+    if (!session?.access_token || !selectedGroup || !selectedConnectionPolicyId || savingGroupSetting) return
 
     setSavingGroupSetting(true)
     setSubmitMessage('')
@@ -311,49 +419,56 @@ export default function AdminPricingHubPage() {
       const result = await savePricingHubGroupSetting(session, {
         id: selectedGroup.pricePolicyGroupId,
         carGroupId: selectedGroup.carGroupId,
-        pricePolicyId: groupSettingPolicyIdInput,
-        pricingOptionType: pricingOptionTypeInput,
-        active: groupSettingActiveInput,
+        pricePolicyId: selectedConnectionPolicyId,
+        pricingOptionType: connectionPricingOptionTypeInput,
+        active: selectedGroup.groupSettingActive !== false,
       })
       await refreshGroupData(result?.item?.pricePolicyGroupId || selectedGroup.pricePolicyGroupId, searchQuery)
-      setSubmitMessage('그룹 설정이 저장되었습니다.')
+      setSubmitMessage('연결 정책이 저장되었습니다.')
     } catch (error) {
-      setSubmitMessage(error.message || '그룹 설정 저장에 실패했습니다.')
+      setSubmitMessage(error.message || '연결 정책 저장에 실패했습니다.')
     } finally {
       setSavingGroupSetting(false)
     }
   }
 
   async function handleSaveEditor() {
-    if (!session?.access_token || !selectedGroup || !selectedPolicy || saving) return
+    if (!session?.access_token || !policyEditorPolicyId || !policyEditor?.policies?.[0] || saving) return
 
     setSaving(true)
     setSubmitMessage('')
 
     try {
-      const payload = {
-        pricePolicyGroupId: selectedGroup.pricePolicyGroupId,
-        carGroupId: selectedGroup.carGroupId,
-        pricingOptionType: computedPreview.pricingOptionType,
-        base24h: computedPreview.base24h,
-        weekdayPercent: computedPreview.weekdayRatePercent,
-        weekendPercent: computedPreview.weekendRatePercent,
+      await savePricingHubEditor(session, {
+        pricePolicyId: policyEditorPolicyId,
+        base24h: policyEditorPreview?.base24h,
+        weekdayPercent: policyEditorPreview?.weekdayRatePercent,
+        weekendPercent: policyEditorPreview?.weekendRatePercent,
+      })
+
+      const nextPolicyEditor = await getPricingHubPolicyEditor(session, { pricePolicyId: policyEditorPolicyId })
+      setPolicyEditor(nextPolicyEditor)
+
+      if (selectedConnectionPolicyId === policyEditorPolicyId) {
+        const nextConnectionEditor = await getPricingHubPolicyEditor(session, { pricePolicyId: selectedConnectionPolicyId })
+        setConnectionPolicyEditor(nextConnectionEditor)
       }
 
-      await savePricingHubEditor(session, payload)
-      const nextEditor = await getPricingHubPolicyEditor(session, { pricePolicyGroupId: selectedGroup.pricePolicyGroupId })
-      await refreshGroupData(selectedGroup.pricePolicyGroupId, searchQuery)
-      setEditor(nextEditor)
+      if (selectedGroup?.pricePolicyId === policyEditorPolicyId) {
+        const nextGroupEditor = await getPricingHubPolicyEditor(session, { pricePolicyGroupId: selectedGroup.pricePolicyGroupId })
+        setGroupEditor(nextGroupEditor)
+      }
 
-      const legacyPolicy = nextEditor?.policies?.[0]?.legacyPolicy || {}
-      const editorState = nextEditor?.editorState || {}
+      await refreshGroupData(selectedGroup?.pricePolicyGroupId || '', searchQuery)
+
+      const legacyPolicy = nextPolicyEditor?.policies?.[0]?.legacyPolicy || {}
+      const editorState = nextPolicyEditor?.editorState || {}
       setBase24hInput(String(roundAmount(editorState.base24h || legacyPolicy.baseDailyPrice || 0)))
       setWeekdayPercentInput(roundPercent(editorState.weekdayPercent, toNumber(legacyPolicy.weekdayRatePercent, 100)))
       setWeekendPercentInput(roundPercent(editorState.weekendPercent, toNumber(legacyPolicy.weekendRatePercent, 100)))
-      setPricingOptionTypeInput(normalizePricingOptionType(editorState.pricingOptionType || nextEditor?.group?.pricingOptionType))
-      setSubmitMessage('요금 기준값이 저장되었습니다.')
+      setSubmitMessage('정책 가격이 저장되었습니다.')
     } catch (error) {
-      setSubmitMessage(error.message || '저장에 실패했습니다.')
+      setSubmitMessage(error.message || '정책 저장에 실패했습니다.')
     } finally {
       setSaving(false)
     }
@@ -367,7 +482,7 @@ export default function AdminPricingHubPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
               <div>
                 <h1 style={{ margin: 0 }}>RENTCAR00 PRICING HUB</h1>
-                <p className="small-note" style={{ marginTop: 8 }}>변수형 기준값을 저장하고 계산 결과를 확인합니다.</p>
+                <p className="small-note" style={{ marginTop: 8 }}>차량그룹 현재 적용가 확인, 연결 정책 변경, 정책 가격 수정을 분리합니다.</p>
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 <Link className="btn btn-outline btn-md" to="/admin/bookings">예약관리로</Link>
@@ -376,7 +491,9 @@ export default function AdminPricingHubPage() {
             </div>
 
             {groupsError ? <p className="field-note" style={{ color: '#be123c', margin: 0 }}>{groupsError}</p> : null}
-            {editorError ? <p className="field-note" style={{ color: '#be123c', margin: 0 }}>{editorError}</p> : null}
+            {groupEditorError ? <p className="field-note" style={{ color: '#be123c', margin: 0 }}>{groupEditorError}</p> : null}
+            {connectionPolicyError ? <p className="field-note" style={{ color: '#be123c', margin: 0 }}>{connectionPolicyError}</p> : null}
+            {policyEditorError ? <p className="field-note" style={{ color: '#be123c', margin: 0 }}>{policyEditorError}</p> : null}
             {submitMessage ? <p className="field-note" style={{ margin: 0 }}>{submitMessage}</p> : null}
 
             <div className="pricing-hub-layout" style={{ display: 'grid', gap: 16, gridTemplateColumns: 'minmax(320px, 400px) minmax(0, 1fr)', alignItems: 'start' }}>
@@ -434,14 +551,22 @@ export default function AdminPricingHubPage() {
                   <strong>차량그룹 상세</strong>
                   {selectedGroup ? (
                     <>
+                      {groupEditorLoading ? <p className="field-note" style={{ margin: 0 }}>차량그룹 상세를 불러오는 중입니다.</p> : null}
                       <div className="reservation-result-row"><span>IMS 그룹</span><strong>{selectedGroup.imsGroupId}</strong></div>
                       <div className="reservation-result-row"><span>그룹명</span><strong>{selectedGroup.groupName}</strong></div>
-                      <div className="reservation-result-row"><span>정책명</span><strong>{selectedGroup.policyName}</strong></div>
+                      <div className="reservation-result-row"><span>현재 연결 정책</span><strong>{selectedGroup.policyName}</strong></div>
                       <div className="reservation-result-row"><span>상태</span><strong>{selectedGroup.groupSettingActive !== false ? '활성' : '비활성'}</strong></div>
-                      <div className="reservation-result-row"><span>옵션타입</span><strong>{selectedPolicyOptionLabel}</strong></div>
-                      <div className="reservation-result-row"><span>현재 저장된 기준 24시간</span><strong>{formatMoney(roundAmount(base24hInput))}</strong></div>
-                      <div className="reservation-result-row"><span>현재 주중/주말 비율</span><strong>{weekdayPercentInput}% / {weekendPercentInput}%</strong></div>
-                      <div className="reservation-result-row"><span>차량번호</span><strong className="pricing-hub-car-numbers">{editor?.group?.carNumbers?.length ? editor.group.carNumbers.join(', ') : selectedGroup.carNumbers?.join(', ') || '-'}</strong></div>
+                      <div className="reservation-result-row"><span>옵션타입</span><strong>{PRICING_OPTION_LABELS[normalizePricingOptionType(selectedGroup.pricingOptionType)]}</strong></div>
+                      <div className="reservation-result-row"><span>차량번호</span><strong className="pricing-hub-car-numbers">{groupEditor?.group?.carNumbers?.length ? groupEditor.group.carNumbers.join(', ') : selectedGroup.carNumbers?.join(', ') || '-'}</strong></div>
+                      <div style={{ height: 1, background: '#e5e7eb', margin: '4px 0' }} />
+                      <strong style={{ fontSize: 14 }}>현재 적용 금액</strong>
+                      <ResultMoneyRow label="기준 24시간" value={currentAppliedPreview?.base24h} />
+                      <ResultMoneyRow label="주중 24시간" value={currentAppliedPreview?.weekdayApplied24h} />
+                      <ResultMoneyRow label="주말 24시간" value={currentAppliedPreview?.weekendApplied24h} />
+                      <ResultMoneyRow label="1시간" value={currentAppliedPreview?.fee1h} />
+                      <ResultMoneyRow label="7일" value={currentAppliedPreview?.week1Price} />
+                      <ResultMoneyRow label="14일" value={currentAppliedPreview?.week2Price} />
+                      <ResultMoneyRow label="30일" value={currentAppliedPreview?.month1Price} />
                     </>
                   ) : (
                     <p className="field-note" style={{ margin: 0 }}>그룹을 선택하세요.</p>
@@ -450,12 +575,12 @@ export default function AdminPricingHubPage() {
 
                 <div className="panel-sub" style={{ display: 'grid', gap: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                    <strong>가격정책 변경</strong>
-                    <button type="button" className="btn btn-dark btn-md" onClick={handleSaveGroupSetting} disabled={!selectedGroup || savingGroupSetting}>{savingGroupSetting ? '변경중' : '설정 변경'}</button>
+                    <strong>연결 정책 선택</strong>
+                    <button type="button" className="btn btn-dark btn-md" onClick={handleSaveGroupSetting} disabled={!selectedGroup || !selectedConnectionPolicyId || savingGroupSetting}>{savingGroupSetting ? '저장중' : '연결 저장'}</button>
                   </div>
                   <div className="reservation-result-row pricing-hub-adjust-row">
-                    <span>연결 정책</span>
-                    <select className="field-input" value={groupSettingPolicyIdInput} onChange={(e) => setGroupSettingPolicyIdInput(e.target.value)} disabled={!selectedGroup || savingGroupSetting} style={{ maxWidth: 260 }}>
+                    <span>연결할 정책</span>
+                    <select className="field-input" value={selectedConnectionPolicyId} onChange={(e) => setSelectedConnectionPolicyId(e.target.value)} disabled={!selectedGroup || savingGroupSetting} style={{ maxWidth: 260 }}>
                       {policyOptions.map((option) => (
                         <option key={option.pricePolicyId} value={option.pricePolicyId}>{option.policyName}</option>
                       ))}
@@ -463,68 +588,90 @@ export default function AdminPricingHubPage() {
                   </div>
                   <div className="reservation-result-row pricing-hub-adjust-row">
                     <span>옵션타입</span>
-                    <select className="field-input" value={pricingOptionTypeInput} onChange={(e) => setPricingOptionTypeInput(normalizePricingOptionType(e.target.value))} disabled={!selectedGroup || savingGroupSetting} style={{ maxWidth: 220 }}>
+                    <select className="field-input" value={connectionPricingOptionTypeInput} onChange={(e) => setConnectionPricingOptionTypeInput(normalizePricingOptionType(e.target.value))} disabled={!selectedGroup || savingGroupSetting} style={{ maxWidth: 220 }}>
                       <option value="basic">기본</option>
                       <option value="semi_premium">세미프리미엄</option>
                       <option value="premium">프리미엄</option>
                     </select>
                   </div>
-                  <label className="reservation-result-row pricing-hub-adjust-row" style={{ cursor: 'pointer' }}>
-                    <span>활성 상태</span>
-                    <input type="checkbox" checked={groupSettingActiveInput} onChange={(e) => setGroupSettingActiveInput(e.target.checked)} disabled={!selectedGroup || savingGroupSetting} />
-                  </label>
+                  {connectionPolicyLoading ? <p className="field-note" style={{ margin: 0 }}>선택 정책을 불러오는 중입니다.</p> : null}
+                  {selectedConnectionPolicyOption ? (
+                    <>
+                      <div className="reservation-result-row"><span>선택 정책명</span><strong>{selectedConnectionPolicyOption.policyName}</strong></div>
+                      <ResultMoneyRow label="기준 24시간" value={connectionPolicyPreview?.base24h} />
+                      <ResultMoneyRow label="주중 24시간" value={connectionPolicyPreview?.weekdayApplied24h} />
+                      <ResultMoneyRow label="주말 24시간" value={connectionPolicyPreview?.weekendApplied24h} />
+                      <ResultMoneyRow label="1시간" value={connectionPolicyPreview?.fee1h} />
+                      <ResultMoneyRow label="7일" value={connectionPolicyPreview?.week1Price} />
+                      <ResultMoneyRow label="14일" value={connectionPolicyPreview?.week2Price} />
+                      <ResultMoneyRow label="30일" value={connectionPolicyPreview?.month1Price} />
+                    </>
+                  ) : null}
                 </div>
 
                 <div className="panel-sub" style={{ display: 'grid', gap: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                    <strong>가격정책 수정</strong>
-                    <button type="button" className="btn btn-dark btn-md" onClick={handleSaveEditor} disabled={!selectedPolicy || saving}>{saving ? '저장중' : '저장'}</button>
+                    <strong>정책 수정</strong>
+                    <button type="button" className="btn btn-dark btn-md" onClick={handleSaveEditor} disabled={!policyEditorPolicyId || saving}>{saving ? '저장중' : '정책 저장'}</button>
                   </div>
-                  {editorLoading ? <p className="field-note" style={{ margin: 0 }}>편집 데이터를 불러오는 중입니다.</p> : null}
-                  <div className="reservation-result-row">
-                    <span>현재 저장된 기준 24시간</span>
-                    <strong>{formatMoney(originalBase24h)}</strong>
+                  <div className="reservation-result-row pricing-hub-adjust-row">
+                    <span>수정할 정책</span>
+                    <select className="field-input" value={policyEditorPolicyId} onChange={(e) => setPolicyEditorPolicyId(e.target.value)} disabled={saving} style={{ maxWidth: 260 }}>
+                      {policyOptions.map((option) => (
+                        <option key={option.pricePolicyId} value={option.pricePolicyId}>{option.policyName}</option>
+                      ))}
+                    </select>
                   </div>
+                  {policyEditorLoading ? <p className="field-note" style={{ margin: 0 }}>정책 수정 데이터를 불러오는 중입니다.</p> : null}
+                  {selectedEditPolicyOption ? <div className="reservation-result-row"><span>선택 정책명</span><strong>{selectedEditPolicyOption.policyName}</strong></div> : null}
                   <div className="reservation-result-row pricing-hub-adjust-row">
                     <span>기준 24시간 금액</span>
                     <div className="pricing-hub-inline-controls pricing-hub-base-control">
-                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(Math.max(0, roundAmount(base24hInput) - 10000)))} disabled={!selectedPolicy || saving}>-</button>
-                      <input className="field-input pricing-hub-base-input" type="number" inputMode="numeric" min="0" step="10000" value={base24hInput} onChange={(e) => setBase24hInput(e.target.value)} disabled={!selectedPolicy || saving} />
-                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(roundAmount(base24hInput) + 10000))} disabled={!selectedPolicy || saving}>+</button>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(Math.max(0, roundAmount(base24hInput) - 10000)))} disabled={!policyEditorPolicyId || saving}>-</button>
+                      <input className="field-input pricing-hub-base-input" type="number" inputMode="numeric" min="0" step="10000" value={base24hInput} onChange={(e) => setBase24hInput(e.target.value)} disabled={!policyEditorPolicyId || saving} />
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(roundAmount(base24hInput) + 10000))} disabled={!policyEditorPolicyId || saving}>+</button>
                     </div>
                   </div>
                   <div className="reservation-result-row pricing-hub-adjust-row">
                     <span>주중 비율(%)</span>
                     <div className="pricing-hub-percent-control">
-                      <button type="button" className="btn btn-outline btn-sm" onClick={() => adjustPercent('weekday', -5)} disabled={!selectedPolicy || saving}>-</button>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => adjustPercent('weekday', -5)} disabled={!policyEditorPolicyId || saving}>-</button>
                       <div className="pricing-hub-input-wrap">
-                        <input className="field-input pricing-hub-percent-input" type="number" inputMode="decimal" min="0" step="5" value={weekdayPercentInput} onChange={(e) => handlePercentChange('weekday', e.target.value)} disabled={!selectedPolicy || saving} />
+                        <input className="field-input pricing-hub-percent-input" type="number" inputMode="decimal" min="0" step="5" value={weekdayPercentInput} onChange={(e) => handlePercentChange('weekday', e.target.value)} disabled={!policyEditorPolicyId || saving} />
                         <span className="pricing-hub-percent-suffix">%</span>
                       </div>
-                      <button type="button" className="btn btn-outline btn-sm" onClick={() => adjustPercent('weekday', 5)} disabled={!selectedPolicy || saving}>+</button>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => adjustPercent('weekday', 5)} disabled={!policyEditorPolicyId || saving}>+</button>
                     </div>
                   </div>
                   <div className="reservation-result-row pricing-hub-adjust-row">
                     <span>주말 비율(%)</span>
                     <div className="pricing-hub-percent-control">
-                      <button type="button" className="btn btn-outline btn-sm" onClick={() => adjustPercent('weekend', -5)} disabled={!selectedPolicy || saving}>-</button>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => adjustPercent('weekend', -5)} disabled={!policyEditorPolicyId || saving}>-</button>
                       <div className="pricing-hub-input-wrap">
-                        <input className="field-input pricing-hub-percent-input" type="number" inputMode="decimal" min="0" step="5" value={weekendPercentInput} onChange={(e) => handlePercentChange('weekend', e.target.value)} disabled={!selectedPolicy || saving} />
+                        <input className="field-input pricing-hub-percent-input" type="number" inputMode="decimal" min="0" step="5" value={weekendPercentInput} onChange={(e) => handlePercentChange('weekend', e.target.value)} disabled={!policyEditorPolicyId || saving} />
                         <span className="pricing-hub-percent-suffix">%</span>
                       </div>
-                      <button type="button" className="btn btn-outline btn-sm" onClick={() => adjustPercent('weekend', 5)} disabled={!selectedPolicy || saving}>+</button>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => adjustPercent('weekend', 5)} disabled={!policyEditorPolicyId || saving}>+</button>
                     </div>
                   </div>
-                </div>
-
-                <div className="panel-sub" style={{ display: 'grid', gap: 8 }}>
-                  <strong>계산 결과 미리보기</strong>
-                  <div className="reservation-result-row"><span>계산된 주중 24시간</span><strong>{formatMoney(computedPreview.weekdayApplied24h)}</strong></div>
-                  <div className="reservation-result-row"><span>계산된 주말 24시간</span><strong>{formatMoney(computedPreview.weekendApplied24h)}</strong></div>
-                  <div className="reservation-result-row"><span>계산된 1시간</span><strong>{formatMoney(computedPreview.fee1h)}</strong></div>
-                  <div className="reservation-result-row"><span>계산된 7일</span><strong>{formatMoney(computedPreview.week1Price)}</strong></div>
-                  <div className="reservation-result-row"><span>계산된 14일</span><strong>{formatMoney(computedPreview.week2Price)}</strong></div>
-                  <div className="reservation-result-row"><span>계산된 30일</span><strong>{formatMoney(computedPreview.month1Price)}</strong></div>
+                  <div className="reservation-result-row pricing-hub-adjust-row">
+                    <span>미리보기 옵션타입</span>
+                    <select className="field-input" value={policyPreviewOptionTypeInput} onChange={(e) => setPolicyPreviewOptionTypeInput(normalizePricingOptionType(e.target.value))} disabled={!policyEditorPolicyId || saving} style={{ maxWidth: 220 }}>
+                      <option value="basic">기본</option>
+                      <option value="semi_premium">세미프리미엄</option>
+                      <option value="premium">프리미엄</option>
+                    </select>
+                  </div>
+                  <div style={{ height: 1, background: '#e5e7eb', margin: '4px 0' }} />
+                  <strong style={{ fontSize: 14 }}>정책 가격 미리보기</strong>
+                  <ResultMoneyRow label="기준 24시간" value={policyEditorPreview?.base24h} />
+                  <ResultMoneyRow label="주중 24시간" value={policyEditorPreview?.weekdayApplied24h} />
+                  <ResultMoneyRow label="주말 24시간" value={policyEditorPreview?.weekendApplied24h} />
+                  <ResultMoneyRow label="1시간" value={policyEditorPreview?.fee1h} />
+                  <ResultMoneyRow label="7일" value={policyEditorPreview?.week1Price} />
+                  <ResultMoneyRow label="14일" value={policyEditorPreview?.week2Price} />
+                  <ResultMoneyRow label="30일" value={policyEditorPreview?.month1Price} />
+                  <p className="small-note" style={{ margin: 0 }}>하단 옵션타입은 저장값이 아니라 미리보기용입니다.</p>
                 </div>
               </div>
             </div>

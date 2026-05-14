@@ -263,12 +263,52 @@ async function fetchActiveCarGroups(supabaseClient) {
 async function fetchActivePolicies(supabaseClient) {
   const { data, error } = await supabaseClient
     .from('price_policies')
-    .select('id, policy_name, active, base_daily_price, weekday_rate_percent, weekend_rate_percent')
+    .select('id, policy_name, active, base_daily_price, weekday_rate_percent, weekend_rate_percent, weekday_1_2d_price, weekday_3_4d_price, weekday_5_6d_price, weekday_7d_plus_price, weekend_1_2d_price, weekend_3_4d_price, weekend_5_6d_price, weekend_7d_plus_price, hour_1_price, hour_6_price, hour_12_price, effective_from, effective_to')
     .eq('active', true)
     .order('policy_name', { ascending: true })
 
   if (error) throw error
   return Array.isArray(data) ? data : []
+}
+
+async function fetchPolicyBase(supabaseClient, pricePolicyId) {
+  if (!pricePolicyId) return null
+
+  const { data, error } = await supabaseClient
+    .from('price_policies')
+    .select('id, policy_name, active, base_daily_price, weekday_rate_percent, weekend_rate_percent, weekday_1_2d_price, weekday_3_4d_price, weekday_5_6d_price, weekday_7d_plus_price, weekend_1_2d_price, weekend_3_4d_price, weekend_5_6d_price, weekend_7d_plus_price, hour_1_price, hour_6_price, hour_12_price, effective_from, effective_to')
+    .eq('id', pricePolicyId)
+    .maybeSingle()
+
+  if (error) throw error
+  if (!data) return null
+
+  return {
+    price_policy_id: data.id,
+    policy_name: data.policy_name,
+    base_daily_price: data.base_daily_price,
+    weekday_rate_percent: data.weekday_rate_percent,
+    weekend_rate_percent: data.weekend_rate_percent,
+    weekday_1_2d_price: data.weekday_1_2d_price,
+    weekday_3_4d_price: data.weekday_3_4d_price,
+    weekday_5_6d_price: data.weekday_5_6d_price,
+    weekday_7d_plus_price: data.weekday_7d_plus_price,
+    weekend_1_2d_price: data.weekend_1_2d_price,
+    weekend_3_4d_price: data.weekend_3_4d_price,
+    weekend_5_6d_price: data.weekend_5_6d_price,
+    weekend_7d_plus_price: data.weekend_7d_plus_price,
+    hour_1_price: data.hour_1_price,
+    hour_6_price: data.hour_6_price,
+    hour_12_price: data.hour_12_price,
+    effective_from: data.effective_from,
+    effective_to: data.effective_to,
+    policy_active: data.active,
+    pricing_option_type: DEFAULT_PRICING_OPTION_TYPE,
+    car_group_id: null,
+    ims_group_id: null,
+    group_name: '',
+    price_policy_group_id: null,
+  }
 }
 
 async function fetchGroupMappings(supabaseClient, carGroupIds) {
@@ -443,11 +483,15 @@ async function handleList(req, res, supabaseClient) {
 async function handleGetPolicyEditor(req, res, supabaseClient) {
   const pricePolicyGroupId = normalizeText(req.query?.pricePolicyGroupId)
   const carGroupId = normalizeText(req.query?.carGroupId)
-  if (!pricePolicyGroupId && !carGroupId) {
-    return res.status(400).json({ error: 'missing_price_policy_group_id', message: 'pricePolicyGroupId 가 필요합니다.' })
+  const pricePolicyId = normalizeText(req.query?.pricePolicyId)
+  if (!pricePolicyGroupId && !carGroupId && !pricePolicyId) {
+    return res.status(400).json({ error: 'missing_price_policy_group_id', message: 'pricePolicyGroupId 또는 pricePolicyId 가 필요합니다.' })
   }
 
-  const baseRows = await fetchEditorBase(supabaseClient, { carGroupId, pricePolicyGroupId })
+  const baseRows = pricePolicyId
+    ? [await fetchPolicyBase(supabaseClient, pricePolicyId)].filter(Boolean)
+    : await fetchEditorBase(supabaseClient, { carGroupId, pricePolicyGroupId })
+
   if (baseRows.length === 0) {
     return res.status(404).json({ error: 'group_not_found', message: '대상 그룹을 찾지 못했습니다.' })
   }
@@ -455,22 +499,24 @@ async function handleGetPolicyEditor(req, res, supabaseClient) {
   const pricePolicyIds = [...new Set(baseRows.map((row) => row.price_policy_id).filter(Boolean))]
   const periods = await fetchPeriods(supabaseClient, pricePolicyIds)
   const rates = await fetchRates(supabaseClient, periods.map((item) => item.id))
-  const carNumbersByGroupId = await fetchCarNumbersByImsGroupIds(supabaseClient, [baseRows[0]?.ims_group_id])
+  const carNumbersByGroupId = baseRows[0]?.ims_group_id
+    ? await fetchCarNumbersByImsGroupIds(supabaseClient, [baseRows[0]?.ims_group_id])
+    : {}
 
   const ratesByPeriodId = toMap(rates, 'pricing_hub_period_id')
   const editorState = buildEditorState(baseRows[0], periods, ratesByPeriodId)
 
-  const policies = pricePolicyIds.map((pricePolicyId) => {
-    const base = baseRows.find((row) => row.price_policy_id === pricePolicyId)
+  const policies = pricePolicyIds.map((targetPricePolicyId) => {
+    const base = baseRows.find((row) => row.price_policy_id === targetPricePolicyId)
     const relatedPeriods = periods
-      .filter((item) => item.price_policy_id === pricePolicyId)
+      .filter((item) => item.price_policy_id === targetPricePolicyId)
       .map((period) => ({
         ...period,
         rates: ratesByPeriodId[period.id] || [],
       }))
 
     return {
-      pricePolicyId,
+      pricePolicyId: targetPricePolicyId,
       policyName: base?.policy_name || '-',
       legacyPolicy: {
         baseDailyPrice: base?.base_daily_price,
@@ -496,14 +542,14 @@ async function handleGetPolicyEditor(req, res, supabaseClient) {
   })
 
   return res.status(200).json({
-    group: {
+    group: baseRows[0].car_group_id ? {
       carGroupId: baseRows[0].car_group_id,
       imsGroupId: baseRows[0].ims_group_id,
       groupName: baseRows[0].group_name,
       pricePolicyGroupId: baseRows[0].price_policy_group_id,
       pricingOptionType: normalizePricingOptionType(baseRows[0].pricing_option_type),
       carNumbers: carNumbersByGroupId[String(baseRows[0].ims_group_id)] || [],
-    },
+    } : null,
     editorState,
     policies,
     overrides: [],
@@ -592,11 +638,15 @@ async function handleSaveEditor(req, res, supabaseClient, authUser) {
   const body = await parseJsonBody(req)
   const pricePolicyGroupId = normalizeText(body.pricePolicyGroupId)
   const carGroupId = normalizeText(body.carGroupId)
-  if (!pricePolicyGroupId && !carGroupId) {
-    return res.status(400).json({ error: 'missing_price_policy_group_id', message: 'pricePolicyGroupId 가 필요합니다.' })
+  const pricePolicyId = normalizeText(body.pricePolicyId)
+  if (!pricePolicyGroupId && !carGroupId && !pricePolicyId) {
+    return res.status(400).json({ error: 'missing_price_policy_group_id', message: 'pricePolicyGroupId 또는 pricePolicyId 가 필요합니다.' })
   }
 
-  const baseRows = await fetchEditorBase(supabaseClient, { carGroupId, pricePolicyGroupId })
+  const baseRows = pricePolicyId
+    ? [await fetchPolicyBase(supabaseClient, pricePolicyId)].filter(Boolean)
+    : await fetchEditorBase(supabaseClient, { carGroupId, pricePolicyGroupId })
+
   if (baseRows.length === 0) {
     return res.status(404).json({ error: 'group_not_found', message: '대상 그룹을 찾지 못했습니다.' })
   }
@@ -629,13 +679,15 @@ async function handleSaveEditor(req, res, supabaseClient, authUser) {
 
   const computed = buildComputedRate(base, body.base24h, body.weekdayPercent, body.weekendPercent, body.pricingOptionType)
 
-  const { error: mappingError } = await supabaseClient
-    .from('price_policy_groups')
-    .update({ pricing_option_type: computed.pricingOptionType })
-    .eq('id', base.price_policy_group_id)
+  if (base.price_policy_group_id) {
+    const { error: mappingError } = await supabaseClient
+      .from('price_policy_groups')
+      .update({ pricing_option_type: computed.pricingOptionType })
+      .eq('id', base.price_policy_group_id)
 
-  if (mappingError) {
-    return res.status(500).json({ error: 'save_editor_mapping_failed', message: mappingError.message })
+    if (mappingError) {
+      return res.status(500).json({ error: 'save_editor_mapping_failed', message: mappingError.message })
+    }
   }
 
   const metadata = {
@@ -645,25 +697,30 @@ async function handleSaveEditor(req, res, supabaseClient, authUser) {
     base24h: computed.base24h,
     weekdayPercent: computed.weekdayRatePercent,
     weekendPercent: computed.weekendRatePercent,
-    pricingOptionType: computed.pricingOptionType,
   }
 
+  if (base.price_policy_group_id) {
+    metadata.pricingOptionType = computed.pricingOptionType
+  }
+
+  const policyOnlySave = !base.price_policy_group_id
+
   const rows = [
-    { rate_scope: 'common', ...computed.common },
-    { rate_scope: 'weekday', ...computed.weekday },
-    { rate_scope: 'weekend', ...computed.weekend },
+    { rate_scope: 'common', values: computed.common },
+    { rate_scope: 'weekday', values: computed.weekday },
+    { rate_scope: 'weekend', values: computed.weekend },
   ].map((item) => ({
     pricing_hub_period_id: activePeriod.id,
     rate_scope: item.rate_scope,
-    fee_6h: item.fee6h,
-    fee_12h: item.fee12h,
-    fee_24h: item.fee24h,
-    fee_1h: item.fee1h,
-    week_1_price: item.week1Price,
-    week_2_price: item.week2Price,
-    month_1_price: item.month1Price,
-    long_24h_price: item.long24hPrice,
-    long_1h_price: item.long1hPrice,
+    fee_6h: item.values.fee6h,
+    fee_12h: item.values.fee12h,
+    fee_24h: item.values.fee24h,
+    fee_1h: policyOnlySave ? null : item.values.fee1h,
+    week_1_price: policyOnlySave ? null : item.values.week1Price,
+    week_2_price: policyOnlySave ? null : item.values.week2Price,
+    month_1_price: policyOnlySave ? null : item.values.month1Price,
+    long_24h_price: item.values.long24hPrice,
+    long_1h_price: item.values.long1hPrice,
     metadata,
   }))
 
