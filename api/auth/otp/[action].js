@@ -26,7 +26,7 @@ function getBody(req) {
 }
 
 function isSupportedPurpose(purpose) {
-  return ['signup', 'guest_booking'].includes(purpose)
+  return ['signup', 'guest_booking', 'guest_lookup'].includes(purpose)
 }
 
 async function handleOtpSend(req, res) {

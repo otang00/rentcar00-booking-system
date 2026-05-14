@@ -5,8 +5,8 @@ import { isSupabaseClientReady, supabase } from '../lib/supabaseClient'
 
 function resolveResetRedirect(search) {
   const params = new URLSearchParams(search)
-  const redirectTo = params.get('redirectTo') || '/reservations'
-  const safeRedirect = redirectTo.startsWith('/') ? redirectTo : '/reservations'
+  const redirectTo = params.get('redirectTo') || '/cars'
+  const safeRedirect = redirectTo.startsWith('/') ? redirectTo : '/cars'
   return `${window.location.origin}/reset-password?redirectTo=${encodeURIComponent(safeRedirect)}`
 }
 

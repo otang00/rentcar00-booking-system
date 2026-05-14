@@ -197,6 +197,63 @@ async function findGuestBookingOrdersByLookup({
   }
 }
 
+async function findGuestBookingOrdersByPhone({
+  supabaseClient,
+  customerPhone,
+} = {}) {
+  if (!supabaseClient) {
+    throw new Error('supabase client is required')
+  }
+
+  const normalizedPhone = normalizeCustomerPhone(customerPhone)
+  const phoneHash = hashLookupValue(`phone:${normalizedPhone}`)
+
+  const { data: orders, error: orderError } = await supabaseClient
+    .from('booking_orders')
+    .select('*')
+    .eq('customer_phone_last4', normalizedPhone.slice(-4))
+    .order('created_at', { ascending: false })
+
+  if (orderError) {
+    throw orderError
+  }
+
+  const matchedOrders = Array.isArray(orders) ? orders : []
+  if (matchedOrders.length === 0) {
+    return {
+      exactMatches: [],
+      guestOrders: [],
+      memberOrders: [],
+    }
+  }
+
+  const bookingOrderIds = matchedOrders.map((order) => order.id).filter(Boolean)
+  const { data: lookupKeys, error: lookupError } = await supabaseClient
+    .from('booking_lookup_keys')
+    .select('booking_order_id, lookup_type, lookup_value_hash')
+    .in('booking_order_id', bookingOrderIds)
+    .eq('lookup_type', 'customer_phone')
+
+  if (lookupError) {
+    throw lookupError
+  }
+
+  const keyIndex = (Array.isArray(lookupKeys) ? lookupKeys : []).reduce((acc, item) => {
+    acc[item.booking_order_id] = item.lookup_value_hash
+    return acc
+  }, {})
+
+  const exactMatches = matchedOrders.filter((order) => keyIndex[order.id] === phoneHash)
+  const guestOrders = exactMatches.filter((order) => !order.user_id)
+  const memberOrders = exactMatches.filter((order) => Boolean(order.user_id))
+
+  return {
+    exactMatches,
+    guestOrders,
+    memberOrders,
+  }
+}
+
 async function fetchBookingOrderByGuestLookup(params = {}) {
   const result = await findBookingOrderByGuestLookup(params)
   return result.order || null
@@ -466,23 +523,12 @@ async function fetchActiveReservationMapping({ supabaseClient, bookingOrderId } 
 
 async function lookupGuestBooking({
   supabaseClient,
-  customerName,
   customerPhone,
-  customerBirth,
 } = {}) {
-  const lookupResult = await findGuestBookingOrdersByLookup({
+  const lookupResult = await findGuestBookingOrdersByPhone({
     supabaseClient,
-    customerName,
     customerPhone,
-    customerBirth,
   })
-
-  if (lookupResult.blockedReason === 'member_booking_only') {
-    return {
-      blockedReason: 'member_booking_only',
-      message: '이 예약은 회원 예약입니다. 로그인 후 예약내역에서 확인해 주세요.',
-    }
-  }
 
   return {
     bookings: filterActiveGuestLookupOrders(lookupResult.guestOrders).map((order) => serializeBookingOrder(order)),
@@ -689,9 +735,7 @@ async function completeRefundForBookingOrder({
 
 async function cancelGuestBooking({
   supabaseClient,
-  customerName,
   customerPhone,
-  customerBirth,
   reservationCode,
   requestedBy = 'guest',
   reason = '',
@@ -701,21 +745,10 @@ async function cancelGuestBooking({
     throw new Error('supabase client is required')
   }
 
-  const lookupResult = await findGuestBookingOrdersByLookup({
+  const lookupResult = await findGuestBookingOrdersByPhone({
     supabaseClient,
-    customerName,
     customerPhone,
-    customerBirth,
   })
-
-  if (lookupResult.blockedReason === 'member_booking_only') {
-    return {
-      ok: false,
-      code: 'member_booking_only',
-      status: 403,
-      message: '이 예약은 회원 예약입니다. 로그인 후 예약내역에서 취소해 주세요.',
-    }
-  }
 
   const normalizedReservationCode = String(reservationCode || '').trim().toUpperCase()
   const order = lookupResult.guestOrders.find((item) => String(item.public_reservation_code || '').trim().toUpperCase() === normalizedReservationCode) || null
@@ -779,6 +812,7 @@ module.exports = {
   fetchCarBySourceCarId,
   findBookingOrderByGuestLookup,
   findGuestBookingOrdersByLookup,
+  findGuestBookingOrdersByPhone,
   fetchBookingOrderByGuestLookup,
   fetchBookingOrderByCompletionToken,
   fetchBookingOrderByMemberReservationCode,

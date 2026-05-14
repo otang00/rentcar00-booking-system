@@ -60,8 +60,8 @@ function loadDaumPostcodeScript() {
 
 function resolveRedirectTo(search) {
   const params = new URLSearchParams(search)
-  const redirectTo = params.get('redirectTo') || '/reservations'
-  return redirectTo.startsWith('/') ? redirectTo : '/reservations'
+  const redirectTo = params.get('redirectTo') || '/cars'
+  return redirectTo.startsWith('/') ? redirectTo : '/cars'
 }
 
 function getErrorMessage(error) {

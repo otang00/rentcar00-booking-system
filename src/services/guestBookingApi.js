@@ -45,6 +45,9 @@ export async function lookupGuestBooking(payload) {
   const result = await parseApiResponse(response, '예약 조회에 실패했습니다.')
   return {
     bookings: Array.isArray(result.bookings) ? result.bookings.map((booking) => toBookingViewModel(booking)).filter(Boolean) : [],
+    lookupToken: result.lookupToken || '',
+    lookupTokenExpiresAt: result.lookupTokenExpiresAt || null,
+    verifiedPhone: result.verifiedPhone || '',
   }
 }
 
@@ -74,5 +77,6 @@ export async function cancelGuestBooking(payload) {
   const result = await parseApiResponse(response, '예약 취소에 실패했습니다.')
   return {
     booking: toBookingViewModel(result.booking),
+    lookupTokenExpiresAt: result.lookupTokenExpiresAt || null,
   }
 }

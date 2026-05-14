@@ -2,6 +2,8 @@ import { normalizePhoneNumber } from './phone'
 
 const NAME_ALLOWED_PATTERN = /^[A-Za-z가-힣]+(?: [A-Za-z가-힣]+)*$/
 const MIN_BIRTH_DATE = '19000101'
+const MIN_NAME_LENGTH = 2
+const MAX_NAME_LENGTH = 40
 
 export function normalizePersonName(value) {
   return String(value || '').trim().replace(/\s+/g, ' ')
@@ -18,9 +20,8 @@ export function validatePersonName(value) {
     return { isValid: false, message: '이름 형식을 확인해 주세요.', normalized: name }
   }
 
-  const parts = name.split(' ')
-  const lettersOnlyLength = parts.join('').length
-  if (lettersOnlyLength < 2 || parts.some((part) => part.length > 5)) {
+  const lettersOnlyLength = name.replace(/ /g, '').length
+  if (lettersOnlyLength < MIN_NAME_LENGTH || lettersOnlyLength > MAX_NAME_LENGTH) {
     return { isValid: false, message: '이름 형식을 확인해 주세요.', normalized: name }
   }
 

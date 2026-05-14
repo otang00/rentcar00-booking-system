@@ -7,8 +7,8 @@ import { buildAuthEmailAlias, formatPhoneNumber, normalizePhoneNumber } from '..
 
 function resolveRedirectTo(search) {
   const params = new URLSearchParams(search)
-  const redirectTo = params.get('redirectTo') || '/reservations'
-  return redirectTo.startsWith('/') ? redirectTo : '/reservations'
+  const redirectTo = params.get('redirectTo') || '/cars'
+  return redirectTo.startsWith('/') ? redirectTo : '/cars'
 }
 
 function resolvePhone(search) {
@@ -80,7 +80,7 @@ export default function LoginPage() {
             <div>
               <h1 style={{ margin: 0 }}>로그인</h1>
               <p className="small-note" style={{ marginTop: 8 }}>
-                휴대폰 번호와 비밀번호로 로그인합니다. 로그인 후에는 예약내역 페이지로 이동합니다.
+                휴대폰 번호와 비밀번호로 로그인합니다. 로그인 후에는 차량 검색 페이지로 이동합니다.
               </p>
               <p className="field-note" style={{ marginTop: 8 }}>
                 계정이 없으면 아래 회원가입 버튼으로 바로 가입할 수 있습니다.
