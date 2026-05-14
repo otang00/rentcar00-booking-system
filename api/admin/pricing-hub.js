@@ -363,10 +363,10 @@ function buildEditorState(baseRow, periods = [], ratesByPeriodId = {}, now = new
     base24h,
     weekdayPercent: savedWeekdayPercent != null
       ? roundPercent(savedWeekdayPercent, normalizeNumber(baseRow?.weekday_rate_percent, 100))
-      : (base24h > 0 ? roundPercent((weekday24h / base24h) * 100, normalizeNumber(baseRow?.weekday_rate_percent, 100)) : roundPercent(baseRow?.weekday_rate_percent, 100)),
+      : roundPercent(baseRow?.weekday_rate_percent, 100),
     weekendPercent: savedWeekendPercent != null
       ? roundPercent(savedWeekendPercent, normalizeNumber(baseRow?.weekend_rate_percent, 100))
-      : (base24h > 0 ? roundPercent((weekend24h / base24h) * 100, normalizeNumber(baseRow?.weekend_rate_percent, 100)) : roundPercent(baseRow?.weekend_rate_percent, 100)),
+      : roundPercent(baseRow?.weekend_rate_percent, 100),
     weekday24h,
     weekend24h,
   }

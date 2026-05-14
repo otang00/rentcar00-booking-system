@@ -180,24 +180,39 @@ function InfoBlock({ title, children }) {
 }
 
 function MoneyGrid({ items = [] }) {
+  const primaryItems = items.slice(0, 3)
+  const secondaryItems = items.slice(3)
+
+  function renderRow(rowItems, tone = 'default', columns = 3) {
+    return (
+      <div style={{ display: 'grid', gap: 8, gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
+        {rowItems.map((item) => (
+          <div
+            key={item.label}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 10,
+              minWidth: 0,
+              padding: '9px 12px',
+              border: tone === 'primary' ? '1px solid #dbe3f0' : '1px solid #e5e7eb',
+              borderRadius: 12,
+              background: tone === 'primary' ? '#f8fbff' : '#fff',
+            }}
+          >
+            <span className="small-note" style={{ flex: '0 0 auto', margin: 0, whiteSpace: 'nowrap' }}>{item.label}</span>
+            <strong style={{ minWidth: 0, whiteSpace: 'nowrap', fontSize: 14, textAlign: 'right' }}>{formatMoney(item.value)}</strong>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   return (
-    <div style={{ display: 'grid', gap: 10 }}>
-      <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
-        {items.slice(0, 3).map((item) => (
-          <div key={item.label} style={{ padding: 12, border: '1px solid #dbe3f0', borderRadius: 12, background: '#f8fbff' }}>
-            <div className="small-note" style={{ marginBottom: 6 }}>{item.label}</div>
-            <strong>{formatMoney(item.value)}</strong>
-          </div>
-        ))}
-      </div>
-      <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
-        {items.slice(3).map((item) => (
-          <div key={item.label} style={{ padding: 12, border: '1px solid #e5e7eb', borderRadius: 12, background: '#fff' }}>
-            <div className="small-note" style={{ marginBottom: 6 }}>{item.label}</div>
-            <strong>{formatMoney(item.value)}</strong>
-          </div>
-        ))}
-      </div>
+    <div style={{ display: 'grid', gap: 8 }}>
+      {primaryItems.length ? renderRow(primaryItems, 'primary', 3) : null}
+      {secondaryItems.length ? renderRow(secondaryItems, 'default', 4) : null}
     </div>
   )
 }
@@ -761,14 +776,17 @@ export default function AdminPricingHubPage() {
                     </select>
                   </div>
                   <div style={{ height: 1, background: '#e5e7eb', margin: '4px 0' }} />
-                  <strong style={{ fontSize: 14 }}>정책 가격 미리보기</strong>
-                  <ResultMoneyRow label="기준 24시간" value={policyEditorPreview?.base24h} />
-                  <ResultMoneyRow label="주중 24시간" value={policyEditorPreview?.weekdayApplied24h} />
-                  <ResultMoneyRow label="주말 24시간" value={policyEditorPreview?.weekendApplied24h} />
-                  <ResultMoneyRow label="1시간" value={policyEditorPreview?.fee1h} />
-                  <ResultMoneyRow label="7일" value={policyEditorPreview?.week1Price} />
-                  <ResultMoneyRow label="14일" value={policyEditorPreview?.week2Price} />
-                  <ResultMoneyRow label="30일" value={policyEditorPreview?.month1Price} />
+                  <InfoBlock title="정책 가격 미리보기">
+                    <MoneyGrid items={[
+                      { label: '기준24', value: policyEditorPreview?.base24h },
+                      { label: '주중24', value: policyEditorPreview?.weekdayApplied24h },
+                      { label: '주말24', value: policyEditorPreview?.weekendApplied24h },
+                      { label: '1시간', value: policyEditorPreview?.fee1h },
+                      { label: '7일', value: policyEditorPreview?.week1Price },
+                      { label: '14일', value: policyEditorPreview?.week2Price },
+                      { label: '30일', value: policyEditorPreview?.month1Price },
+                    ]} />
+                  </InfoBlock>
                   <p className="small-note" style={{ margin: 0 }}>하단 옵션타입은 저장값이 아니라 미리보기용입니다.</p>
                 </div>
               </div>
