@@ -384,7 +384,6 @@ export default function CarDetailSection() {
   const [activeTermsModal, setActiveTermsModal] = useState('')
   const [isDriverFormLocked, setIsDriverFormLocked] = useState(true)
   const [driverFormLockReason, setDriverFormLockReason] = useState('auth_pending')
-  const [isDriverEditConfirmOpen, setIsDriverEditConfirmOpen] = useState(false)
   const [reservationOtpCode, setReservationOtpCode] = useState('')
   const [reservationVerificationId, setReservationVerificationId] = useState('')
   const [reservationVerificationToken, setReservationVerificationToken] = useState('')
@@ -619,22 +618,6 @@ export default function CarDetailSection() {
     })
   }
 
-  const handleStartDriverEdit = () => {
-    setIsDriverEditConfirmOpen(true)
-  }
-
-  const handleConfirmDriverEdit = () => {
-    setIsDriverEditConfirmOpen(false)
-    setReservationForm(DEFAULT_RESERVATION_FORM)
-    setIsDriverFormLocked(false)
-    setDriverFormLockReason('')
-    resetReservationOtpState('전화번호 인증을 진행해 주세요.')
-  }
-
-  const handleCancelDriverEdit = () => {
-    setIsDriverEditConfirmOpen(false)
-  }
-
   const handleDeliveryAddressDetailChange = (value) => {
     setDeliveryAddressDetail(value)
     setDeliveryAddressDetailError('')
@@ -645,7 +628,7 @@ export default function CarDetailSection() {
 
     if (!reservationValidation.isValid) {
       setHasReservationSubmitAttempted(true)
-      setReservationOtpMessage(Object.values(reservationValidation.errors)[0] || '운전자 정보를 먼저 확인해 주세요.')
+      setReservationOtpMessage(Object.values(reservationValidation.errors)[0] || '예약자 정보를 먼저 확인해 주세요.')
       return
     }
 
@@ -904,15 +887,7 @@ export default function CarDetailSection() {
               </article>
 
               <article className={`detail-card panel driver-info-card ${isDriverFormLocked ? 'is-locked' : 'is-editing'}`}>
-                <h2>운전자 정보</h2>
-                <div className="driver-info-card__header">
-                  <p className={`muted small-note driver-info-card__status ${isDriverFormLocked ? 'is-locked' : 'is-editing'}`} style={{ margin: 0 }}>
-                    {authLoading ? '확인 중' : isDriverFormLocked ? '잠금' : '인증 필요'}
-                  </p>
-                  {!authLoading && isDriverFormLocked ? (
-                    <button type="button" className="btn btn-outline btn-sm driver-info-card__edit-button" onClick={handleStartDriverEdit}>수정</button>
-                  ) : null}
-                </div>
+                <h2>{isAuthenticated ? '회원 정보' : '예약자 정보'}</h2>
                 <div className={`stack-form stack-form-centered driver-info-form ${isDriverFormLocked ? 'is-locked' : ''}`}>
                   <div>
                     <input
@@ -1115,26 +1090,6 @@ export default function CarDetailSection() {
             </div>
           </div>
         )}
-
-        {isDriverEditConfirmOpen ? (
-          <div className="delivery-modal-backdrop" onClick={handleCancelDriverEdit}>
-            <div className="search-guard-modal driver-edit-confirm-modal" onClick={(event) => event.stopPropagation()}>
-              <strong>운전자 정보를 수정하시겠습니까?</strong>
-              <p className="field-note">수정하면 잠금이 해제됩니다.</p>
-              <div className="driver-edit-confirm-modal__notice">
-                <strong>안내</strong>
-                <ul>
-                  <li>현재 운전자 정보 입력값이 초기화됩니다.</li>
-                  <li>수정 후 인증을 완료해야 예약 확정이 가능합니다.</li>
-                </ul>
-              </div>
-              <div className="search-guard-actions">
-                <button type="button" className="btn btn-outline btn-md" onClick={handleCancelDriverEdit}>취소</button>
-                <button type="button" className="btn btn-dark btn-md" onClick={handleConfirmDriverEdit}>확인</button>
-              </div>
-            </div>
-          </div>
-        ) : null}
 
         {activeTermsContent ? (
           <div className="delivery-modal-backdrop" onClick={() => setActiveTermsModal('')}>

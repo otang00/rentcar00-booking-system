@@ -976,44 +976,6 @@
   border-color:#d7e2eb;
 }
 
-.driver-info-card__header{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-  margin-bottom:12px;
-  flex-wrap:wrap;
-}
-
-.driver-info-card__status{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  line-height:1.6;
-}
-
-.driver-info-card__status.is-locked{
-  color:#42586b;
-  font-weight:600;
-}
-
-.driver-info-card__status.is-locked::before{
-  content:'';
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:0;
-  min-height:0;
-  padding:0;
-  border-radius:999px;
-  background:transparent;
-}
-
-.driver-info-card__edit-button{
-  width:auto;
-  flex:0 0 auto;
-}
-
 .driver-info-form.is-locked .driver-info-form__input{
   background:#eef4f8;
   border-color:#d7e2eb;
@@ -1024,34 +986,6 @@
 
 .driver-info-form.is-locked .driver-info-form__input::placeholder{
   color:#7c8d9d;
-}
-
-.driver-edit-confirm-modal{
-  width:min(440px,100%);
-  gap:16px;
-}
-
-.driver-edit-confirm-modal__notice{
-  display:grid;
-  gap:8px;
-  padding:14px;
-  border:1px solid #f1d6dc;
-  border-radius:12px;
-  background:#fff7f8;
-}
-
-.driver-edit-confirm-modal__notice strong{
-  font-size:15px;
-}
-
-.driver-edit-confirm-modal__notice ul{
-  margin:0;
-  padding-left:18px;
-  color:#6b7280;
-}
-
-.driver-edit-confirm-modal__notice li + li{
-  margin-top:6px;
 }
 
 .footer.minimal-footer{
@@ -1237,16 +1171,4 @@
     line-height:1.7;
   }
 
-  .driver-info-card__edit-button{
-    width:auto;
-    align-self:flex-start;
-  }
-
-  .driver-edit-confirm-modal .search-guard-actions{
-    flex-direction:column-reverse;
-  }
-
-  .driver-edit-confirm-modal .search-guard-actions .btn{
-    width:100%;
-  }
 }
