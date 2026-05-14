@@ -27,7 +27,7 @@ function getBody(req) {
 }
 
 function isSupportedPurpose(purpose) {
-  return ['signup', 'guest_booking', 'guest_lookup'].includes(purpose)
+  return ['signup', 'guest_booking', 'guest_lookup', 'reset_password'].includes(purpose)
 }
 
 async function handleOtpSend(req, res) {
@@ -64,7 +64,15 @@ async function handleOtpSend(req, res) {
     return res.status(500).json({ error: 'supabase_client_unavailable' })
   }
 
-  if (['signup', 'guest_booking', 'guest_lookup'].includes(purpose)) {
+  if (purpose === 'reset_password') {
+    const existingMember = await findMemberProfileByPhone({ supabaseClient, phone })
+    if (!existingMember) {
+      return res.status(404).json({
+        error: 'member_not_found',
+        message: '가입된 휴대폰 번호를 찾을 수 없습니다.',
+      })
+    }
+  } else if (['signup', 'guest_booking', 'guest_lookup'].includes(purpose)) {
     const existingMember = await findMemberProfileByPhone({ supabaseClient, phone })
     if (existingMember) {
       return res.status(409).json({

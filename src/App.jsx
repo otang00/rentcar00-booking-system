@@ -6,12 +6,12 @@ import PlaceholderPage from './pages/PlaceholderPage'
 import LegalPage from './pages/LegalPage'
 import ReservationCompletePage from './pages/ReservationCompletePage'
 import LoginPage from './pages/LoginPage'
-import ResetPasswordPage from './pages/ResetPasswordPage'
 import PostcodeTestPage from './pages/PostcodeTestPage'
 const MemberReservationsPage = lazy(() => import('./pages/MemberReservationsPage'))
 const MemberReservationDetailPage = lazy(() => import('./pages/MemberReservationDetailPage'))
 const GuestBookingsPage = lazy(() => import('./pages/GuestBookingsPage'))
 const SignupPage = lazy(() => import('./pages/SignupPage'))
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'))
 const AdminBookingConfirmPage = lazy(() => import('./pages/AdminBookingConfirmPage'))
 const AdminBookingsPage = lazy(() => import('./pages/AdminBookingsPage'))
 const AdminPricingHubPage = lazy(() => import('./pages/AdminPricingHubPage'))
@@ -38,8 +38,7 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<LazyRoute><SignupPage /></LazyRoute>} />
       <Route path="/postcode-test" element={<PostcodeTestPage />} />
-      <Route path="/forgot-password" element={<Navigate to="/login" replace />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/forgot-password" element={<LazyRoute><ForgotPasswordPage /></LazyRoute>} />
       <Route path="/admin/booking-confirm" element={<LazyRoute><AdminBookingConfirmPage /></LazyRoute>} />
       <Route path="/admin/bookings" element={<LazyRoute><AdminBookingsPage /></LazyRoute>} />
       <Route path="/admin/pricing-hub" element={<LazyRoute><AdminPricingHubPage /></LazyRoute>} />

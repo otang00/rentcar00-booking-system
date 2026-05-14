@@ -273,6 +273,115 @@ async function handleSignup(req, res) {
   })
 }
 
+
+async function handleResetPassword(req, res) {
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST')
+    return res.status(405).json({ error: 'method_not_allowed' })
+  }
+
+  const payload = getBody(req)
+  const phone = normalizePhoneNumber(payload.phone)
+  const authEmailAlias = buildAuthEmailAlias(phone)
+  const password = String(payload.password || '')
+  const passwordConfirm = String(payload.passwordConfirm || '')
+  const phoneVerificationId = String(payload.phoneVerificationId || '').trim()
+  const phoneVerificationToken = String(payload.phoneVerificationToken || '').trim()
+
+  const phoneValidation = validateMobilePhoneNumber(phone)
+  if (!phoneValidation.isValid) {
+    return res.status(400).json({ error: 'invalid_phone', message: phoneValidation.message })
+  }
+
+  if (!authEmailAlias) {
+    return res.status(400).json({ error: 'invalid_phone_format', message: '휴대폰 번호 형식을 다시 확인해 주세요.' })
+  }
+
+  if (password !== passwordConfirm) {
+    return res.status(400).json({ error: 'password_mismatch', message: '비밀번호 확인이 일치하지 않습니다.' })
+  }
+
+  const passwordChecks = getPasswordChecks(password, authEmailAlias)
+  if (!Object.values(passwordChecks).every(Boolean)) {
+    return res.status(400).json({ error: 'invalid_password', message: '비밀번호 조건을 확인해 주세요.' })
+  }
+
+  if (!phoneVerificationId || !phoneVerificationToken) {
+    return res.status(400).json({ error: 'phone_verification_required', message: '휴대폰 인증을 완료해 주세요.' })
+  }
+
+  const privilegedClient = createServerPrivilegedClient()
+  if (!privilegedClient) {
+    return res.status(500).json({ error: 'supabase_client_unavailable', message: '비밀번호 재설정 설정이 준비되지 않았습니다.' })
+  }
+
+  const { data: verification, error: verificationError } = await privilegedClient
+    .from('phone_verifications')
+    .select('*')
+    .eq('id', phoneVerificationId)
+    .maybeSingle()
+
+  if (verificationError) {
+    return res.status(500).json({ error: 'phone_verification_lookup_failed', message: '휴대폰 인증 상태 확인에 실패했습니다.' })
+  }
+
+  const tokenHash = hashOtpValue(`verify:${phoneVerificationToken}`)
+  const nowIso = new Date().toISOString()
+  if (!verification
+    || verification.phone !== phone
+    || verification.purpose !== 'reset_password'
+    || verification.status !== 'verified'
+    || !verification.verified_at
+    || verification.consumed_at
+    || verification.verification_token_hash !== tokenHash
+    || (verification.expires_at && verification.expires_at < nowIso)) {
+    return res.status(400).json({ error: 'phone_verification_invalid', message: '휴대폰 인증을 다시 진행해 주세요.' })
+  }
+
+  let existingProfile = null
+  try {
+    existingProfile = await findMemberProfileByPhone({ supabaseClient: privilegedClient, phone })
+  } catch (error) {
+    return res.status(500).json({ error: 'profile_lookup_failed', message: '회원 정보 확인에 실패했습니다.' })
+  }
+
+  if (!existingProfile?.id) {
+    return res.status(404).json({ error: 'member_not_found', message: '가입된 휴대폰 번호를 찾을 수 없습니다.' })
+  }
+
+  const { error: updateError } = await privilegedClient.auth.admin.updateUserById(existingProfile.id, {
+    password,
+  })
+
+  if (updateError) {
+    return res.status(400).json({
+      error: 'password_reset_failed',
+      message: updateError.message || '비밀번호 변경에 실패했습니다.',
+    })
+  }
+
+  const { error: consumeError } = await privilegedClient
+    .from('phone_verifications')
+    .update({
+      status: 'consumed',
+      consumed_at: nowIso,
+    })
+    .eq('id', verification.id)
+
+  if (consumeError) {
+    return res.status(200).json({
+      message: '비밀번호가 변경되었습니다. 다시 로그인해 주세요.',
+      nextPath: `/login?phone=${encodeURIComponent(phone)}`,
+      warning: '휴대폰 인증 상태 마무리 저장이 일부 지연되었습니다.',
+    })
+  }
+
+  return res.status(200).json({
+    message: '비밀번호가 변경되었습니다. 다시 로그인해 주세요.',
+    nextPath: `/login?phone=${encodeURIComponent(phone)}`,
+  })
+}
+
 module.exports = async function handler(req, res) {
   const action = String(req.query?.action || '').trim()
 
@@ -282,6 +391,10 @@ module.exports = async function handler(req, res) {
 
   if (action === 'signup') {
     return handleSignup(req, res)
+  }
+
+  if (action === 'reset-password') {
+    return handleResetPassword(req, res)
   }
 
   return res.status(404).json({ error: 'not_found' })
