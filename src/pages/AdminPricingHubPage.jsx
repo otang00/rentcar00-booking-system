@@ -148,6 +148,78 @@ function ResultMoneyRow({ label, value }) {
   return <div className="reservation-result-row"><span>{label}</span><strong>{formatMoney(value)}</strong></div>
 }
 
+function StatusBadge({ active }) {
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 74,
+        padding: '6px 12px',
+        borderRadius: 999,
+        fontSize: 12,
+        fontWeight: 800,
+        color: '#fff',
+        background: active ? '#16a34a' : '#dc2626',
+        boxShadow: active ? 'inset 0 -1px 0 rgba(0,0,0,0.12)' : 'inset 0 -1px 0 rgba(0,0,0,0.12)',
+      }}
+    >
+      {active ? '활성' : '비활성'}
+    </span>
+  )
+}
+
+function InfoBlock({ title, children }) {
+  return (
+    <div style={{ display: 'grid', gap: 8, padding: 12, border: '1px solid #e5e7eb', borderRadius: 12, background: '#fff' }}>
+      <strong style={{ fontSize: 13 }}>{title}</strong>
+      {children}
+    </div>
+  )
+}
+
+function MoneyGrid({ items = [] }) {
+  return (
+    <div style={{ display: 'grid', gap: 10 }}>
+      <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
+        {items.slice(0, 3).map((item) => (
+          <div key={item.label} style={{ padding: 12, border: '1px solid #dbe3f0', borderRadius: 12, background: '#f8fbff' }}>
+            <div className="small-note" style={{ marginBottom: 6 }}>{item.label}</div>
+            <strong>{formatMoney(item.value)}</strong>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
+        {items.slice(3).map((item) => (
+          <div key={item.label} style={{ padding: 12, border: '1px solid #e5e7eb', borderRadius: 12, background: '#fff' }}>
+            <div className="small-note" style={{ marginBottom: 6 }}>{item.label}</div>
+            <strong>{formatMoney(item.value)}</strong>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function VehicleChipList({ carNumbers = [] }) {
+  if (!carNumbers.length) return <span className="small-note">차량 없음</span>
+  return (
+    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      {carNumbers.map((carNumber) => (
+        <button
+          key={carNumber}
+          type="button"
+          className="btn btn-outline btn-sm"
+          style={{ borderRadius: 999, padding: '6px 12px', background: '#f8fafc', cursor: 'default' }}
+        >
+          {carNumber}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export default function AdminPricingHubPage() {
   const navigate = useNavigate()
   const { loading, isAuthenticated, session, user, profile } = useAuth()
@@ -161,6 +233,7 @@ export default function AdminPricingHubPage() {
   const [groupEditorError, setGroupEditorError] = useState('')
   const [selectedConnectionPolicyId, setSelectedConnectionPolicyId] = useState('')
   const [connectionPricingOptionTypeInput, setConnectionPricingOptionTypeInput] = useState(DEFAULT_PRICING_OPTION_TYPE)
+  const [connectionActiveInput, setConnectionActiveInput] = useState(true)
   const [connectionPolicyEditor, setConnectionPolicyEditor] = useState(null)
   const [connectionPolicyLoading, setConnectionPolicyLoading] = useState(false)
   const [connectionPolicyError, setConnectionPolicyError] = useState('')
@@ -313,6 +386,7 @@ export default function AdminPricingHubPage() {
     if (!selectedGroup) return
     setSelectedConnectionPolicyId(selectedGroup.pricePolicyId || '')
     setConnectionPricingOptionTypeInput(normalizePricingOptionType(selectedGroup.pricingOptionType))
+    setConnectionActiveInput(selectedGroup.groupSettingActive !== false)
     setPolicyEditorPolicyId((prev) => prev || selectedGroup.pricePolicyId || '')
   }, [selectedGroup])
 
@@ -421,7 +495,7 @@ export default function AdminPricingHubPage() {
         carGroupId: selectedGroup.carGroupId,
         pricePolicyId: selectedConnectionPolicyId,
         pricingOptionType: connectionPricingOptionTypeInput,
-        active: selectedGroup.groupSettingActive !== false,
+        active: connectionActiveInput,
       })
       await refreshGroupData(result?.item?.pricePolicyGroupId || selectedGroup.pricePolicyGroupId, searchQuery)
       setSubmitMessage('연결 정책이 저장되었습니다.')
@@ -528,9 +602,9 @@ export default function AdminPricingHubPage() {
                       onClick={() => setSelectedPricePolicyGroupId(item.pricePolicyGroupId)}
                       style={getGroupCardStyle(isActive, isSelected)}
                     >
-                      <div className="pricing-hub-group-card__head">
+                      <div className="pricing-hub-group-card__head" style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
                         <span>{item.groupName}</span>
-                        <span style={{ fontSize: 12, opacity: 0.85 }}>{isActive ? '활성' : '비활성'}</span>
+                        <StatusBadge active={isActive} />
                       </div>
                       <div className="pricing-hub-group-card__meta" style={{ display: 'grid', gap: 4 }}>
                         <span>정책 <strong>{item.policyName}</strong></span>
@@ -547,26 +621,38 @@ export default function AdminPricingHubPage() {
               </div>
 
               <div className="pricing-hub-editor-column" style={{ display: 'grid', gap: 16, alignContent: 'start' }}>
-                <div ref={selectionCardRef} className="panel-sub" style={{ display: 'grid', gap: 8 }}>
-                  <strong>차량그룹 상세</strong>
+                <div ref={selectionCardRef} className="panel-sub" style={{ display: 'grid', gap: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <strong>차량그룹 상세</strong>
+                    {selectedGroup ? <StatusBadge active={selectedGroup.groupSettingActive !== false} /> : null}
+                  </div>
                   {selectedGroup ? (
                     <>
                       {groupEditorLoading ? <p className="field-note" style={{ margin: 0 }}>차량그룹 상세를 불러오는 중입니다.</p> : null}
-                      <div className="reservation-result-row"><span>IMS 그룹</span><strong>{selectedGroup.imsGroupId}</strong></div>
-                      <div className="reservation-result-row"><span>그룹명</span><strong>{selectedGroup.groupName}</strong></div>
-                      <div className="reservation-result-row"><span>현재 연결 정책</span><strong>{selectedGroup.policyName}</strong></div>
-                      <div className="reservation-result-row"><span>상태</span><strong>{selectedGroup.groupSettingActive !== false ? '활성' : '비활성'}</strong></div>
-                      <div className="reservation-result-row"><span>옵션타입</span><strong>{PRICING_OPTION_LABELS[normalizePricingOptionType(selectedGroup.pricingOptionType)]}</strong></div>
-                      <div className="reservation-result-row"><span>차량번호</span><strong className="pricing-hub-car-numbers">{groupEditor?.group?.carNumbers?.length ? groupEditor.group.carNumbers.join(', ') : selectedGroup.carNumbers?.join(', ') || '-'}</strong></div>
-                      <div style={{ height: 1, background: '#e5e7eb', margin: '4px 0' }} />
-                      <strong style={{ fontSize: 14 }}>현재 적용 금액</strong>
-                      <ResultMoneyRow label="기준 24시간" value={currentAppliedPreview?.base24h} />
-                      <ResultMoneyRow label="주중 24시간" value={currentAppliedPreview?.weekdayApplied24h} />
-                      <ResultMoneyRow label="주말 24시간" value={currentAppliedPreview?.weekendApplied24h} />
-                      <ResultMoneyRow label="1시간" value={currentAppliedPreview?.fee1h} />
-                      <ResultMoneyRow label="7일" value={currentAppliedPreview?.week1Price} />
-                      <ResultMoneyRow label="14일" value={currentAppliedPreview?.week2Price} />
-                      <ResultMoneyRow label="30일" value={currentAppliedPreview?.month1Price} />
+                      <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1.1fr 1fr' }}>
+                        <InfoBlock title="기본 정보">
+                          <div className="reservation-result-row"><span>IMS 그룹</span><strong>{selectedGroup.imsGroupId}</strong></div>
+                          <div className="reservation-result-row"><span>그룹명</span><strong>{selectedGroup.groupName}</strong></div>
+                        </InfoBlock>
+                        <InfoBlock title="연결 정보">
+                          <div className="reservation-result-row"><span>현재 연결 정책</span><strong>{selectedGroup.policyName}</strong></div>
+                          <div className="reservation-result-row"><span>옵션타입</span><strong style={{ color: '#1d4ed8' }}>{PRICING_OPTION_LABELS[normalizePricingOptionType(selectedGroup.pricingOptionType)]}</strong></div>
+                        </InfoBlock>
+                      </div>
+                      <InfoBlock title="차량 번호">
+                        <VehicleChipList carNumbers={groupEditor?.group?.carNumbers?.length ? groupEditor.group.carNumbers : selectedGroup.carNumbers || []} />
+                      </InfoBlock>
+                      <InfoBlock title="현재 적용 금액">
+                        <MoneyGrid items={[
+                          { label: '기준24', value: currentAppliedPreview?.base24h },
+                          { label: '주중24', value: currentAppliedPreview?.weekdayApplied24h },
+                          { label: '주말24', value: currentAppliedPreview?.weekendApplied24h },
+                          { label: '1시간', value: currentAppliedPreview?.fee1h },
+                          { label: '7일', value: currentAppliedPreview?.week1Price },
+                          { label: '14일', value: currentAppliedPreview?.week2Price },
+                          { label: '30일', value: currentAppliedPreview?.month1Price },
+                        ]} />
+                      </InfoBlock>
                     </>
                   ) : (
                     <p className="field-note" style={{ margin: 0 }}>그룹을 선택하세요.</p>
@@ -578,34 +664,44 @@ export default function AdminPricingHubPage() {
                     <strong>연결 정책 선택</strong>
                     <button type="button" className="btn btn-dark btn-md" onClick={handleSaveGroupSetting} disabled={!selectedGroup || !selectedConnectionPolicyId || savingGroupSetting}>{savingGroupSetting ? '저장중' : '연결 저장'}</button>
                   </div>
-                  <div className="reservation-result-row pricing-hub-adjust-row">
-                    <span>연결할 정책</span>
-                    <select className="field-input" value={selectedConnectionPolicyId} onChange={(e) => setSelectedConnectionPolicyId(e.target.value)} disabled={!selectedGroup || savingGroupSetting} style={{ maxWidth: 260 }}>
-                      {policyOptions.map((option) => (
-                        <option key={option.pricePolicyId} value={option.pricePolicyId}>{option.policyName}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="reservation-result-row pricing-hub-adjust-row">
-                    <span>옵션타입</span>
-                    <select className="field-input" value={connectionPricingOptionTypeInput} onChange={(e) => setConnectionPricingOptionTypeInput(normalizePricingOptionType(e.target.value))} disabled={!selectedGroup || savingGroupSetting} style={{ maxWidth: 220 }}>
-                      <option value="basic">기본</option>
-                      <option value="semi_premium">세미프리미엄</option>
-                      <option value="premium">프리미엄</option>
-                    </select>
+                  <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1.2fr 1fr 1fr' }}>
+                    <div className="reservation-result-row pricing-hub-adjust-row">
+                      <span>연결할 정책</span>
+                      <select className="field-input" value={selectedConnectionPolicyId} onChange={(e) => setSelectedConnectionPolicyId(e.target.value)} disabled={!selectedGroup || savingGroupSetting} style={{ maxWidth: 260 }}>
+                        {policyOptions.map((option) => (
+                          <option key={option.pricePolicyId} value={option.pricePolicyId}>{option.policyName}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <InfoBlock title="옵션타입">
+                      <select className="field-input" value={connectionPricingOptionTypeInput} onChange={(e) => setConnectionPricingOptionTypeInput(normalizePricingOptionType(e.target.value))} disabled={!selectedGroup || savingGroupSetting}>
+                        <option value="basic">기본</option>
+                        <option value="semi_premium">세미프리미엄</option>
+                        <option value="premium">프리미엄</option>
+                      </select>
+                    </InfoBlock>
+                    <InfoBlock title="상태">
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between' }}>
+                        <StatusBadge active={connectionActiveInput} />
+                        <button type="button" className="btn btn-outline btn-sm" onClick={() => setConnectionActiveInput((prev) => !prev)} disabled={!selectedGroup || savingGroupSetting}>
+                          {connectionActiveInput ? '비활성으로' : '활성으로'}
+                        </button>
+                      </div>
+                    </InfoBlock>
                   </div>
                   {connectionPolicyLoading ? <p className="field-note" style={{ margin: 0 }}>선택 정책을 불러오는 중입니다.</p> : null}
                   {selectedConnectionPolicyOption ? (
-                    <>
-                      <div className="reservation-result-row"><span>선택 정책명</span><strong>{selectedConnectionPolicyOption.policyName}</strong></div>
-                      <ResultMoneyRow label="기준 24시간" value={connectionPolicyPreview?.base24h} />
-                      <ResultMoneyRow label="주중 24시간" value={connectionPolicyPreview?.weekdayApplied24h} />
-                      <ResultMoneyRow label="주말 24시간" value={connectionPolicyPreview?.weekendApplied24h} />
-                      <ResultMoneyRow label="1시간" value={connectionPolicyPreview?.fee1h} />
-                      <ResultMoneyRow label="7일" value={connectionPolicyPreview?.week1Price} />
-                      <ResultMoneyRow label="14일" value={connectionPolicyPreview?.week2Price} />
-                      <ResultMoneyRow label="30일" value={connectionPolicyPreview?.month1Price} />
-                    </>
+                    <InfoBlock title={`선택 정책 가격 · ${selectedConnectionPolicyOption.policyName}`}>
+                      <MoneyGrid items={[
+                        { label: '기준24', value: connectionPolicyPreview?.base24h },
+                        { label: '주중24', value: connectionPolicyPreview?.weekdayApplied24h },
+                        { label: '주말24', value: connectionPolicyPreview?.weekendApplied24h },
+                        { label: '1시간', value: connectionPolicyPreview?.fee1h },
+                        { label: '7일', value: connectionPolicyPreview?.week1Price },
+                        { label: '14일', value: connectionPolicyPreview?.week2Price },
+                        { label: '30일', value: connectionPolicyPreview?.month1Price },
+                      ]} />
+                    </InfoBlock>
                   ) : null}
                 </div>
 
@@ -626,10 +722,12 @@ export default function AdminPricingHubPage() {
                   {selectedEditPolicyOption ? <div className="reservation-result-row"><span>선택 정책명</span><strong>{selectedEditPolicyOption.policyName}</strong></div> : null}
                   <div className="reservation-result-row pricing-hub-adjust-row">
                     <span>기준 24시간 금액</span>
-                    <div className="pricing-hub-inline-controls pricing-hub-base-control">
-                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(Math.max(0, roundAmount(base24hInput) - 10000)))} disabled={!policyEditorPolicyId || saving}>-</button>
-                      <input className="field-input pricing-hub-base-input" type="number" inputMode="numeric" min="0" step="10000" value={base24hInput} onChange={(e) => setBase24hInput(e.target.value)} disabled={!policyEditorPolicyId || saving} />
-                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(roundAmount(base24hInput) + 10000))} disabled={!policyEditorPolicyId || saving}>+</button>
+                    <div className="pricing-hub-inline-controls pricing-hub-base-control" style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(Math.max(0, roundAmount(base24hInput) - 10000)))} disabled={!policyEditorPolicyId || saving}>-1만</button>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(Math.max(0, roundAmount(base24hInput) - 1000)))} disabled={!policyEditorPolicyId || saving}>-1천</button>
+                      <input className="field-input pricing-hub-base-input" style={{ minWidth: 140 }} type="number" inputMode="numeric" min="0" step="1000" value={base24hInput} onChange={(e) => setBase24hInput(e.target.value)} disabled={!policyEditorPolicyId || saving} />
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(roundAmount(base24hInput) + 1000))} disabled={!policyEditorPolicyId || saving}>+1천</button>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(roundAmount(base24hInput) + 10000))} disabled={!policyEditorPolicyId || saving}>+1만</button>
                     </div>
                   </div>
                   <div className="reservation-result-row pricing-hub-adjust-row">
@@ -637,7 +735,7 @@ export default function AdminPricingHubPage() {
                     <div className="pricing-hub-percent-control">
                       <button type="button" className="btn btn-outline btn-sm" onClick={() => adjustPercent('weekday', -5)} disabled={!policyEditorPolicyId || saving}>-</button>
                       <div className="pricing-hub-input-wrap">
-                        <input className="field-input pricing-hub-percent-input" type="number" inputMode="decimal" min="0" step="5" value={weekdayPercentInput} onChange={(e) => handlePercentChange('weekday', e.target.value)} disabled={!policyEditorPolicyId || saving} />
+                        <input className="field-input pricing-hub-percent-input" style={{ minWidth: 88, width: 88 }} type="number" inputMode="decimal" min="0" step="5" value={weekdayPercentInput} onChange={(e) => handlePercentChange('weekday', e.target.value)} disabled={!policyEditorPolicyId || saving} />
                         <span className="pricing-hub-percent-suffix">%</span>
                       </div>
                       <button type="button" className="btn btn-outline btn-sm" onClick={() => adjustPercent('weekday', 5)} disabled={!policyEditorPolicyId || saving}>+</button>
@@ -648,7 +746,7 @@ export default function AdminPricingHubPage() {
                     <div className="pricing-hub-percent-control">
                       <button type="button" className="btn btn-outline btn-sm" onClick={() => adjustPercent('weekend', -5)} disabled={!policyEditorPolicyId || saving}>-</button>
                       <div className="pricing-hub-input-wrap">
-                        <input className="field-input pricing-hub-percent-input" type="number" inputMode="decimal" min="0" step="5" value={weekendPercentInput} onChange={(e) => handlePercentChange('weekend', e.target.value)} disabled={!policyEditorPolicyId || saving} />
+                        <input className="field-input pricing-hub-percent-input" style={{ minWidth: 88, width: 88 }} type="number" inputMode="decimal" min="0" step="5" value={weekendPercentInput} onChange={(e) => handlePercentChange('weekend', e.target.value)} disabled={!policyEditorPolicyId || saving} />
                         <span className="pricing-hub-percent-suffix">%</span>
                       </div>
                       <button type="button" className="btn btn-outline btn-sm" onClick={() => adjustPercent('weekend', 5)} disabled={!policyEditorPolicyId || saving}>+</button>
