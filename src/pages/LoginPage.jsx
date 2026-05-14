@@ -16,9 +16,13 @@ function resolvePhone(search) {
   return formatPhoneNumber(params.get('phone') || '')
 }
 
+function isInvalidCredentialsError(error) {
+  return Boolean(error?.message?.includes('Invalid login credentials'))
+}
+
 function getErrorMessage(error) {
   if (!error) return '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.'
-  if (error.message?.includes('Invalid login credentials')) return '휴대폰 번호 또는 비밀번호가 올바르지 않습니다.'
+  if (isInvalidCredentialsError(error)) return '휴대폰 번호 또는 비밀번호가 올바르지 않습니다.'
   return error.message || '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.'
 }
 
@@ -31,6 +35,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [showForgotPasswordLink, setShowForgotPasswordLink] = useState(false)
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
@@ -48,12 +53,14 @@ export default function LoginPage() {
 
     setSubmitting(true)
     setErrorMessage('')
+    setShowForgotPasswordLink(false)
 
     const normalizedPhone = normalizePhoneNumber(phone)
     const authEmailAlias = buildAuthEmailAlias(normalizedPhone)
 
     if (!authEmailAlias) {
       setErrorMessage('휴대폰 번호 형식을 확인해 주세요.')
+      setShowForgotPasswordLink(false)
       setSubmitting(false)
       return
     }
@@ -65,6 +72,7 @@ export default function LoginPage() {
 
     if (error) {
       setErrorMessage(getErrorMessage(error))
+      setShowForgotPasswordLink(isInvalidCredentialsError(error))
       setSubmitting(false)
       return
     }
@@ -124,6 +132,18 @@ export default function LoginPage() {
               </div>
 
               {errorMessage ? <p className="field-note" style={{ color: '#be123c' }}>{errorMessage}</p> : null}
+              {showForgotPasswordLink ? (
+                <div style={{ display: 'grid', gap: 6, justifyItems: 'start' }}>
+                  <span className="field-note">비밀번호를 잊으셨나요?</span>
+                  <Link
+                    className="field-note"
+                    style={{ color: '#111827', fontWeight: 600, textDecoration: 'underline' }}
+                    to={`/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`}
+                  >
+                    비밀번호 재설정
+                  </Link>
+                </div>
+              ) : null}
 
               <button className="btn btn-dark btn-md btn-block" type="submit" disabled={submitting || loading || !isSupabaseClientReady}>
                 {submitting ? '로그인 중...' : '로그인'}

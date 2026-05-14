@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react'
 import { Navigate, Routes, Route } from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
 import CarsPage from './pages/CarsPage'
@@ -11,9 +12,17 @@ import ResetPasswordPage from './pages/ResetPasswordPage'
 import MemberReservationsPage from './pages/MemberReservationsPage'
 import PostcodeTestPage from './pages/PostcodeTestPage'
 import MemberReservationDetailPage from './pages/MemberReservationDetailPage'
-import AdminBookingConfirmPage from './pages/AdminBookingConfirmPage'
-import AdminBookingsPage from './pages/AdminBookingsPage'
-import AdminPricingHubPage from './pages/AdminPricingHubPage'
+const AdminBookingConfirmPage = lazy(() => import('./pages/AdminBookingConfirmPage'))
+const AdminBookingsPage = lazy(() => import('./pages/AdminBookingsPage'))
+const AdminPricingHubPage = lazy(() => import('./pages/AdminPricingHubPage'))
+
+function RouteLoadingFallback() {
+  return <div style={{ padding: 24, color: '#6b7280' }}>페이지를 불러오는 중입니다...</div>
+}
+
+function LazyRoute({ children }) {
+  return <Suspense fallback={<RouteLoadingFallback />}>{children}</Suspense>
+}
 
 export default function App() {
   return (
@@ -31,9 +40,9 @@ export default function App() {
       <Route path="/postcode-test" element={<PostcodeTestPage />} />
       <Route path="/forgot-password" element={<Navigate to="/login" replace />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/admin/booking-confirm" element={<AdminBookingConfirmPage />} />
-      <Route path="/admin/bookings" element={<AdminBookingsPage />} />
-      <Route path="/admin/pricing-hub" element={<AdminPricingHubPage />} />
+      <Route path="/admin/booking-confirm" element={<LazyRoute><AdminBookingConfirmPage /></LazyRoute>} />
+      <Route path="/admin/bookings" element={<LazyRoute><AdminBookingsPage /></LazyRoute>} />
+      <Route path="/admin/pricing-hub" element={<LazyRoute><AdminPricingHubPage /></LazyRoute>} />
       <Route path="/faq" element={<PlaceholderPage title="FAQ" />} />
       <Route path="/terms" element={<LegalPage kind="terms" />} />
       <Route path="/privacy" element={<LegalPage kind="privacy" />} />
