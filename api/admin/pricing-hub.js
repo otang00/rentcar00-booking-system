@@ -304,7 +304,13 @@ function buildEditorState(baseRow, periods = [], ratesByPeriodId = {}, now = new
   const relatedPeriods = (Array.isArray(periods) ? periods : []).filter((period) => period?.price_policy_id === baseRow?.price_policy_id)
   const activePeriod = getActivePeriod(relatedPeriods, now)
   const rateByScope = buildRateByScope(activePeriod ? ratesByPeriodId[activePeriod.id] || [] : [])
-  const base24h = roundAmount(rateByScope.common?.fee_24h || baseRow?.base_daily_price)
+  const commonMetadata = rateByScope.common?.metadata && typeof rateByScope.common.metadata === 'object' ? rateByScope.common.metadata : {}
+  const weekdayMetadata = rateByScope.weekday?.metadata && typeof rateByScope.weekday.metadata === 'object' ? rateByScope.weekday.metadata : commonMetadata
+  const weekendMetadata = rateByScope.weekend?.metadata && typeof rateByScope.weekend.metadata === 'object' ? rateByScope.weekend.metadata : commonMetadata
+  const savedBase24h = commonMetadata.base24h
+  const savedWeekdayPercent = weekdayMetadata.weekdayPercent
+  const savedWeekendPercent = weekendMetadata.weekendPercent
+  const base24h = roundAmount(savedBase24h || rateByScope.common?.fee_24h || baseRow?.base_daily_price)
   const fallbackWeekday24h = roundAmount(base24h * (normalizeNumber(baseRow?.weekday_rate_percent, 100) / 100))
   const fallbackWeekend24h = roundAmount(base24h * (normalizeNumber(baseRow?.weekend_rate_percent, 100) / 100))
   const weekday24h = roundAmount(rateByScope.weekday?.fee_24h || fallbackWeekday24h)
@@ -313,10 +319,14 @@ function buildEditorState(baseRow, periods = [], ratesByPeriodId = {}, now = new
   return {
     activePeriodId: activePeriod?.id || null,
     activePeriodName: activePeriod?.period_name || null,
-    pricingOptionType: normalizePricingOptionType(baseRow?.pricing_option_type),
+    pricingOptionType: normalizePricingOptionType(commonMetadata.pricingOptionType || baseRow?.pricing_option_type),
     base24h,
-    weekdayPercent: base24h > 0 ? roundPercent((weekday24h / base24h) * 100, normalizeNumber(baseRow?.weekday_rate_percent, 100)) : roundPercent(baseRow?.weekday_rate_percent, 100),
-    weekendPercent: base24h > 0 ? roundPercent((weekend24h / base24h) * 100, normalizeNumber(baseRow?.weekend_rate_percent, 100)) : roundPercent(baseRow?.weekend_rate_percent, 100),
+    weekdayPercent: savedWeekdayPercent != null
+      ? roundPercent(savedWeekdayPercent, normalizeNumber(baseRow?.weekday_rate_percent, 100))
+      : (base24h > 0 ? roundPercent((weekday24h / base24h) * 100, normalizeNumber(baseRow?.weekday_rate_percent, 100)) : roundPercent(baseRow?.weekday_rate_percent, 100)),
+    weekendPercent: savedWeekendPercent != null
+      ? roundPercent(savedWeekendPercent, normalizeNumber(baseRow?.weekend_rate_percent, 100))
+      : (base24h > 0 ? roundPercent((weekend24h / base24h) * 100, normalizeNumber(baseRow?.weekend_rate_percent, 100)) : roundPercent(baseRow?.weekend_rate_percent, 100)),
     weekday24h,
     weekend24h,
   }
@@ -335,8 +345,12 @@ async function handleList(req, res, supabaseClient) {
   }
 
   const rows = Array.isArray(data) ? data : []
+  const carNumbersByImsGroupId = await fetchCarNumbersByImsGroupIds(supabaseClient, rows.map((row) => row.ims_group_id))
   const filteredRows = q
-    ? rows.filter((row) => [row.group_name, row.policy_name, row.ims_group_id].some((value) => String(value || '').toLowerCase().includes(q)))
+    ? rows.filter((row) => {
+        const carNumbers = carNumbersByImsGroupId[String(row.ims_group_id)] || []
+        return [row.group_name, row.policy_name, row.ims_group_id, ...carNumbers].some((value) => String(value || '').toLowerCase().includes(q))
+      })
     : rows
 
   const pricePolicyIds = [...new Set(filteredRows.map((row) => row.price_policy_id).filter(Boolean))]
@@ -345,6 +359,10 @@ async function handleList(req, res, supabaseClient) {
   const activeCarGroups = await fetchActiveCarGroups(supabaseClient)
   const activePolicies = await fetchActivePolicies(supabaseClient)
   const mappings = await fetchGroupMappings(supabaseClient, activeCarGroups.map((item) => item.id))
+  const mappingById = (Array.isArray(mappings) ? mappings : []).reduce((acc, item) => {
+    if (item?.id) acc[String(item.id)] = item
+    return acc
+  }, {})
 
   const periodsByPolicyId = toMap(periodsResult, 'price_policy_id')
   const ratesByPeriodId = toMap(ratesResult, 'pricing_hub_period_id')
@@ -353,6 +371,7 @@ async function handleList(req, res, supabaseClient) {
     const relatedPeriods = periodsByPolicyId[row.price_policy_id] || []
     const currentRateSummary = buildCurrentRateSummary(row, relatedPeriods, ratesByPeriodId)
     const editorState = buildEditorState(row, relatedPeriods, ratesByPeriodId)
+    const mapping = mappingById[String(row.price_policy_group_id)] || null
 
     return {
       carGroupId: row.car_group_id,
@@ -373,17 +392,21 @@ async function handleList(req, res, supabaseClient) {
         effectiveTo: row.effective_to,
         active: row.policy_active,
       },
+      carNumbers: carNumbersByImsGroupId[String(row.ims_group_id)] || [],
       currentRateSummary,
       currentVariables: {
         base24h: editorState.base24h,
         weekdayPercent: editorState.weekdayPercent,
         weekendPercent: editorState.weekendPercent,
       },
-      groupSettingActive: row.active !== false,
+      groupSettingActive: mapping ? mapping.active !== false : true,
       hubPeriodsCount: relatedPeriods.length,
       hubOverridesCount: 0,
     }
   }).sort((a, b) => {
+    if (a.groupSettingActive !== b.groupSettingActive) {
+      return a.groupSettingActive ? -1 : 1
+    }
     const aValue = normalizeNumber(a?.currentRateSummary?.weekday24h, normalizeNumber(a?.currentVariables?.base24h, 0))
     const bValue = normalizeNumber(b?.currentRateSummary?.weekday24h, normalizeNumber(b?.currentVariables?.base24h, 0))
     if (aValue !== bValue) return aValue - bValue
