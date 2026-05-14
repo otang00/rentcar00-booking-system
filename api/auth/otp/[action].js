@@ -2,6 +2,7 @@
 
 const { createServerPrivilegedClient } = require('../../../server/supabase/createServerClient')
 const { sendSolapiMessage } = require('../../../server/sms/sendSolapiMessage')
+const { findMemberProfileByPhone, getMemberPhoneBlockMessage } = require('../../../server/auth/memberPhoneLookup')
 const {
   OTP_COOLDOWN_SECONDS,
   OTP_MAX_ATTEMPTS,
@@ -35,13 +36,6 @@ async function handleOtpSend(req, res) {
     return res.status(405).json({ error: 'method_not_allowed' })
   }
 
-  if (!isSolapiConfigured()) {
-    return res.status(503).json({
-      error: 'otp_provider_unavailable',
-      message: '문자 인증 설정이 아직 준비되지 않았습니다.',
-    })
-  }
-
   const payload = getBody(req)
   const purpose = String(payload.purpose || 'signup').trim() || 'signup'
   const phone = normalizePhoneNumber(payload.phone)
@@ -68,6 +62,23 @@ async function handleOtpSend(req, res) {
   const supabaseClient = createServerPrivilegedClient()
   if (!supabaseClient) {
     return res.status(500).json({ error: 'supabase_client_unavailable' })
+  }
+
+  if (['signup', 'guest_booking', 'guest_lookup'].includes(purpose)) {
+    const existingMember = await findMemberProfileByPhone({ supabaseClient, phone })
+    if (existingMember) {
+      return res.status(409).json({
+        error: 'phone_already_registered',
+        message: getMemberPhoneBlockMessage(purpose),
+      })
+    }
+  }
+
+  if (!isSolapiConfigured()) {
+    return res.status(503).json({
+      error: 'otp_provider_unavailable',
+      message: '문자 인증 설정이 아직 준비되지 않았습니다.',
+    })
   }
 
   const nowIso = new Date().toISOString()

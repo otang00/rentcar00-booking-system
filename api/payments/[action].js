@@ -25,6 +25,7 @@ const { createPaymentSessionToken, verifyPaymentSessionToken } = require('../../
 const { registerKcpTrade, approveKcpPayment, stringifyAmount } = require('../../server/payments/kcpClient')
 const { getKcpConfig } = require('../../server/payments/kcpConfig')
 const { AUTH_EMAIL_ALIAS_DOMAIN } = require('../../server/auth/authEmailAlias')
+const { findMemberProfileByPhone } = require('../../server/auth/memberPhoneLookup')
 
 function resolveBuyerEmail({ authUser, profile }) {
   const candidates = [
@@ -586,6 +587,20 @@ async function handlePrepare(req, res) {
     const requestedBy = authUser ? 'member_web' : 'guest_web'
     const allowWithoutOtp = isProfileLockedSubmission({ authUser, profile, bookingInput: validation.normalized })
     let reservationVerification = null
+
+    if (!authUser) {
+      const existingMember = await findMemberProfileByPhone({
+        supabaseClient,
+        phone: validation.normalized.customerPhone,
+      })
+
+      if (existingMember) {
+        return res.status(409).json({
+          error: 'phone_already_registered',
+          message: '이미 가입된 휴대폰 번호입니다. 로그인 후 진행해 주세요.',
+        })
+      }
+    }
 
     if (!allowWithoutOtp) {
       reservationVerification = await verifyReservationOtp({

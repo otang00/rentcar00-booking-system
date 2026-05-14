@@ -808,6 +808,106 @@ async function cancelMemberBooking({
   })
 }
 
+async function attachGuestBookingsToMember({
+  supabaseClient,
+  authUserId,
+  customerPhone,
+  requestedBy = 'signup',
+  now = new Date(),
+} = {}) {
+  if (!supabaseClient) {
+    throw new Error('supabase client is required')
+  }
+
+  const normalizedPhone = normalizeCustomerPhone(customerPhone)
+  if (!authUserId || !/^01\d{8,9}$/.test(normalizedPhone)) {
+    return { updatedCount: 0, bookings: [] }
+  }
+
+  const nowIso = now.toISOString()
+  const { data: candidateOrders, error: candidateError } = await supabaseClient
+    .from('booking_orders')
+    .select('*')
+    .is('user_id', null)
+    .eq('customer_phone_last4', normalizedPhone.slice(-4))
+    .gt('return_at', nowIso)
+    .order('created_at', { ascending: false })
+
+  if (candidateError) {
+    throw candidateError
+  }
+
+  const candidates = (Array.isArray(candidateOrders) ? candidateOrders : [])
+    .filter((order) => !['cancelled', 'completed'].includes(String(order?.booking_status || '')))
+  if (candidates.length === 0) {
+    return { updatedCount: 0, bookings: [] }
+  }
+
+  const bookingOrderIds = candidates.map((order) => order.id).filter(Boolean)
+  const { data: lookupKeys, error: lookupError } = await supabaseClient
+    .from('booking_lookup_keys')
+    .select('booking_order_id, lookup_value_hash')
+    .in('booking_order_id', bookingOrderIds)
+    .eq('lookup_type', 'customer_phone')
+
+  if (lookupError) {
+    throw lookupError
+  }
+
+  const phoneHash = hashLookupValue(`phone:${normalizedPhone}`)
+  const matchedIds = (Array.isArray(lookupKeys) ? lookupKeys : [])
+    .filter((item) => item.lookup_value_hash === phoneHash)
+    .map((item) => item.booking_order_id)
+
+  const matchedOrders = candidates.filter((order) => matchedIds.includes(order.id))
+    .filter((order) => !order.cancelled_at && !order.completed_at)
+
+  if (matchedOrders.length === 0) {
+    return { updatedCount: 0, bookings: [] }
+  }
+
+  const matchedOrderIds = matchedOrders.map((order) => order.id)
+  const { data: updatedOrders, error: updateError } = await supabaseClient
+    .from('booking_orders')
+    .update({
+      user_id: authUserId,
+      updated_at: nowIso,
+    })
+    .in('id', matchedOrderIds)
+    .is('user_id', null)
+    .select('*')
+
+  if (updateError) {
+    throw updateError
+  }
+
+  const normalizedUpdatedOrders = Array.isArray(updatedOrders) ? updatedOrders : []
+  if (normalizedUpdatedOrders.length > 0) {
+    const events = normalizedUpdatedOrders.map((order) => ({
+      booking_order_id: order.id,
+      event_type: 'guest_booking_attached_to_member',
+      event_payload: {
+        requestedBy,
+        authUserId,
+        customerPhone: normalizedPhone,
+      },
+    }))
+
+    const { error: eventError } = await supabaseClient
+      .from('reservation_status_events')
+      .insert(events)
+
+    if (eventError) {
+      throw eventError
+    }
+  }
+
+  return {
+    updatedCount: normalizedUpdatedOrders.length,
+    bookings: normalizedUpdatedOrders.map((order) => serializeBookingOrder(order)),
+  }
+}
+
 module.exports = {
   fetchCarBySourceCarId,
   findBookingOrderByGuestLookup,
@@ -824,4 +924,5 @@ module.exports = {
   completeRefundForBookingOrder,
   cancelGuestBooking,
   cancelMemberBooking,
+  attachGuestBookingsToMember,
 }

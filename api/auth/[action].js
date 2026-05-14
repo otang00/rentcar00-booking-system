@@ -6,6 +6,8 @@ const { getUserFromAccessToken } = require('../../server/auth/getUserFromAccessT
 const { ensureProfileForUser, serializeProfile } = require('../../server/auth/ensureProfileForUser')
 const { buildAuthEmailAlias } = require('../../server/auth/authEmailAlias')
 const { hashOtpValue, normalizePhoneNumber } = require('../../server/auth/phoneOtp')
+const { findMemberProfileByPhone } = require('../../server/auth/memberPhoneLookup')
+const { attachGuestBookingsToMember } = require('../../server/booking-core/guestBookingService')
 const {
   validatePersonName,
   validateBirthDate,
@@ -157,19 +159,15 @@ async function handleSignup(req, res) {
     return res.status(400).json({ error: 'phone_verification_invalid', message: '휴대폰 인증을 다시 진행해 주세요.' })
   }
 
-  const { data: existingProfile, error: existingProfileError } = await privilegedClient
-    .from('profiles')
-    .select('id, email, profile_status')
-    .eq('phone', phone)
-    .limit(1)
-    .maybeSingle()
-
-  if (existingProfileError) {
+  let existingProfile = null
+  try {
+    existingProfile = await findMemberProfileByPhone({ supabaseClient: privilegedClient, phone })
+  } catch (error) {
     return res.status(500).json({ error: 'profile_lookup_failed', message: '기존 회원 확인에 실패했습니다.' })
   }
 
   if (existingProfile) {
-    return res.status(409).json({ error: 'phone_already_registered', message: '이미 가입에 사용된 휴대폰 번호입니다.' })
+    return res.status(409).json({ error: 'phone_already_registered', message: '이미 가입된 휴대폰 번호입니다. 로그인 후 진행해 주세요.' })
   }
 
   const userMetadata = {
@@ -230,6 +228,22 @@ async function handleSignup(req, res) {
     return res.status(500).json({ error: 'profile_upsert_failed', message: '회원 프로필 저장에 실패했습니다.' })
   }
 
+  let attachedGuestBookings = { updatedCount: 0, bookings: [] }
+  try {
+    attachedGuestBookings = await attachGuestBookingsToMember({
+      supabaseClient: privilegedClient,
+      authUserId: userId,
+      customerPhone: phone,
+      requestedBy: 'signup',
+    })
+  } catch (error) {
+    console.error('[signup-attach-guest-bookings] failed', {
+      userId,
+      phone,
+      message: error?.message || 'unknown_attach_error',
+    })
+  }
+
   const { error: consumeError } = await privilegedClient
     .from('phone_verifications')
     .update({
@@ -238,17 +252,24 @@ async function handleSignup(req, res) {
     })
     .eq('id', verification.id)
 
+  const attachedCount = Number(attachedGuestBookings.updatedCount || 0)
+  const baseMessage = attachedCount > 0
+    ? '회원가입이 완료되었습니다. 진행 중인 비회원 예약이 회원 예약내역으로 자동 이전되었습니다. 로그인해 주세요.'
+    : '회원가입이 완료되었습니다. 로그인해 주세요.'
+
   if (consumeError) {
     return res.status(200).json({
-      message: '회원가입이 완료되었습니다. 로그인해 주세요.',
+      message: baseMessage,
       nextPath: '/login',
+      attachedGuestBookingCount: attachedCount,
       warning: '휴대폰 인증 상태 마무리 저장이 일부 지연되었습니다.',
     })
   }
 
   return res.status(200).json({
-    message: '회원가입이 완료되었습니다. 로그인해 주세요.',
+    message: baseMessage,
     nextPath: '/login',
+    attachedGuestBookingCount: attachedCount,
   })
 }
 

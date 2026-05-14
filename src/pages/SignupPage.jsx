@@ -408,6 +408,9 @@ export default function SignupPage() {
               <p className="small-note" style={{ marginTop: 8 }}>
                 가입 전 휴대폰 인증을 먼저 완료하고, 이후 휴대폰 번호와 비밀번호로 로그인합니다.
               </p>
+              <p className="small-note" style={{ marginTop: 4 }}>
+                진행 중인 비회원 예약이 있으면 회원 예약내역으로 자동 이전되며, 이미 종료된 예약은 이전 대상에서 제외됩니다.
+              </p>
             </div>
 
             <form className="stack-form stack-form-centered" onSubmit={handleSubmit}>
@@ -537,6 +540,7 @@ export default function SignupPage() {
 
                 <section style={{ display: 'grid', gap: 16 }}>
                   <SectionTitle title="연락처 인증" description="회원가입 전에 휴대폰 인증을 완료해야 합니다." />
+                  <FieldNote>이미 가입된 휴대폰 번호라면 인증번호 발송 없이 로그인 안내가 먼저 표시됩니다.</FieldNote>
 
                   <div className="field-group">
                     <label className="field-label" htmlFor="signup-phone">휴대폰 번호</label>
