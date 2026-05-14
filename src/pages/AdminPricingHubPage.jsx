@@ -180,39 +180,17 @@ function InfoBlock({ title, children }) {
 }
 
 function MoneyGrid({ items = [] }) {
-  const primaryItems = items.slice(0, 3)
-  const secondaryItems = items.slice(3)
-
-  function renderRow(rowItems, tone = 'default', columns = 3) {
-    return (
-      <div style={{ display: 'grid', gap: 8, gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
-        {rowItems.map((item) => (
-          <div
-            key={item.label}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 10,
-              minWidth: 0,
-              padding: '9px 12px',
-              border: tone === 'primary' ? '1px solid #dbe3f0' : '1px solid #e5e7eb',
-              borderRadius: 12,
-              background: tone === 'primary' ? '#f8fbff' : '#fff',
-            }}
-          >
-            <span className="small-note" style={{ flex: '0 0 auto', margin: 0, whiteSpace: 'nowrap' }}>{item.label}</span>
-            <strong style={{ minWidth: 0, whiteSpace: 'nowrap', fontSize: 14, textAlign: 'right' }}>{formatMoney(item.value)}</strong>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
   return (
-    <div style={{ display: 'grid', gap: 8 }}>
-      {primaryItems.length ? renderRow(primaryItems, 'primary', 3) : null}
-      {secondaryItems.length ? renderRow(secondaryItems, 'default', 4) : null}
+    <div className="pricing-hub-money-grid">
+      {items.map((item, index) => (
+        <div
+          key={item.label}
+          className={`pricing-hub-money-card ${index < 3 ? 'is-primary' : ''}`}
+        >
+          <span className="small-note">{item.label}</span>
+          <strong>{formatMoney(item.value)}</strong>
+        </div>
+      ))}
     </div>
   )
 }
@@ -591,7 +569,7 @@ export default function AdminPricingHubPage() {
                   <strong>차량그룹 목록</strong>
                   <span className="small-note">낮은 가격순 · 비활성은 하단</span>
                 </div>
-                <div style={{ display: 'grid', gap: 8, gridTemplateColumns: 'minmax(0, 1fr) auto auto' }}>
+                <div className="pricing-hub-search-row">
                   <input
                     className="field-input"
                     value={searchInput}
@@ -644,7 +622,7 @@ export default function AdminPricingHubPage() {
                   {selectedGroup ? (
                     <>
                       {groupEditorLoading ? <p className="field-note" style={{ margin: 0 }}>차량그룹 상세를 불러오는 중입니다.</p> : null}
-                      <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1.1fr 1fr' }}>
+                      <div className="pricing-hub-two-col">
                         <InfoBlock title="기본 정보">
                           <div className="reservation-result-row"><span>IMS 그룹</span><strong>{selectedGroup.imsGroupId}</strong></div>
                           <div className="reservation-result-row"><span>그룹명</span><strong>{selectedGroup.groupName}</strong></div>
@@ -679,10 +657,10 @@ export default function AdminPricingHubPage() {
                     <strong>연결 정책 선택</strong>
                     <button type="button" className="btn btn-dark btn-md" onClick={handleSaveGroupSetting} disabled={!selectedGroup || !selectedConnectionPolicyId || savingGroupSetting}>{savingGroupSetting ? '저장중' : '연결 저장'}</button>
                   </div>
-                  <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1.2fr 1fr 1fr' }}>
+                  <div className="pricing-hub-connection-grid">
                     <div className="reservation-result-row pricing-hub-adjust-row">
                       <span>연결할 정책</span>
-                      <select className="field-input" value={selectedConnectionPolicyId} onChange={(e) => setSelectedConnectionPolicyId(e.target.value)} disabled={!selectedGroup || savingGroupSetting} style={{ maxWidth: 260 }}>
+                      <select className="field-input pricing-hub-select" value={selectedConnectionPolicyId} onChange={(e) => setSelectedConnectionPolicyId(e.target.value)} disabled={!selectedGroup || savingGroupSetting}>
                         {policyOptions.map((option) => (
                           <option key={option.pricePolicyId} value={option.pricePolicyId}>{option.policyName}</option>
                         ))}
@@ -727,7 +705,7 @@ export default function AdminPricingHubPage() {
                   </div>
                   <div className="reservation-result-row pricing-hub-adjust-row">
                     <span>수정할 정책</span>
-                    <select className="field-input" value={policyEditorPolicyId} onChange={(e) => setPolicyEditorPolicyId(e.target.value)} disabled={saving} style={{ maxWidth: 260 }}>
+                    <select className="field-input pricing-hub-select" value={policyEditorPolicyId} onChange={(e) => setPolicyEditorPolicyId(e.target.value)} disabled={saving}>
                       {policyOptions.map((option) => (
                         <option key={option.pricePolicyId} value={option.pricePolicyId}>{option.policyName}</option>
                       ))}
@@ -737,10 +715,10 @@ export default function AdminPricingHubPage() {
                   {selectedEditPolicyOption ? <div className="reservation-result-row"><span>선택 정책명</span><strong>{selectedEditPolicyOption.policyName}</strong></div> : null}
                   <div className="reservation-result-row pricing-hub-adjust-row">
                     <span>기준 24시간 금액</span>
-                    <div className="pricing-hub-inline-controls pricing-hub-base-control" style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div className="pricing-hub-inline-controls pricing-hub-base-control">
                       <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(Math.max(0, roundAmount(base24hInput) - 10000)))} disabled={!policyEditorPolicyId || saving}>-1만</button>
                       <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(Math.max(0, roundAmount(base24hInput) - 1000)))} disabled={!policyEditorPolicyId || saving}>-1천</button>
-                      <input className="field-input pricing-hub-base-input" style={{ minWidth: 140 }} type="number" inputMode="numeric" min="0" step="1000" value={base24hInput} onChange={(e) => setBase24hInput(e.target.value)} disabled={!policyEditorPolicyId || saving} />
+                      <input className="field-input pricing-hub-base-input" type="number" inputMode="numeric" min="0" step="1000" value={base24hInput} onChange={(e) => setBase24hInput(e.target.value)} disabled={!policyEditorPolicyId || saving} />
                       <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(roundAmount(base24hInput) + 1000))} disabled={!policyEditorPolicyId || saving}>+1천</button>
                       <button type="button" className="btn btn-outline btn-sm" onClick={() => setBase24hInput(String(roundAmount(base24hInput) + 10000))} disabled={!policyEditorPolicyId || saving}>+1만</button>
                     </div>
@@ -769,7 +747,7 @@ export default function AdminPricingHubPage() {
                   </div>
                   <div className="reservation-result-row pricing-hub-adjust-row">
                     <span>미리보기 옵션타입</span>
-                    <select className="field-input" value={policyPreviewOptionTypeInput} onChange={(e) => setPolicyPreviewOptionTypeInput(normalizePricingOptionType(e.target.value))} disabled={!policyEditorPolicyId || saving} style={{ maxWidth: 220 }}>
+                    <select className="field-input pricing-hub-select" value={policyPreviewOptionTypeInput} onChange={(e) => setPolicyPreviewOptionTypeInput(normalizePricingOptionType(e.target.value))} disabled={!policyEditorPolicyId || saving}>
                       <option value="basic">기본</option>
                       <option value="semi_premium">세미프리미엄</option>
                       <option value="premium">프리미엄</option>

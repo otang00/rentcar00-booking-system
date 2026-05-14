@@ -733,11 +733,69 @@
   gap:12px;
 }
 
+.pricing-hub-search-row,
+.pricing-hub-two-col,
+.pricing-hub-connection-grid{
+  display:grid;
+  gap:12px;
+}
+
+.pricing-hub-search-row{
+  grid-template-columns:minmax(0, 1fr) auto auto;
+}
+
+.pricing-hub-two-col{
+  grid-template-columns:1.1fr 1fr;
+}
+
+.pricing-hub-connection-grid{
+  grid-template-columns:1.2fr 1fr 1fr;
+}
+
+.pricing-hub-select{
+  width:min(100%, 260px);
+  max-width:100%;
+}
+
+.pricing-hub-money-grid{
+  display:grid;
+  gap:8px;
+  grid-template-columns:repeat(auto-fit, minmax(136px, 1fr));
+}
+
+.pricing-hub-money-card{
+  display:grid;
+  gap:4px;
+  min-width:0;
+  padding:10px 12px;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  background:#fff;
+}
+
+.pricing-hub-money-card.is-primary{
+  border-color:#dbe3f0;
+  background:#f8fbff;
+}
+
+.pricing-hub-money-card .small-note{
+  margin:0;
+  white-space:nowrap;
+}
+
+.pricing-hub-money-card strong{
+  min-width:0;
+  font-size:14px;
+  line-height:1.25;
+  text-align:right;
+  overflow-wrap:anywhere;
+}
+
 .pricing-hub-inline-controls{
   display:flex;
   align-items:center;
   justify-content:flex-end;
-  gap:10px;
+  gap:6px;
   min-width:0;
 }
 
@@ -750,8 +808,8 @@
 }
 
 .pricing-hub-base-input{
-  width:124px;
-  min-width:124px;
+  width:140px;
+  min-width:120px;
   min-height:32px;
   padding:0 10px;
   text-align:right;
@@ -791,14 +849,60 @@
     order:2;
   }
 
+  .pricing-hub-search-row,
+  .pricing-hub-two-col,
+  .pricing-hub-connection-grid{
+    grid-template-columns:1fr;
+  }
+
+  .pricing-hub-search-row .btn,
+  .pricing-hub-connection-grid .btn{
+    width:100%;
+  }
+
+  .pricing-hub-select{
+    width:100%;
+  }
+
+  .pricing-hub-money-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
+  .pricing-hub-money-card{
+    padding:9px 10px;
+  }
+
+  .pricing-hub-money-card strong{
+    font-size:13px;
+  }
+
   .pricing-hub-inline-controls{
     width:100%;
-    justify-content:space-between;
+    justify-content:stretch;
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+  }
+
+  .pricing-hub-base-control .pricing-hub-base-input{
+    grid-column:1 / -1;
+    grid-row:1;
+    width:100%;
+    min-width:0;
+  }
+
+  .pricing-hub-base-control .btn{
+    width:100%;
+    padding-left:6px;
+    padding-right:6px;
   }
 
   .pricing-hub-base-control,
   .pricing-hub-percent-control{
-    margin-left:auto;
+    margin-left:0;
+  }
+
+  .pricing-hub-percent-control{
+    justify-content:flex-start;
   }
 
   .reservation-result-card{
@@ -845,6 +949,25 @@
 
   .reservation-confirm-modal .search-guard-actions .btn{
     width:100%;
+  }
+}
+
+@media (max-width: 430px){
+  .pricing-hub-money-grid{
+    grid-template-columns:1fr;
+  }
+
+  .pricing-hub-money-card{
+    grid-template-columns:auto minmax(0, 1fr);
+    align-items:center;
+  }
+
+  .pricing-hub-base-control{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
+  .pricing-hub-base-control .pricing-hub-base-input{
+    grid-column:1 / -1;
   }
 }
 
