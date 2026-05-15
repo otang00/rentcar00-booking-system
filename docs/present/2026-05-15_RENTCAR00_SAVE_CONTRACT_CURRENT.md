@@ -507,17 +507,28 @@ fee_1h: policyOnlySave ? null : item.values.fee1h
 - `metadata`: not null default `{}`
 
 ### 9-3. 운영 계약
-현재 구조는 seed/script 기반 성격이 강하다.
-관리자 화면에서 직접 수정할 경우 아래 계약을 새로 추가해야 한다.
+배송비 수정의 공식 경로는 관리자 페이지와 관리자 API 다.
+외부 json/sync script 기반 갱신은 폐기한다.
 
-- 변경 이력
-- 수정 권한
-- 금액 검증
-- 검색 결과 반영 확인
-- bulk sync와 admin 수정 충돌 기준
+관리자 저장 계약:
+- 관리자 권한 인증을 통과해야 한다.
+- 관리자 UI 는 가격 허브와 별도 페이지(`/admin/delivery-regions`)로 둔다.
+- API 파일은 신규 생성하지 않고 기존 `api/admin/pricing-hub.js` 에 action 을 추가한다.
+- 프론트 서비스는 기존 `src/services/adminPricingHubApi.js` 에 함수만 추가한다.
+- `round_trip_price` 는 0 이상의 정수만 허용한다.
+- `active` 는 boolean 으로 저장한다.
+- `province_id`, `city_id`, `dong_id` 는 지역 식별자이므로 관리자 화면에서 수정하지 않는다.
+- `dong_id` 는 unique 기준이며 지역 row 식별에 사용한다.
+- 저장 후 검색/상세 가격 계산은 `delivery_regions.round_trip_price` 를 즉시 참조한다.
 
-기존 `scripts/sync-delivery-regions.js` 는 전체 삭제 후 재삽입 경로이므로 운영 데이터 보존 위험이 있다.
-실행 전 별도 승인과 백업 기준이 필요하다.
+폐기 대상:
+- `scripts/sync-delivery-regions.js`
+- `supabase/reference/delivery-cost-list.json`
+
+보존 대상:
+- `delivery_regions` 테이블
+- 기존 운영 데이터
+- 초기 환경 재구축에 필요한 migration 이력
 
 ---
 
@@ -534,6 +545,10 @@ fee_1h: policyOnlySave ? null : item.values.fee1h
 - `save-editor`
 - `save-period`
 - `save-rate`
+
+배송비 action:
+- `list-delivery-regions`
+- `save-delivery-region`
 
 계약:
 - 프론트 payload 이름과 서버 body normalize 이름을 문서 기준에 맞춘다.

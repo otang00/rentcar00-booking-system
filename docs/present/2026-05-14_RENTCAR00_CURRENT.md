@@ -169,21 +169,39 @@ B. 회원 예약 운전자 정보 수정 허용
 ### 배경
 현재 딜리버리 배송비는 `public.delivery_regions.round_trip_price` 기준으로 관리되고, 프론트에는 `company.deliveryCostList` 로 변환되어 노출된다.
 
+### 정책 결정
+- 딜리버리 배송비는 더 이상 외부 json/sync script 로 갱신하지 않는다.
+- 공식 수정 경로는 관리자 페이지 + 관리자 API 로 전환한다.
+- `delivery_regions` 테이블과 기존 데이터는 유지한다.
+- 폐기 대상은 sync 입력/실행 경로다.
+  - `scripts/sync-delivery-regions.js`
+  - `supabase/reference/delivery-cost-list.json`
+
 ### 현재 관리 지점
 - DB 테이블: `delivery_regions`
-- 원본/동기화 참고: `supabase/reference/delivery-cost-list.json`, `scripts/sync-delivery-regions.js`
 - 조회: `server/search-db/repositories/fetchDeliveryRegions.js`
 - 변환: `server/search-db/transformers/mapDeliveryRegionsToCompany.js`
+- 가격 반영: `server/search-db/pricing/buildAppliedGroupPricing.js`
 
 ### 다음 구현 기준
-- 관리자 페이지에서 지역별 왕복 배송비(`round_trip_price`)를 조회/수정할 수 있게 한다.
+- 관리자 페이지는 가격 허브와 분리한다.
+  - 신규 route: `/admin/delivery-regions`
+  - 신규 page: `src/pages/AdminDeliveryRegionsPage.jsx`
+- API 파일은 새로 만들지 않는다.
+  - 기존 `api/admin/pricing-hub.js` 에 배송비 action 을 추가한다.
+  - 이유: serverless/API 파일 개수 제한을 피한다.
+- 프론트 API 호출도 기존 `src/services/adminPricingHubApi.js` 에 함수만 추가한다.
 - 관리자 메뉴에 딜리버리 비용 관리 진입점을 추가한다.
-- 수정 시 `active`, 지역명, 금액 변경 이력/실패 처리 기준을 함께 검토한다.
-- 기존 `scripts/sync-delivery-regions.js` 는 일괄 동기화/복구용으로 보존한다.
+- 수정 가능 항목은 우선 `round_trip_price`, `active` 로 제한한다.
+- 지역 식별자(`province_id`, `city_id`, `dong_id`)는 관리자 화면에서 수정하지 않는다.
+- 금액은 0 이상의 정수로 검증한다.
+- 변경 성공 후 검색/상세 가격 계산에 반영되는지 확인한다.
 
 ### 종료 조건 후보
 - 관리자 권한으로 배송비 목록 조회/검색이 가능하다.
-- 지역별 왕복 배송비 수정 후 검색/상세 화면 가격 계산에 반영된다.
+- 지역별 왕복 배송비와 active 상태 수정이 가능하다.
+- 수정 후 검색/상세 화면 가격 계산에 반영된다.
+- 폐기 대상 sync 파일이 제거된다.
 - `npm run build`, 관련 API 테스트 또는 최소 수동 검증 기준이 통과된다.
 
 ---

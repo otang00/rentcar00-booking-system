@@ -209,7 +209,32 @@
 
 ---
 
-## 6. 새 세션에서 먼저 확인할 파일
+## 6. 딜리버리 배송비 관리 기준
+
+### truth
+- 딜리버리 배송비 truth 는 `public.delivery_regions.round_trip_price` 다.
+- 검색/상세 가격 계산은 이 값을 참조한다.
+
+### 관리 방식
+- 배송비는 관리자 페이지와 관리자 API 에서 직접 관리한다.
+- 관리자 페이지는 가격 허브와 분리하되, API 파일은 신규 생성하지 않는다.
+- 배송비 API action 은 기존 `api/admin/pricing-hub.js` 에 추가한다.
+- 프론트 API 함수는 기존 `src/services/adminPricingHubApi.js` 에 추가한다.
+- 외부 json 또는 sync script 로 배송비를 갱신하지 않는다.
+- 폐기 대상:
+  - `scripts/sync-delivery-regions.js`
+  - `supabase/reference/delivery-cost-list.json`
+
+### 수정 규칙
+- 수정 가능 항목은 우선 `round_trip_price`, `active` 로 제한한다.
+- `round_trip_price` 는 0 이상의 정수만 허용한다.
+- `province_id`, `city_id`, `dong_id` 는 지역 식별자이므로 관리자 화면에서 수정하지 않는다.
+- `delivery_regions` 기존 운영 데이터는 삭제하지 않는다.
+- migration seed 이력은 초기 환경 재구축 기준으로 보존한다.
+
+---
+
+## 7. 새 세션에서 먼저 확인할 파일
 
 ### 인증/회원 수정
 1. `docs/policies/RENTCAR00_POLICY.md`
@@ -233,9 +258,19 @@
 3. 실제 연동 페이지
 4. 필요 시 `src/pages/PostcodeTestPage.jsx`
 
+### 딜리버리 배송비 관리자 수정
+1. `docs/policies/RENTCAR00_POLICY.md`
+2. `docs/present/2026-05-15_RENTCAR00_SAVE_CONTRACT_CURRENT.md`
+3. `api/admin/pricing-hub.js`
+4. `src/services/adminPricingHubApi.js`
+5. `src/pages/AdminDeliveryRegionsPage.jsx`
+6. `server/search-db/repositories/fetchDeliveryRegions.js`
+7. `server/search-db/transformers/mapDeliveryRegionsToCompany.js`
+8. `server/search-db/pricing/buildAppliedGroupPricing.js`
+
 ---
 
-## 7. 정책 파일에 굳이 안 넣은 것
+## 8. 정책 파일에 굳이 안 넣은 것
 - 이미 화면만 보면 알 수 있는 현상 설명
 - 임시 작업 순서
 - 끝난 phase 체크리스트
