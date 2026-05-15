@@ -473,6 +473,21 @@ async function handlePaymentApproval({ supabaseClient, sessionToken, encData, en
     return createResult
   }
 
+  if (createResult.deduped) {
+    return {
+      ok: true,
+      booking: createResult.booking,
+      completionToken: createBookingCompleteToken({
+        bookingOrderId: createResult.booking.id,
+        reservationCode: createResult.booking.publicReservationCode,
+      }).token,
+      email: { delivered: true, deduped: true },
+      adminAlert: { delivered: true, deduped: true },
+      approval,
+      alreadyProcessed: true,
+    }
+  }
+
   await consumePhoneVerification({
     supabaseClient,
     verificationId: sessionPayload.verificationId || null,

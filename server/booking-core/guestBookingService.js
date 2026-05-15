@@ -17,6 +17,22 @@ const {
 const { ensureBookingAvailability } = require('./bookingAvailabilityService')
 const { buildSearchWindow } = require('../search-db/helpers/buildSearchWindow')
 
+const PAYMENT_REFERENCE_UNIQUE_INDEX = 'uq_booking_orders_payment_reference'
+
+function isPaymentReferenceUniqueViolation(error) {
+  if (!error) return false
+
+  const details = [
+    error.code,
+    error.message,
+    error.details,
+    error.hint,
+    error.constraint,
+  ].map((value) => String(value || '')).join(' ')
+
+  return error.code === '23505' || details.includes(PAYMENT_REFERENCE_UNIQUE_INDEX)
+}
+
 async function fetchCarBySourceCarId({ supabaseClient, sourceCarId } = {}) {
   if (!supabaseClient) {
     throw new Error('supabase client is required')
@@ -387,6 +403,23 @@ async function createGuestBooking({
     .single()
 
   if (createError) {
+    if (isPaymentReferenceUniqueViolation(createError)) {
+      const existingOrder = await fetchBookingOrderByPaymentReference({
+        supabaseClient,
+        paymentProvider: insertPayload.payment_provider,
+        paymentReferenceId: resolvedPaymentReferenceId,
+      })
+
+      if (existingOrder) {
+        return {
+          ok: true,
+          status: 200,
+          booking: serializeBookingOrder(existingOrder),
+          deduped: true,
+        }
+      }
+    }
+
     throw createError
   }
 
