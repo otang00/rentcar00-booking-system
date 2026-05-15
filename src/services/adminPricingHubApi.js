@@ -84,3 +84,21 @@ export function savePricingHubGroupSetting(session, payload) {
   })
 }
 
+export function listDeliveryRegions(session, params = {}) {
+  return request(session, {
+    method: 'GET',
+    action: 'list-delivery-regions',
+    params,
+    fallbackMessage: '딜리버리 배송비 목록을 불러오지 못했습니다.',
+  })
+}
+
+export function saveDeliveryRegion(session, payload) {
+  return request(session, {
+    method: 'POST',
+    action: 'save-delivery-region',
+    body: payload,
+    fallbackMessage: '딜리버리 배송비 저장에 실패했습니다.',
+  })
+}
+

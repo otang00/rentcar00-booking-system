@@ -15,6 +15,7 @@ const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'))
 const AdminBookingConfirmPage = lazy(() => import('./pages/AdminBookingConfirmPage'))
 const AdminBookingsPage = lazy(() => import('./pages/AdminBookingsPage'))
 const AdminPricingHubPage = lazy(() => import('./pages/AdminPricingHubPage'))
+const AdminDeliveryRegionsPage = lazy(() => import('./pages/AdminDeliveryRegionsPage'))
 
 function RouteLoadingFallback() {
   return <div style={{ padding: 24, color: '#6b7280' }}>페이지를 불러오는 중입니다...</div>
@@ -42,6 +43,7 @@ export default function App() {
       <Route path="/admin/booking-confirm" element={<LazyRoute><AdminBookingConfirmPage /></LazyRoute>} />
       <Route path="/admin/bookings" element={<LazyRoute><AdminBookingsPage /></LazyRoute>} />
       <Route path="/admin/pricing-hub" element={<LazyRoute><AdminPricingHubPage /></LazyRoute>} />
+      <Route path="/admin/delivery-regions" element={<LazyRoute><AdminDeliveryRegionsPage /></LazyRoute>} />
       <Route path="/faq" element={<PlaceholderPage title="FAQ" />} />
       <Route path="/terms" element={<LegalPage kind="terms" />} />
       <Route path="/privacy" element={<LegalPage kind="privacy" />} />

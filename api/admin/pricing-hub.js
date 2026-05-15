@@ -551,6 +551,98 @@ async function handleGetPolicyEditor(req, res, supabaseClient) {
 }
 
 
+function serializeDeliveryRegion(row = {}) {
+  return {
+    id: row.id,
+    provinceId: row.province_id,
+    provinceName: row.province_name || '',
+    cityId: row.city_id,
+    cityName: row.city_name || '',
+    dongId: row.dong_id,
+    dongName: row.dong_name || '',
+    fullLabel: row.full_label || [row.province_name, row.city_name, row.dong_name].filter(Boolean).join(' '),
+    roundTripPrice: Number(row.round_trip_price || 0),
+    active: row.active !== false,
+    metadata: row.metadata && typeof row.metadata === 'object' ? row.metadata : {},
+    createdAt: row.created_at || null,
+    updatedAt: row.updated_at || null,
+  }
+}
+
+async function handleListDeliveryRegions(req, res, supabaseClient) {
+  const q = normalizeText(req.query?.q).toLowerCase()
+  const activeFilter = normalizeText(req.query?.active).toLowerCase()
+
+  let query = supabaseClient
+    .from('delivery_regions')
+    .select('*')
+    .order('province_id', { ascending: true })
+    .order('city_id', { ascending: true })
+    .order('dong_id', { ascending: true })
+
+  if (activeFilter === 'true' || activeFilter === 'active') {
+    query = query.eq('active', true)
+  } else if (activeFilter === 'false' || activeFilter === 'inactive') {
+    query = query.eq('active', false)
+  }
+
+  const { data, error } = await query
+  if (error) {
+    return res.status(500).json({ error: 'delivery_regions_list_failed', message: error.message })
+  }
+
+  const rows = Array.isArray(data) ? data : []
+  const filteredRows = q
+    ? rows.filter((row) => [
+        row.province_name,
+        row.city_name,
+        row.dong_name,
+        row.full_label,
+        row.dong_id,
+      ].some((value) => String(value || '').toLowerCase().includes(q)))
+    : rows
+
+  return res.status(200).json({
+    items: filteredRows.map(serializeDeliveryRegion),
+    totalCount: filteredRows.length,
+  })
+}
+
+async function handleSaveDeliveryRegion(req, res, supabaseClient) {
+  const body = await parseJsonBody(req)
+  const id = normalizeText(body.id)
+  const dongId = body.dongId != null && body.dongId !== '' ? Number(body.dongId) : null
+  const roundTripPrice = Number(body.roundTripPrice)
+
+  if (!id && (!Number.isInteger(dongId) || dongId <= 0)) {
+    return res.status(400).json({ error: 'invalid_delivery_region_target', message: 'id 또는 dongId 가 필요합니다.' })
+  }
+
+  if (!Number.isInteger(roundTripPrice) || roundTripPrice < 0) {
+    return res.status(400).json({ error: 'invalid_round_trip_price', message: '왕복 배송비는 0 이상의 정수여야 합니다.' })
+  }
+
+  const payload = {
+    round_trip_price: roundTripPrice,
+    active: body.active !== false,
+    updated_at: new Date().toISOString(),
+  }
+
+  let query = supabaseClient
+    .from('delivery_regions')
+    .update(payload)
+
+  query = id ? query.eq('id', id) : query.eq('dong_id', dongId)
+
+  const { data, error } = await query.select('*').single()
+  if (error) {
+    return res.status(500).json({ error: 'delivery_region_save_failed', message: error.message })
+  }
+
+  return res.status(200).json({ item: serializeDeliveryRegion(data) })
+}
+
+
 async function handleSaveGroupSetting(req, res, supabaseClient, authUser) {
   const body = await parseJsonBody(req)
   const id = normalizeText(body.id || body.pricePolicyGroupId)
@@ -854,6 +946,10 @@ module.exports = async function handler(req, res) {
       return handleGetPolicyEditor(req, res, supabaseClient)
     }
 
+    if (req.method === 'GET' && action === 'list-delivery-regions') {
+      return handleListDeliveryRegions(req, res, supabaseClient)
+    }
+
     if (req.method === 'POST' && action === 'save-period') {
       return handleSavePeriod(req, res, supabaseClient)
     }
@@ -868,6 +964,10 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'POST' && action === 'save-group-setting') {
       return handleSaveGroupSetting(req, res, supabaseClient, authUser)
+    }
+
+    if (req.method === 'POST' && action === 'save-delivery-region') {
+      return handleSaveDeliveryRegion(req, res, supabaseClient)
     }
 
     return res.status(404).json({ error: 'not_found' })
