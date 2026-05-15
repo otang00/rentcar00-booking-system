@@ -102,3 +102,12 @@ export function saveDeliveryRegion(session, payload) {
   })
 }
 
+export function saveDeliveryRegionsBulk(session, payload) {
+  return request(session, {
+    method: 'POST',
+    action: 'save-delivery-regions-bulk',
+    body: payload,
+    fallbackMessage: '딜리버리 배송비 일괄 저장에 실패했습니다.',
+  })
+}
+

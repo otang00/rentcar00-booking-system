@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { PageShell } from '../components/Layout'
+import { AdminNav } from '../components/AdminNav'
 import { useAuth } from '../hooks/useAuth'
 import { isAdminUser } from '../utils/adminAccess'
 import {
@@ -553,11 +554,10 @@ export default function AdminPricingHubPage() {
                 <h1 style={{ margin: 0 }}>RENTCAR00 PRICING HUB</h1>
                 <p className="small-note" style={{ marginTop: 8 }}>차량그룹 현재 적용가 확인, 연결 정책 변경, 정책 가격 수정을 분리합니다.</p>
               </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <Link className="btn btn-outline btn-md" to="/admin/bookings">예약관리로</Link>
-                <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
-              </div>
+              <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
             </div>
+
+            <AdminNav />
 
             {groupsError ? <p className="field-note" style={{ color: '#be123c', margin: 0 }}>{groupsError}</p> : null}
             {groupEditorError ? <p className="field-note" style={{ color: '#be123c', margin: 0 }}>{groupEditorError}</p> : null}

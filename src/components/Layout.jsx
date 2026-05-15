@@ -28,11 +28,8 @@ export function Header({ brandName, showGuestBookingAction = true } = {}) {
           {isAuthenticated ? (
             <>
               <Link className="app-header__button is-soft" to={isAdmin ? '/admin/bookings' : '/reservations'}>
-                {isAdmin ? '관리자 예약목록' : '예약목록'}
+                {isAdmin ? '관리자 메뉴' : '예약목록'}
               </Link>
-              {isAdmin ? (
-                <Link className="app-header__button is-soft" to="/admin/delivery-regions">배송비관리</Link>
-              ) : null}
               <button className="app-header__button" type="button" onClick={handleSignOut}>로그아웃</button>
             </>
           ) : (

@@ -643,6 +643,42 @@ async function handleSaveDeliveryRegion(req, res, supabaseClient) {
 }
 
 
+
+async function handleSaveDeliveryRegionsBulk(req, res, supabaseClient) {
+  const body = await parseJsonBody(req)
+  const dongIds = Array.isArray(body.dongIds)
+    ? [...new Set(body.dongIds.map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0))]
+    : []
+  const roundTripPrice = Number(body.roundTripPrice)
+
+  if (dongIds.length === 0) {
+    return res.status(400).json({ error: 'invalid_delivery_region_targets', message: 'dongIds 가 필요합니다.' })
+  }
+
+  if (!Number.isInteger(roundTripPrice) || roundTripPrice < 0) {
+    return res.status(400).json({ error: 'invalid_round_trip_price', message: '왕복 배송비는 0 이상의 정수여야 합니다.' })
+  }
+
+  const { data, error } = await supabaseClient
+    .from('delivery_regions')
+    .update({
+      round_trip_price: roundTripPrice,
+      active: body.active !== false,
+      updated_at: new Date().toISOString(),
+    })
+    .in('dong_id', dongIds)
+    .select('*')
+
+  if (error) {
+    return res.status(500).json({ error: 'delivery_regions_bulk_save_failed', message: error.message })
+  }
+
+  return res.status(200).json({
+    items: (Array.isArray(data) ? data : []).map(serializeDeliveryRegion),
+    updatedCount: Array.isArray(data) ? data.length : 0,
+  })
+}
+
 async function handleSaveGroupSetting(req, res, supabaseClient, authUser) {
   const body = await parseJsonBody(req)
   const id = normalizeText(body.id || body.pricePolicyGroupId)
@@ -968,6 +1004,10 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'POST' && action === 'save-delivery-region') {
       return handleSaveDeliveryRegion(req, res, supabaseClient)
+    }
+
+    if (req.method === 'POST' && action === 'save-delivery-regions-bulk') {
+      return handleSaveDeliveryRegionsBulk(req, res, supabaseClient)
     }
 
     return res.status(404).json({ error: 'not_found' })

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { PageShell } from '../components/Layout'
+import { AdminNav } from '../components/AdminNav'
 import { useAuth } from '../hooks/useAuth'
 import { getAdminBookings } from '../services/adminBookingsApi'
 import { isAdminUser } from '../utils/adminAccess'
@@ -230,12 +231,9 @@ export default function AdminBookingsPage() {
                     홈페이지 예약 원장을 확인하고 취소/환불 상태를 관리합니다.
                   </p>
                 </div>
-                {hasAdminHint ? (
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    <Link className="btn btn-outline btn-md" to="/admin/pricing-hub">통합 요금 관리</Link>
-                  </div>
-                ) : null}
               </div>
+
+              {hasAdminHint ? <AdminNav /> : null}
 
               {hasAdminHint ? (
                 <div className="panel-sub" style={{ display: 'grid', gap: 8 }}>

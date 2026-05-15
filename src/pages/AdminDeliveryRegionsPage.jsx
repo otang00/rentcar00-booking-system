@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { AdminNav } from '../components/AdminNav'
 import { PageShell } from '../components/Layout'
 import { useAuth } from '../hooks/useAuth'
-import { listDeliveryRegions, saveDeliveryRegion } from '../services/adminPricingHubApi'
+import { listDeliveryRegions, saveDeliveryRegion, saveDeliveryRegionsBulk } from '../services/adminPricingHubApi'
 import { isAdminUser } from '../utils/adminAccess'
 
 function formatMoney(value) {
@@ -14,20 +15,71 @@ function normalizePriceInput(value) {
   return Number.isFinite(next) ? next : 0
 }
 
+function groupDeliveryRegions(items = []) {
+  const provinceMap = new Map()
+
+  for (const item of items) {
+    const provinceKey = String(item.provinceId)
+    const cityKey = `${item.provinceId}:${item.cityId}`
+
+    if (!provinceMap.has(provinceKey)) {
+      provinceMap.set(provinceKey, {
+        key: provinceKey,
+        provinceId: item.provinceId,
+        provinceName: item.provinceName,
+        items: [],
+        cityMap: new Map(),
+      })
+    }
+
+    const province = provinceMap.get(provinceKey)
+    province.items.push(item)
+
+    if (!province.cityMap.has(cityKey)) {
+      province.cityMap.set(cityKey, {
+        key: cityKey,
+        cityId: item.cityId,
+        cityName: item.cityName,
+        items: [],
+      })
+    }
+
+    province.cityMap.get(cityKey).items.push(item)
+  }
+
+  return Array.from(provinceMap.values()).map((province) => ({
+    ...province,
+    cities: Array.from(province.cityMap.values()),
+  }))
+}
+
+function summarizeGroup(items = []) {
+  const prices = [...new Set(items.map((item) => Number(item.roundTripPrice || 0)))]
+  const activeCount = items.filter((item) => item.active !== false).length
+  return {
+    priceLabel: prices.length === 1 ? formatMoney(prices[0]) : `${prices.length}개 요금`,
+    activeLabel: `${activeCount}/${items.length} 활성`,
+  }
+}
+
 export default function AdminDeliveryRegionsPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { loading, isAuthenticated, session, user, profile } = useAuth()
   const [items, setItems] = useState([])
   const [fetching, setFetching] = useState(true)
-  const [savingId, setSavingId] = useState('')
+  const [savingKey, setSavingKey] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [drafts, setDrafts] = useState({})
+  const [bulkDrafts, setBulkDrafts] = useState({})
+  const [expandedProvinces, setExpandedProvinces] = useState({})
+  const [expandedCities, setExpandedCities] = useState({})
 
   const q = searchParams.get('q') || ''
   const active = searchParams.get('active') || 'all'
   const hasAdminHint = useMemo(() => isAdminUser(user) || isAdminUser(profile), [profile, user])
+  const groupedItems = useMemo(() => groupDeliveryRegions(items), [items])
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -64,12 +116,14 @@ export default function AdminDeliveryRegionsPage() {
           }
           return acc
         }, {}))
+        setBulkDrafts({})
         setError('')
       })
       .catch((fetchError) => {
         if (ignore) return
         setItems([])
         setDrafts({})
+        setBulkDrafts({})
         setError(fetchError.message || '딜리버리 배송비 목록을 불러오지 못했습니다.')
       })
       .finally(() => {
@@ -101,12 +155,45 @@ export default function AdminDeliveryRegionsPage() {
     }))
   }
 
-  async function handleSave(item) {
+  function updateBulkDraft(key, patch) {
+    setBulkDrafts((prev) => ({
+      ...prev,
+      [key]: {
+        ...(prev[key] || {}),
+        ...patch,
+      },
+    }))
+  }
+
+  function toggleProvince(key) {
+    setExpandedProvinces((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
+
+  function toggleCity(key) {
+    setExpandedCities((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
+
+  function updateSavedItems(savedItems = []) {
+    const savedById = new Map(savedItems.map((item) => [item.id, item]))
+    setItems((prev) => prev.map((entry) => savedById.get(entry.id) || entry))
+    setDrafts((prev) => {
+      const next = { ...prev }
+      for (const item of savedItems) {
+        next[item.id] = {
+          roundTripPrice: String(item.roundTripPrice ?? 0),
+          active: item.active !== false,
+        }
+      }
+      return next
+    })
+  }
+
+  async function handleSaveDong(item) {
     const draft = drafts[item.id] || {}
     const roundTripPrice = normalizePriceInput(draft.roundTripPrice)
     const activeValue = draft.active !== false
 
-    setSavingId(item.id)
+    setSavingKey(`dong:${item.id}`)
     setMessage('')
     setError('')
 
@@ -117,21 +204,79 @@ export default function AdminDeliveryRegionsPage() {
         roundTripPrice,
         active: activeValue,
       })
-      const saved = result.item
-      setItems((prev) => prev.map((entry) => (entry.id === item.id ? saved : entry)))
-      setDrafts((prev) => ({
-        ...prev,
-        [item.id]: {
-          roundTripPrice: String(saved.roundTripPrice ?? 0),
-          active: saved.active !== false,
-        },
-      }))
-      setMessage(`${saved.fullLabel || item.fullLabel} 저장 완료`)
+      updateSavedItems([result.item])
+      setMessage(`${result.item.fullLabel || item.fullLabel} 저장 완료`)
     } catch (saveError) {
       setError(saveError.message || '딜리버리 배송비 저장에 실패했습니다.')
     } finally {
-      setSavingId('')
+      setSavingKey('')
     }
+  }
+
+  async function handleSaveBulk({ key, label, targetItems }) {
+    const draft = bulkDrafts[key] || {}
+    const roundTripPrice = normalizePriceInput(draft.roundTripPrice)
+    const activeValue = draft.active !== false
+    const dongIds = targetItems.map((item) => item.dongId).filter(Boolean)
+
+    if (dongIds.length === 0) return
+
+    setSavingKey(`bulk:${key}`)
+    setMessage('')
+    setError('')
+
+    try {
+      const result = await saveDeliveryRegionsBulk(session, {
+        dongIds,
+        roundTripPrice,
+        active: activeValue,
+      })
+      const savedItems = result.items || []
+      updateSavedItems(savedItems)
+      setBulkDrafts((prev) => ({
+        ...prev,
+        [key]: { roundTripPrice: String(roundTripPrice), active: activeValue },
+      }))
+      setMessage(`${label} ${savedItems.length.toLocaleString('ko-KR')}건 일괄 저장 완료`)
+    } catch (saveError) {
+      setError(saveError.message || '딜리버리 배송비 일괄 저장에 실패했습니다.')
+    } finally {
+      setSavingKey('')
+    }
+  }
+
+  function renderBulkControls({ key, label, targetItems }) {
+    const summary = summarizeGroup(targetItems)
+    const draft = bulkDrafts[key] || { roundTripPrice: '', active: true }
+    return (
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        <span className="field-note" style={{ margin: 0 }}>{summary.priceLabel} · {summary.activeLabel}</span>
+        <input
+          className="form-input"
+          inputMode="numeric"
+          value={draft.roundTripPrice}
+          onChange={(event) => updateBulkDraft(key, { roundTripPrice: event.target.value })}
+          placeholder="왕복요금"
+          style={{ width: 110 }}
+        />
+        <label style={{ display: 'inline-flex', gap: 6, alignItems: 'center', whiteSpace: 'nowrap' }}>
+          <input
+            type="checkbox"
+            checked={draft.active !== false}
+            onChange={(event) => updateBulkDraft(key, { active: event.target.checked })}
+          />
+          활성
+        </label>
+        <button
+          className="btn btn-primary btn-sm"
+          type="button"
+          disabled={savingKey === `bulk:${key}` || !String(draft.roundTripPrice || '').trim()}
+          onClick={() => handleSaveBulk({ key, label, targetItems })}
+        >
+          {savingKey === `bulk:${key}` ? '저장중' : '하위 전체 적용'}
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -142,13 +287,12 @@ export default function AdminDeliveryRegionsPage() {
             <div>
               <p className="eyebrow">ADMIN DELIVERY</p>
               <h1 className="section-title">딜리버리 배송비 관리</h1>
-              <p className="section-subtitle">지역별 왕복 배송비와 노출 상태를 관리합니다.</p>
+              <p className="section-subtitle">시/도 → 구/시 → 동 단위로 펼쳐서 왕복 배송비와 노출 상태를 관리합니다.</p>
             </div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <Link className="btn btn-outline btn-sm" to="/admin/bookings">예약관리</Link>
-              <Link className="btn btn-outline btn-sm" to="/admin/pricing-hub">가격허브</Link>
-            </div>
+            <Link className="btn btn-outline btn-sm" to="/">메인으로</Link>
           </div>
+
+          <AdminNav />
 
           <div className="panel-card" style={{ display: 'grid', gap: 12 }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(180px, 1fr) 160px auto', gap: 8 }}>
@@ -168,81 +312,90 @@ export default function AdminDeliveryRegionsPage() {
               </button>
             </div>
             <p className="field-note" style={{ margin: 0 }}>
-              총 {items.length.toLocaleString('ko-KR')}건 · 지역 식별자(province/city/dong id)는 수정하지 않습니다.
+              총 {items.length.toLocaleString('ko-KR')}건 · 시/도 또는 구/시에서 하위 전체 적용이 가능합니다.
             </p>
           </div>
 
           {message ? <div className="notice success">{message}</div> : null}
           {error ? <div className="notice error">{error}</div> : null}
 
-          <div className="panel-card" style={{ overflowX: 'auto' }}>
+          <div className="panel-card" style={{ display: 'grid', gap: 10 }}>
             {fetching ? (
               <p className="field-note">딜리버리 배송비 목록을 불러오는 중입니다...</p>
-            ) : (
-              <table className="admin-table" style={{ minWidth: 860, width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th>지역</th>
-                    <th>동ID</th>
-                    <th>현재 왕복</th>
-                    <th>수정 왕복</th>
-                    <th>상태</th>
-                    <th>저장</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item) => {
-                    const draft = drafts[item.id] || { roundTripPrice: String(item.roundTripPrice || 0), active: item.active !== false }
-                    const normalizedDraftPrice = normalizePriceInput(draft.roundTripPrice)
-                    const changed = normalizedDraftPrice !== Number(item.roundTripPrice || 0) || (draft.active !== false) !== (item.active !== false)
-                    return (
-                      <tr key={item.id}>
-                        <td>
-                          <strong>{item.fullLabel}</strong>
-                          <p className="field-note" style={{ margin: '4px 0 0' }}>{item.provinceName} / {item.cityName} / {item.dongName}</p>
-                        </td>
-                        <td>{item.dongId}</td>
-                        <td>{formatMoney(item.roundTripPrice)}</td>
-                        <td>
-                          <input
-                            className="form-input"
-                            inputMode="numeric"
-                            value={draft.roundTripPrice}
-                            onChange={(event) => updateDraft(item.id, { roundTripPrice: event.target.value })}
-                            style={{ minWidth: 120 }}
-                          />
-                        </td>
-                        <td>
-                          <label style={{ display: 'inline-flex', gap: 6, alignItems: 'center', whiteSpace: 'nowrap' }}>
-                            <input
-                              type="checkbox"
-                              checked={draft.active !== false}
-                              onChange={(event) => updateDraft(item.id, { active: event.target.checked })}
-                            />
-                            {draft.active !== false ? '활성' : '비활성'}
-                          </label>
-                        </td>
-                        <td>
-                          <button
-                            className="btn btn-primary btn-sm"
-                            type="button"
-                            disabled={!changed || savingId === item.id}
-                            onClick={() => handleSave(item)}
-                          >
-                            {savingId === item.id ? '저장중' : '저장'}
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                  {items.length === 0 ? (
-                    <tr>
-                      <td colSpan="6" style={{ textAlign: 'center', padding: 24 }}>검색 결과가 없습니다.</td>
-                    </tr>
+            ) : groupedItems.length === 0 ? (
+              <p className="field-note">검색 결과가 없습니다.</p>
+            ) : groupedItems.map((province) => {
+              const provinceOpen = Boolean(expandedProvinces[province.key])
+              return (
+                <div key={province.key} style={{ border: '1px solid #e5e7eb', borderRadius: 14, overflow: 'hidden', background: '#fff' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'center', padding: 12, background: '#f8fafc', flexWrap: 'wrap' }}>
+                    <button className="btn btn-outline btn-sm" type="button" onClick={() => toggleProvince(province.key)} style={{ minWidth: 160, justifyContent: 'flex-start' }}>
+                      {provinceOpen ? '▼' : '▶'} {province.provinceName}
+                    </button>
+                    {renderBulkControls({ key: `province:${province.provinceId}`, label: province.provinceName, targetItems: province.items })}
+                  </div>
+
+                  {provinceOpen ? (
+                    <div style={{ display: 'grid', gap: 8, padding: 10 }}>
+                      {province.cities.map((city) => {
+                        const cityOpen = Boolean(expandedCities[city.key])
+                        return (
+                          <div key={city.key} style={{ border: '1px solid #eef2f7', borderRadius: 12, overflow: 'hidden' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'center', padding: 10, background: '#fff', flexWrap: 'wrap' }}>
+                              <button className="btn btn-outline btn-sm" type="button" onClick={() => toggleCity(city.key)} style={{ minWidth: 150, justifyContent: 'flex-start' }}>
+                                {cityOpen ? '▼' : '▶'} {city.cityName}
+                              </button>
+                              {renderBulkControls({ key: `city:${city.cityId}`, label: `${province.provinceName} ${city.cityName}`, targetItems: city.items })}
+                            </div>
+
+                            {cityOpen ? (
+                              <div style={{ display: 'grid', gap: 6, padding: 10, background: '#f9fafb' }}>
+                                {city.items.map((item) => {
+                                  const draft = drafts[item.id] || { roundTripPrice: String(item.roundTripPrice || 0), active: item.active !== false }
+                                  const normalizedDraftPrice = normalizePriceInput(draft.roundTripPrice)
+                                  const changed = normalizedDraftPrice !== Number(item.roundTripPrice || 0) || (draft.active !== false) !== (item.active !== false)
+                                  return (
+                                    <div key={item.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(160px, 1fr) 90px 130px 110px auto', gap: 8, alignItems: 'center', padding: 8, borderRadius: 10, background: '#fff' }}>
+                                      <div>
+                                        <strong>{item.dongName}</strong>
+                                        <p className="field-note" style={{ margin: '3px 0 0' }}>동ID {item.dongId} · 현재 {formatMoney(item.roundTripPrice)}</p>
+                                      </div>
+                                      <span className="field-note" style={{ margin: 0 }}>{item.active !== false ? '활성' : '비활성'}</span>
+                                      <input
+                                        className="form-input"
+                                        inputMode="numeric"
+                                        value={draft.roundTripPrice}
+                                        onChange={(event) => updateDraft(item.id, { roundTripPrice: event.target.value })}
+                                      />
+                                      <label style={{ display: 'inline-flex', gap: 6, alignItems: 'center', whiteSpace: 'nowrap' }}>
+                                        <input
+                                          type="checkbox"
+                                          checked={draft.active !== false}
+                                          onChange={(event) => updateDraft(item.id, { active: event.target.checked })}
+                                        />
+                                        활성
+                                      </label>
+                                      <button
+                                        className="btn btn-primary btn-sm"
+                                        type="button"
+                                        disabled={!changed || savingKey === `dong:${item.id}`}
+                                        onClick={() => handleSaveDong(item)}
+                                      >
+                                        {savingKey === `dong:${item.id}` ? '저장중' : '저장'}
+                                      </button>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            ) : null}
+                          </div>
+                        )
+                      })}
+                    </div>
                   ) : null}
-                </tbody>
-              </table>
-            )}
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
