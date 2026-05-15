@@ -14,7 +14,6 @@ const {
   createPublicReservationCode,
   createPaymentReferenceId,
 } = require('./bookingIdentity')
-const { ensureBookingAvailability } = require('./bookingAvailabilityService')
 const { buildSearchWindow } = require('../search-db/helpers/buildSearchWindow')
 
 const PAYMENT_REFERENCE_UNIQUE_INDEX = 'uq_booking_orders_payment_reference'
@@ -320,16 +319,6 @@ async function createGuestBooking({
     throw new Error('supabase client is required')
   }
 
-  const car = await fetchCarBySourceCarId({ supabaseClient, sourceCarId: bookingInput.carId })
-  if (!car) {
-    return {
-      ok: false,
-      code: 'car_not_found',
-      status: 404,
-      message: '예약 차량 정보를 찾을 수 없습니다.',
-    }
-  }
-
   const searchWindow = buildSearchWindow({
     deliveryDateTime: bookingInput.deliveryDateTime,
     returnDateTime: bookingInput.returnDateTime,
@@ -337,76 +326,61 @@ async function createGuestBooking({
   const pickupAtIso = searchWindow.startIso
   const returnAtIso = searchWindow.endIso
 
-  const availability = await ensureBookingAvailability({
-    supabaseClient,
-    dbCarId: car.id,
-    sourceCarId: Number(car.source_car_id),
-    pickupAt: pickupAtIso,
-    returnAt: returnAtIso,
-  })
-
-  if (!availability.ok) {
-    return availability
-  }
-
   const reservationCode = await generateUniqueReservationCode({ supabaseClient, now })
+  const resolvedPaymentProvider = String(paymentProvider || 'surrogate_web').trim() || 'surrogate_web'
   const resolvedPaymentReferenceId = String(paymentReferenceId || '').trim() || createPaymentReferenceId(now)
   const customerPhone = normalizeCustomerPhone(bookingInput.customerPhone)
   const customerBirth = normalizeCustomerBirth(bookingInput.customerBirth)
   const phoneLast4 = customerPhone.slice(-4)
 
-  const insertPayload = {
+  const pickupLocationSnapshot = {
+    pickupOption: bookingInput.pickupOption,
+    deliveryAddress: bookingInput.deliveryAddress || '',
+    deliveryAddressDetail: bookingInput.deliveryAddressDetail || '',
+  }
+  const returnLocationSnapshot = {
+    pickupOption: bookingInput.pickupOption,
+    deliveryAddress: bookingInput.deliveryAddress || '',
+    deliveryAddressDetail: bookingInput.deliveryAddressDetail || '',
+  }
+
+  const rpcPayload = {
+    source_car_id: Number(bookingInput.carId),
+    auth_user_id: authUserId || null,
+    requested_by: requestedBy,
     public_reservation_code: reservationCode,
-    booking_channel: 'website',
-    customer_name: bookingInput.customerName,
-    customer_phone: customerPhone,
-    customer_phone_last4: phoneLast4,
-    user_id: authUserId,
-    car_id: car.id,
-    pickup_at: pickupAtIso,
-    return_at: returnAtIso,
-    pickup_method: bookingInput.pickupOption,
-    pickup_location_snapshot: {
-      pickupOption: bookingInput.pickupOption,
-      deliveryAddress: bookingInput.deliveryAddress || '',
-      deliveryAddressDetail: bookingInput.deliveryAddressDetail || '',
-    },
-    return_location_snapshot: {
-      pickupOption: bookingInput.pickupOption,
-      deliveryAddress: bookingInput.deliveryAddress || '',
-      deliveryAddressDetail: bookingInput.deliveryAddressDetail || '',
-    },
-    quoted_total_amount: bookingInput.quotedTotalAmount,
-    pricing_snapshot: {
-      carName: car.display_name || car.name || '',
-      carNumber: car.car_number || '',
-      quotedTotalAmount: bookingInput.quotedTotalAmount,
-      rentalAmount: bookingInput.rentalAmount,
-      insuranceAmount: bookingInput.insuranceAmount,
-      deliveryAmount: bookingInput.deliveryAmount,
-      finalAmount: bookingInput.finalAmount,
-      paymentMethod: bookingInput.paymentMethod || null,
-      customerBirth,
-    },
-    payment_provider: String(paymentProvider || 'surrogate_web').trim() || 'surrogate_web',
+    payment_provider: resolvedPaymentProvider,
     payment_reference_id: resolvedPaymentReferenceId,
     booking_status: String(bookingStatus || 'confirmed').trim() || 'confirmed',
     payment_status: String(paymentStatus || 'paid').trim() || 'paid',
-    sync_status: 'not_required',
-    manual_review_required: false,
+    customer_name: bookingInput.customerName,
+    customer_phone: customerPhone,
+    customer_phone_last4: phoneLast4,
+    customer_birth: customerBirth,
+    customer_birth_last4: customerBirth.slice(-4),
+    lookup_phone_hash: hashLookupValue(`phone:${customerPhone}`),
+    lookup_birth_hash: hashLookupValue(`birth:${customerBirth}`),
+    pickup_at: pickupAtIso,
+    return_at: returnAtIso,
+    pickup_method: bookingInput.pickupOption,
+    pickup_location_snapshot: pickupLocationSnapshot,
+    return_location_snapshot: returnLocationSnapshot,
+    quoted_total_amount: bookingInput.quotedTotalAmount,
+    rental_amount: bookingInput.rentalAmount,
+    insurance_amount: bookingInput.insuranceAmount,
+    delivery_amount: bookingInput.deliveryAmount,
+    final_amount: bookingInput.finalAmount,
+    payment_method: bookingInput.paymentMethod || null,
   }
 
-  const { data: createdOrder, error: createError } = await supabaseClient
-    .from('booking_orders')
-    .insert(insertPayload)
-    .select('*')
-    .single()
+  const { data: rpcResult, error: rpcError } = await supabaseClient
+    .rpc('create_booking_order_after_payment_v1', { payload: rpcPayload })
 
-  if (createError) {
-    if (isPaymentReferenceUniqueViolation(createError)) {
+  if (rpcError) {
+    if (isPaymentReferenceUniqueViolation(rpcError)) {
       const existingOrder = await fetchBookingOrderByPaymentReference({
         supabaseClient,
-        paymentProvider: insertPayload.payment_provider,
+        paymentProvider: resolvedPaymentProvider,
         paymentReferenceId: resolvedPaymentReferenceId,
       })
 
@@ -420,57 +394,24 @@ async function createGuestBooking({
       }
     }
 
-    throw createError
+    throw rpcError
   }
 
-  const { error: lookupInsertError } = await supabaseClient
-    .from('booking_lookup_keys')
-    .insert([
-      {
-        booking_order_id: createdOrder.id,
-        lookup_type: 'customer_phone',
-        lookup_value_hash: hashLookupValue(`phone:${customerPhone}`),
-        lookup_value_last4: phoneLast4,
-        verified_at: now.toISOString(),
-      },
-      {
-        booking_order_id: createdOrder.id,
-        lookup_type: 'customer_birth',
-        lookup_value_hash: hashLookupValue(`birth:${customerBirth}`),
-        lookup_value_last4: customerBirth.slice(-4),
-        verified_at: now.toISOString(),
-      },
-    ])
-
-  if (lookupInsertError) {
-    throw lookupInsertError
-  }
-
-  const { error: eventError } = await supabaseClient
-    .from('reservation_status_events')
-    .insert({
-      booking_order_id: createdOrder.id,
-      event_type: 'booking_created',
-      event_payload: {
-        requestedBy,
-        authUserId,
-        bookingChannel: 'website',
-        paymentProvider: insertPayload.payment_provider,
-        paymentReferenceId: resolvedPaymentReferenceId,
-        bookingStatus: insertPayload.booking_status,
-        paymentStatus: insertPayload.payment_status,
-        syncStatus: 'not_required',
-      },
-    })
-
-  if (eventError) {
-    throw eventError
+  if (!rpcResult || rpcResult.ok === false) {
+    return {
+      ok: false,
+      code: rpcResult?.code || 'booking_create_failed',
+      status: rpcResult?.status || 500,
+      message: rpcResult?.message || '예약 생성에 실패했습니다.',
+      conflicts: rpcResult?.conflicts || null,
+    }
   }
 
   return {
     ok: true,
-    status: 201,
-    booking: serializeBookingOrder(createdOrder),
+    status: rpcResult.status || (rpcResult.deduped ? 200 : 201),
+    booking: serializeBookingOrder(rpcResult.booking_order || {}),
+    deduped: Boolean(rpcResult.deduped),
   }
 }
 
