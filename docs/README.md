@@ -25,6 +25,7 @@
 - `complete/2026-05-14_RENTCAR00_AUTH_AND_GUEST_FLOW_COMPLETE.md`
 - `complete/2026-05-14_RENTCAR00_PRICING_HUB_ADMIN_COMPLETE.md`
 - `complete/2026-05-14_RENTCAR00_ROUTE_SPLITTING_COMPLETE.md`
+- `complete/2026-05-16_RENTCAR00_KCP_PAYMENT_ATTEMPT_COMPLETE.md`
 
 원칙:
 - 구현 완료 범위
@@ -39,7 +40,7 @@
 작업이 끝나면 complete 또는 past 로 이동한다.
 
 현재 active current:
-- `present/2026-05-14_RENTCAR00_CURRENT.md`
+- `present/2026-05-16_RENTCAR00_CURRENT.md`
 
 원칙:
 - active current 는 한 번에 1개만 둔다.

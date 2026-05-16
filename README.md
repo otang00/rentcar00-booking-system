@@ -9,7 +9,7 @@
 1. `docs/README.md`
 2. `docs/policies/RENTCAR00_POLICY.md`
 3. 필요 시 `docs/complete/2026-05-14_RENTCAR00_PRICING_HUB_ADMIN_COMPLETE.md`
-4. 실행 중이면 `docs/present/2026-05-14_RENTCAR00_CURRENT.md`
+4. 실행 중이면 `docs/present/2026-05-16_RENTCAR00_CURRENT.md`
 5. `docs/references/IMS_API_CALLS.md`
 
 ### 최우선 운영 규칙
