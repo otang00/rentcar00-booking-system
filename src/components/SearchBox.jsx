@@ -85,7 +85,7 @@ function scrollToSearchResults() {
   })
 }
 
-export default function SearchBox({ compact = false, resultsPath = '/' }) {
+export default function SearchBox({ compact = false }) {
   const navigate = useNavigate()
   const location = useLocation()
   const parsedSearchState = useMemo(() => parseSearchQuery(location.search), [location.search])
@@ -209,7 +209,7 @@ export default function SearchBox({ compact = false, resultsPath = '/' }) {
     }
 
     const nextQuery = buildSearchQuery({ ...searchState, pickupOption: 'delivery' })
-    navigate(`${resultsPath}?${nextQuery}`)
+    navigate(`/?${nextQuery}`)
     scrollToSearchResults()
   }
 
