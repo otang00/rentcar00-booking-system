@@ -2359,3 +2359,41 @@
     font-size:23px;
   }
 }
+
+/* Landing v2 button profile: A-inspired layered blue, no press offset */
+.landing-v2-fixed-hero__guide-button,
+.landing-v2-simple-shell .search-panel-footer > .btn,
+.landing-v2-simple-shell .search-panel-footer > .btn-dark,
+.landing-v2-guide-dialog__confirm{
+  min-height:66px;
+  padding:0 30px;
+  border:0;
+  border-radius:22px;
+  background:linear-gradient(180deg,#25aeea,#168fd0);
+  color:#fff;
+  font-size:22px;
+  font-weight:1000;
+  letter-spacing:-.04em;
+  box-shadow:0 9px 0 #0b6fa9,0 18px 30px rgba(18,139,208,.26);
+}
+
+.landing-v2-fixed-hero__guide-button:hover,
+.landing-v2-simple-shell .search-panel-footer > .btn:hover,
+.landing-v2-simple-shell .search-panel-footer > .btn-dark:hover,
+.landing-v2-guide-dialog__confirm:hover{
+  background:linear-gradient(180deg,#21a7e2,#0f84c3);
+}
+
+@media (max-width: 960px){
+  .landing-v2-fixed-hero__guide-button{
+    width:min(100%, 280px);
+    min-height:68px;
+    font-size:22px;
+  }
+
+  .landing-v2-simple-shell .search-panel-footer > .btn,
+  .landing-v2-simple-shell .search-panel-footer > .btn-dark{
+    min-height:68px;
+    font-size:22px;
+  }
+}
