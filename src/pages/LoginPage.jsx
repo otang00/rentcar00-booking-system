@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { PageShell } from '../components/Layout'
 import { useAuth } from '../hooks/useAuth'
-import { supabase } from '../lib/supabaseClient'
+import { supabase, supabaseClientMissingEnv } from '../lib/supabaseClient'
 import { buildAuthEmailAlias, formatPhoneNumber, normalizePhoneNumber } from '../utils/phone'
 
 function resolveRedirectTo(search) {
@@ -47,7 +47,7 @@ export default function LoginPage() {
     event.preventDefault()
 
     if (!supabase || !isSupabaseClientReady) {
-      setErrorMessage('Supabase 설정이 준비되지 않았습니다.')
+      setErrorMessage(`Supabase 설정이 준비되지 않았습니다. 누락: ${supabaseClientMissingEnv.join(', ') || 'unknown'}`)
       return
     }
 
@@ -131,6 +131,11 @@ export default function LoginPage() {
                 />
               </div>
 
+              {!isSupabaseClientReady ? (
+                <p className="field-note" style={{ color: '#be123c' }}>
+                  Supabase 프론트 설정이 준비되지 않았습니다. 누락: {supabaseClientMissingEnv.join(', ') || 'unknown'}
+                </p>
+              ) : null}
               {errorMessage ? <p className="field-note" style={{ color: '#be123c' }}>{errorMessage}</p> : null}
               {showForgotPasswordLink ? (
                 <div style={{ display: 'grid', gap: 6, justifyItems: 'start' }}>

@@ -63,6 +63,20 @@
 
 ## 2. 인증 / 회원 기준
 
+### Supabase 환경변수 기준
+- 브라우저 로그인/세션 감지는 Vite build-time public env를 쓴다.
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+- 위 `VITE_*` 값은 secret 이 아니라 브라우저 번들에 들어가는 public 값이다.
+- 서버 API / serverless 함수는 서버 env를 쓴다.
+  - `SUPABASE_PROJECT_REF`
+  - `SUPABASE_URL` 또는 `SUPABASE_PROJECT_REF` 기반 URL 생성
+  - `SUPABASE_PUBLISHABLE_KEY`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` 는 privileged key 이므로 브라우저 코드나 `VITE_*` 로 절대 넘기지 않는다.
+- `SUPABASE_PUBLISHABLE_KEY` 와 `VITE_SUPABASE_ANON_KEY` 는 같은 public key 기준으로 유지한다.
+- `npm run build` 는 `scripts/check-frontend-env.mjs` 를 먼저 실행해서 `VITE_*` 누락과 public key 불일치를 차단한다.
+
 ### 로그인 구조
 - 사용자 UX: **전화번호 + 비밀번호**
 - 실제 Auth 경로: **email/password**
