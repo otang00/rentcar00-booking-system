@@ -237,3 +237,9 @@ docs/past/present-history/2026-05-12_RENTCAR00_KCP_PC_MOBILE_SPLIT_CURRENT_PAST.
 - 실제 결제/검색 금액은 일정, 지역, 보험 조건에 따라 검색 결과에서 다시 계산된다는 안내를 함께 노출한다.
 - 상담 카드 영역은 기존 ContactInfoStrip 기능을 유지하되 landing-v2 전용 스타일로 더 명확하게 보정한다.
 - 다음 단계에서 색상 CSS 프로필 여러 개를 만들어 비교할 수 있도록 landing-v2 전용 CSS 변수 기준을 유지한다.
+
+### Landing V2 방향 전환
+- 새 모바일 전용 레이아웃을 계속 다듬는 대신 기존 랜딩 구조를 기준으로 되돌린다.
+- `/landing-v2`는 기존 LandingPage 흐름을 거의 유지하고, 상단 hero slider만 고정 이미지 + 텍스트 레이어로 교체한다.
+- 검색 박스, 검색 결과, 상담 카드, footer 등 기존 기능 구조는 재사용한다.
+- 색상 비교는 이후 CSS profile 단계에서 진행한다.
