@@ -32,7 +32,7 @@ function LoadingState() {
   )
 }
 
-export default function SearchResultsSection() {
+export default function SearchResultsSection({ resultsPath = '/' } = {}) {
   const location = useLocation()
   const navigate = useNavigate()
   const searchState = useMemo(() => parseSearchQuery(location.search), [location.search])
@@ -88,7 +88,7 @@ export default function SearchResultsSection() {
 
   const handleOrderChange = (order) => {
     const nextQuery = buildSearchQuery({ ...searchState, order })
-    navigate(`/?${nextQuery}`)
+    navigate(`${resultsPath}?${nextQuery}`)
   }
 
   return (

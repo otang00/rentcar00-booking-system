@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { Navigate, Routes, Route } from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
+import LandingV2Page from './pages/LandingV2Page'
 import CarsPage from './pages/CarsPage'
 import PlaceholderPage from './pages/PlaceholderPage'
 import LegalPage from './pages/LegalPage'
@@ -30,6 +31,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/landing" element={<Navigate to="/" replace />} />
+      <Route path="/landing-v2" element={<LandingV2Page />} />
       <Route path="/cars" element={<CarsPage />} />
       <Route path="/cars/:carId" element={<LandingPage />} />
       <Route path="/reservations" element={<LazyRoute><MemberReservationsPage /></LazyRoute>} />
