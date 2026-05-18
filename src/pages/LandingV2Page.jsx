@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Footer } from '../components/Layout'
 
 export default function LandingV2Page() {
   return (
@@ -18,15 +19,19 @@ export default function LandingV2Page() {
       <main>
         <section className="mv2-hero" id="mv2-search">
           <picture className="mv2-hero-media">
-            <source media="(max-width:760px)" srcSet="/assets/hero/hero-1-mobile.png" />
-            <img src="/assets/hero/hero-1-pc.png" alt="렌터카" />
+            <img src="/assets/hero/landing-v2-premium-sedan.png" alt="렌터카" />
           </picture>
           <div className="mv2-hero-shade" />
           <div className="mv2-hero-inner">
             <div className="mv2-hero-copy">
               <span className="mv2-eyebrow">서울·수도권 딜리버리 렌터카</span>
-              <h1>위치와 시간만 고르면<br />차량 검색 완료</h1>
+              <h1>원하는 시간,<br />원하는 장소에서<br />간편하게 예약하세요.</h1>
               <p>예약 가능한 차량과 금액을 바로 확인하고 결제까지 진행합니다.</p>
+              <section className="mv2-trust mv2-hero-trust" aria-label="서비스 특징">
+                <div><b>카드결제</b><span>온라인 결제 가능</span></div>
+                <div><b>SMS 안내</b><span>예약확정 문자 발송</span></div>
+                <div><b>카카오 상담</b><span>빠른 문의 연결</span></div>
+              </section>
             </div>
           </div>
         </section>
@@ -45,7 +50,7 @@ export default function LandingV2Page() {
               </svg>
               딜리버리 위치
             </div>
-            <div className="mv2-box"><b>지역을 선택해 주세요</b><small>선택</small></div>
+            <Link className="mv2-box" to="/#landing-reservation"><b>지역을 선택해 주세요</b><small>선택</small></Link>
           </div>
 
           <div className="mv2-field">
@@ -56,27 +61,21 @@ export default function LandingV2Page() {
               </svg>
               예약 일정
             </div>
-            <div className="mv2-dates">
+            <Link className="mv2-dates" to="/#landing-reservation">
               <div className="mv2-datebox"><small>대여</small><b>05.20<br />10:00</b></div>
               <div className="mv2-datebox"><small>반납</small><b>05.21<br />10:00</b></div>
-            </div>
+            </Link>
           </div>
 
           <div className="mv2-field">
             <div className="mv2-label">운전자 연령</div>
             <div className="mv2-age">
-              <button type="button">만 21세~25세</button>
-              <button type="button" className="on">만 26세 이상</button>
+              <Link to="/#landing-reservation">만 21세~25세</Link>
+              <Link to="/#landing-reservation" className="on">만 26세 이상</Link>
             </div>
           </div>
 
-          <button className="mv2-search-btn" type="button">예약 가능 차량 검색</button>
-        </section>
-
-        <section className="mv2-trust">
-          <div><b>카드결제</b><span>온라인 결제 가능</span></div>
-          <div><b>SMS 안내</b><span>예약확정 문자 발송</span></div>
-          <div><b>카카오 상담</b><span>빠른 문의 연결</span></div>
+          <Link className="mv2-search-btn" to="/#landing-reservation">예약 가능 차량 검색</Link>
         </section>
 
         <section className="mv2-section">
@@ -93,24 +92,25 @@ export default function LandingV2Page() {
         <section className="mv2-section">
           <div className="mv2-section-head"><h2>추천 차량</h2><p>24시간 기준가</p></div>
           <div className="mv2-cars-row">
-            <article className="mv2-car"><div className="mv2-car-img"><img src="/assets/mock-cars/mock-car-1.jpg" alt="아반떼" /></div><div className="mv2-car-body"><span className="mv2-tag">만26세</span><h3>아반떼 (CN7)</h3><p>5인승 · LPG · 딜리버리 가능</p><div className="mv2-price"><div><small>24시간 기준가</small><b>56,000원</b></div><button type="button">검색</button></div></div></article>
-            <article className="mv2-car"><div className="mv2-car-img"><img src="/assets/mock-cars/mock-car-2.jpg" alt="셀토스" /></div><div className="mv2-car-body"><span className="mv2-tag">만26세</span><h3>더 뉴 셀토스</h3><p>5인승 · 가솔린 · 딜리버리 가능</p><div className="mv2-price"><div><small>24시간 기준가</small><b>72,000원</b></div><button type="button">검색</button></div></div></article>
-            <article className="mv2-car"><div className="mv2-car-img"><img src="/assets/mock-cars/mock-car-3.jpg" alt="카니발" /></div><div className="mv2-car-body"><span className="mv2-tag">만26세</span><h3>카니발 4세대</h3><p>9인승 · 디젤 · 딜리버리 가능</p><div className="mv2-price"><div><small>24시간 기준가</small><b>104,000원</b></div><button type="button">검색</button></div></div></article>
+            <article className="mv2-car"><div className="mv2-car-img"><img src="/assets/mock-cars/mock-car-1.jpg" alt="아반떼" /></div><div className="mv2-car-body"><span className="mv2-tag">만26세</span><h3>아반떼 (CN7)</h3><p>5인승 · LPG · 딜리버리 가능</p><div className="mv2-price"><div><small>24시간 기준가</small><b>56,000원</b></div><Link to="/#landing-reservation">검색</Link></div></div></article>
+            <article className="mv2-car"><div className="mv2-car-img"><img src="/assets/mock-cars/mock-car-2.jpg" alt="셀토스" /></div><div className="mv2-car-body"><span className="mv2-tag">만26세</span><h3>더 뉴 셀토스</h3><p>5인승 · 가솔린 · 딜리버리 가능</p><div className="mv2-price"><div><small>24시간 기준가</small><b>72,000원</b></div><Link to="/#landing-reservation">검색</Link></div></div></article>
+            <article className="mv2-car"><div className="mv2-car-img"><img src="/assets/mock-cars/mock-car-3.jpg" alt="카니발" /></div><div className="mv2-car-body"><span className="mv2-tag">만26세</span><h3>카니발 4세대</h3><p>9인승 · 디젤 · 딜리버리 가능</p><div className="mv2-price"><div><small>24시간 기준가</small><b>104,000원</b></div><Link to="/#landing-reservation">검색</Link></div></div></article>
           </div>
         </section>
 
         <section className="mv2-section">
           <div className="mv2-section-head"><h2>상담 안내</h2><p>바로 연결</p></div>
           <div className="mv2-contact-grid">
-            <article className="mv2-contact"><span>전화상담</span><strong>010-2416-7114</strong><p>운영시간 내 빠른 상담</p></article>
-            <article className="mv2-contact"><span>카카오톡</span><strong>00RENTCAR</strong><p>1:1 채팅 문의</p></article>
+            <a className="mv2-contact" href="tel:010-2416-7114"><span>전화상담</span><strong>010-2416-7114</strong><p>운영시간 내 빠른 상담</p></a>
+            <a className="mv2-contact" href="https://pf.kakao.com/_SZcVn/chat"><span>카카오톡</span><strong>00RENTCAR</strong><p>1:1 채팅 문의</p></a>
             <article className="mv2-contact"><span>방문 주소</span><strong>서울 서초구</strong><p>신반포로23길 78-9</p></article>
             <article className="mv2-contact"><span>운영시간</span><strong>09:00 - 18:00</strong><p>토요일 09:00 - 15:00</p></article>
           </div>
         </section>
       </main>
 
-      <nav className="mv2-bottom-cta"><a href="#mv2-search">예약 가능 차량 검색</a></nav>
+      <Footer />
+      <nav className="mv2-bottom-cta"><Link to="/#landing-reservation">예약 가능 차량 검색</Link></nav>
     </div>
   )
 }
