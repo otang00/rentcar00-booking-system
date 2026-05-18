@@ -2095,3 +2095,155 @@
     transform:rotate(90deg);
   }
 }
+
+/* Landing v2 guide modal and hero button */
+.landing-v2-fixed-hero__guide-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:54px;
+  margin-top:24px;
+  padding:0 22px;
+  border:0;
+  border-radius:16px;
+  background:var(--landing-v2-blue);
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  box-shadow:0 14px 30px rgba(22,143,208,.28);
+}
+
+.landing-v2-fixed-hero__guide-button:hover{
+  background:var(--landing-v2-blue-strong);
+}
+
+.landing-v2-guide-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:80;
+  display:grid;
+  place-items:center;
+  padding:18px;
+  background:rgba(8,18,31,.62);
+}
+
+.landing-v2-guide-dialog{
+  width:min(460px,100%);
+  max-height:min(88dvh,720px);
+  overflow:auto;
+  border-radius:24px;
+  background:#fff;
+  box-shadow:0 30px 90px rgba(0,0,0,.28);
+}
+
+.landing-v2-guide-dialog__head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:22px 22px 14px;
+  border-bottom:1px solid var(--landing-v2-line);
+}
+
+.landing-v2-guide-dialog__head span{
+  display:block;
+  color:var(--landing-v2-blue-strong);
+  font-size:14px;
+  font-weight:900;
+}
+
+.landing-v2-guide-dialog__head strong{
+  display:block;
+  margin-top:4px;
+  color:var(--landing-v2-ink);
+  font-size:26px;
+  line-height:1.2;
+  letter-spacing:-.05em;
+}
+
+.landing-v2-guide-dialog__head button{
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:999px;
+  background:#eaf6fc;
+  color:var(--landing-v2-blue-strong);
+  font-size:26px;
+  font-weight:700;
+  line-height:1;
+}
+
+.landing-v2-guide-steps{
+  display:grid;
+  gap:10px;
+  padding:18px 22px;
+}
+
+.landing-v2-guide-steps article{
+  display:grid;
+  grid-template-columns:62px 1fr;
+  gap:12px;
+  align-items:start;
+  padding:14px;
+  border:1px solid var(--landing-v2-line);
+  border-radius:18px;
+  background:#fbfdff;
+}
+
+.landing-v2-guide-steps b{
+  display:grid;
+  place-items:center;
+  width:56px;
+  height:56px;
+  border-radius:16px;
+  background:#eaf6fc;
+  color:var(--landing-v2-blue-strong);
+  font-size:28px;
+  letter-spacing:-.08em;
+}
+
+.landing-v2-guide-steps strong{
+  display:block;
+  color:var(--landing-v2-ink);
+  font-size:18px;
+  line-height:1.35;
+}
+
+.landing-v2-guide-steps p{
+  margin:5px 0 0;
+  color:var(--landing-v2-muted);
+  font-size:15px;
+  line-height:1.5;
+  font-weight:650;
+}
+
+.landing-v2-guide-dialog__confirm{
+  width:calc(100% - 44px);
+  min-height:52px;
+  margin:0 22px 22px;
+  border:0;
+  border-radius:16px;
+  background:var(--landing-v2-blue);
+  color:#fff;
+  font-size:17px;
+  font-weight:900;
+}
+
+@media (max-width: 960px){
+  .landing-v2-fixed-hero__guide-button{
+    min-height:58px;
+    width:min(100%, 240px);
+    font-size:18px;
+  }
+
+  .landing-v2-guide-backdrop{
+    align-items:flex-end;
+    padding:0;
+  }
+
+  .landing-v2-guide-dialog{
+    width:100%;
+    max-height:88dvh;
+    border-radius:24px 24px 0 0;
+  }
+}

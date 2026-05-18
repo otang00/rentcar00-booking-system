@@ -243,3 +243,9 @@ docs/past/present-history/2026-05-12_RENTCAR00_KCP_PC_MOBILE_SPLIT_CURRENT_PAST.
 - `/landing-v2`는 기존 LandingPage 흐름을 거의 유지하고, 상단 hero slider만 고정 이미지 + 텍스트 레이어로 교체한다.
 - 검색 박스, 검색 결과, 상담 카드, footer 등 기존 기능 구조는 재사용한다.
 - 색상 비교는 이후 CSS profile 단계에서 진행한다.
+
+### Landing V2 hero/modal update
+- hero 문구는 `원하는 시간, / 원하는 장소에서 / 바로 예약`으로 줄바꿈을 고정한다.
+- hero에는 `예약하는 방법` 단일 큰 버튼을 둔다.
+- 기존 01/02/03 흐름 카드 섹션은 본문에서 제거하고, `예약하는 방법` 모달 안으로 이동한다.
+- hero 이미지는 로고/문자가 들어간 기존 배너 대신 생성한 국산 고급 세단 분위기의 무로고 차량 이미지 `public/assets/hero/landing-v2-premium-sedan.png`를 사용한다.
