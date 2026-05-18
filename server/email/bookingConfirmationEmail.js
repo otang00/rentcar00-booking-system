@@ -27,20 +27,25 @@ function formatLocalDateTime(value) {
   }).format(date).replace(/\. /g, '.').replace(/\.$/, '')
 }
 
-function maskPhone(value) {
-  const digits = String(value || '').replace(/[^\d]/g, '')
-  if (digits.length < 7) return digits ? `${digits.slice(0, 2)}***` : '-'
-  if (digits.length === 10) {
-    return `${digits.slice(0, 3)}-***-${digits.slice(-4)}`
-  }
-  return `${digits.slice(0, 3)}-****-${digits.slice(-4)}`
-}
-
-function maskBirth(value) {
+function formatPhone(value) {
   const digits = String(value || '').replace(/[^\d]/g, '')
   if (!digits) return '-'
-  if (digits.length <= 4) return `${digits.slice(0, 2)}**`
-  return `${digits.slice(0, 4)}****`
+  if (digits.length === 10) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`
+  }
+  if (digits.length === 11) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`
+  }
+  return digits
+}
+
+function formatBirth(value) {
+  const digits = String(value || '').replace(/[^\d]/g, '')
+  if (!digits) return '-'
+  if (digits.length === 8) {
+    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`
+  }
+  return digits
 }
 
 function buildOrigin(req) {
@@ -53,7 +58,7 @@ function buildOrigin(req) {
   return `${protocol}://${host}`
 }
 
-function buildBookingConfirmationEmail({ booking, req } = {}) {
+function buildBookingConfirmationEmail({ booking, req, customerPhone, customerBirth } = {}) {
   if (!booking?.id || !booking?.publicReservationCode) {
     throw new Error('invalid_booking_for_confirmation_email')
   }
@@ -68,8 +73,8 @@ function buildBookingConfirmationEmail({ booking, req } = {}) {
   const detailUrl = `${confirmUrl}&view=detail`
   const carName = booking.pricingSnapshot?.carName || '-'
   const carNumber = booking.pricingSnapshot?.carNumber || '-'
-  const customerPhone = maskPhone(booking.customerPhone || booking.customerPhoneLast4 || '')
-  const customerBirth = maskBirth(booking.customerBirth || '')
+  const displayedCustomerPhone = formatPhone(customerPhone || booking.customerPhone || booking.customerPhoneLast4 || '')
+  const displayedCustomerBirth = formatBirth(customerBirth || booking.customerBirth || '')
   const paymentMethod = booking.pricingSnapshot?.paymentMethod || '확인 필요'
   const totalAmount = `${Number(booking.quotedTotalAmount || 0).toLocaleString('ko-KR')}원`
 
@@ -82,8 +87,8 @@ function buildBookingConfirmationEmail({ booking, req } = {}) {
     '결제가 완료되어 예약이 확정되었습니다.',
     `예약번호: ${booking.publicReservationCode}`,
     `고객명: ${booking.customerName || '-'}`,
-    `연락처: ${customerPhone}`,
-    `생년월일: ${customerBirth}`,
+    `연락처: ${displayedCustomerPhone}`,
+    `생년월일: ${displayedCustomerBirth}`,
     `차량명: ${carName}`,
     `차량 번호: ${carNumber}`,
     `대여일시: ${formatLocalDateTime(booking.pickupAt)}`,
@@ -125,8 +130,8 @@ function buildBookingConfirmationEmail({ booking, req } = {}) {
             ${[
               ['예약번호', booking.publicReservationCode],
               ['고객명', booking.customerName || '-'],
-              ['연락처', customerPhone],
-              ['생년월일', customerBirth],
+              ['연락처', displayedCustomerPhone],
+              ['생년월일', displayedCustomerBirth],
               ['차량명', carName],
               ['차량 번호', carNumber],
               ['대여일시', formatLocalDateTime(booking.pickupAt)],

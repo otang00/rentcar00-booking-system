@@ -16,6 +16,7 @@ const { getUserFromAccessToken } = require('../../server/auth/getUserFromAccessT
 const { ensureProfileForUser } = require('../../server/auth/ensureProfileForUser')
 const { sendBookingConfirmationEmail } = require('../../server/email/sendBookingConfirmationEmail')
 const { sendAdminBookingAlert } = require('../../server/notifications/sendAdminBookingAlert')
+const { sendCustomerBookingSms } = require('../../server/notifications/sendCustomerBookingSms')
 const { recordReservationStatusEvent } = require('../../server/booking-core/bookingConfirmationService')
 const { createBookingCompleteToken } = require('../../server/security/bookingCompleteToken')
 const { hashOtpValue } = require('../../server/auth/phoneOtp')
@@ -75,6 +76,7 @@ function buildMobilePaymentPayload({
       ordr_idxx: orderId,
       good_mny: stringifyAmount(amount),
       good_name: `${car.display_name || car.name || '차량'} 예약`,
+      shop_name: '빵빵카(주)',
       pay_method: 'CARD',
       Ret_URL: returnUrl,
       encoding_trans: 'UTF-8',
@@ -118,7 +120,7 @@ function buildPcPaymentPayload({
       ordr_idxx: orderId,
       req_tx: 'pay',
       site_cd: kcpConfig.siteCode || '',
-      site_name: 'BBANGBBANGCAR',
+      site_name: '빵빵카(주)',
       pay_method: '100000000000',
       quotaopt: '12',
       currency: 'WON',
@@ -140,7 +142,7 @@ function buildPcPaymentPayload({
       comm_vat_mny: '',
       comm_free_mny: '',
       skin_indx: '1',
-      kcp_pay_title: 'BBANGBBANGCAR',
+      kcp_pay_title: '빵빵카(주)',
       disp_tax_yn: 'N',
       param_opt_1: sessionToken,
       param_opt_2: 'website_booking',
@@ -276,10 +278,15 @@ function redirectTo(res, location) {
   return res.end('Redirecting...')
 }
 
-async function dispatchBookingCreatedNotifications({ supabaseClient, booking, requestedBy, req }) {
+async function dispatchBookingCreatedNotifications({ supabaseClient, booking, bookingInput, requestedBy, req, isMemberBooking = false }) {
   let emailMeta = null
   try {
-    const emailResult = await sendBookingConfirmationEmail({ booking, req })
+    const emailResult = await sendBookingConfirmationEmail({
+      booking,
+      req,
+      customerPhone: bookingInput?.customerPhone,
+      customerBirth: bookingInput?.customerBirth,
+    })
     emailMeta = {
       delivered: true,
       messageId: emailResult.messageId,
@@ -359,9 +366,53 @@ async function dispatchBookingCreatedNotifications({ supabaseClient, booking, re
     }
   }
 
+
+  let customerSmsMeta = null
+  try {
+    const customerSmsResult = await sendCustomerBookingSms({
+      booking,
+      customerPhone: bookingInput?.customerPhone,
+      isMemberBooking,
+    })
+    customerSmsMeta = customerSmsResult
+
+    await recordReservationStatusEvent({
+      supabaseClient,
+      bookingOrderId: booking.id,
+      eventType: customerSmsResult.skipped ? 'customer_booking_sms_skipped' : 'customer_booking_sms_sent',
+      eventPayload: {
+        requestedBy,
+        reason: customerSmsResult.reason || null,
+        to: customerSmsResult.to || null,
+        messageId: customerSmsResult.messageId || null,
+      },
+    })
+  } catch (customerSmsError) {
+    console.error('[customer-booking-sms] failed', {
+      reservationCode: booking.publicReservationCode,
+      message: customerSmsError?.message || 'unknown_customer_sms_error',
+    })
+
+    await recordReservationStatusEvent({
+      supabaseClient,
+      bookingOrderId: booking.id,
+      eventType: 'customer_booking_sms_failed',
+      eventPayload: {
+        requestedBy,
+        message: customerSmsError?.message || 'unknown_customer_sms_error',
+      },
+    }).catch(() => null)
+
+    customerSmsMeta = {
+      delivered: false,
+      skipped: false,
+    }
+  }
+
   return {
     email: emailMeta,
     adminAlert: adminAlertMeta,
+    customerSms: customerSmsMeta,
   }
 }
 
@@ -512,8 +563,10 @@ async function handlePaymentApproval({ supabaseClient, sessionToken, encData, en
   const notificationMeta = await dispatchBookingCreatedNotifications({
     supabaseClient,
     booking: createResult.booking,
+    bookingInput,
     requestedBy,
     req,
+    isMemberBooking: Boolean(sessionPayload.authUserId),
   })
 
   return {

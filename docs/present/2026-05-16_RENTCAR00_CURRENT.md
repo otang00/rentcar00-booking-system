@@ -165,3 +165,41 @@ docs/past/present-history/2026-05-12_RENTCAR00_KCP_PC_MOBILE_SPLIT_CURRENT_PAST.
 
 ## 한 줄 결론
 현재 active 기준은 **홈페이지 결제 구현이 아니라 KCP ALRFN 상점의 운영 카드 승인 가능 상태 확인**이다.
+
+---
+
+## 2026-05-18 추가 작업: 고객 SMS / 운영자 이메일 / KCP 표시명
+
+### 목적
+- KCP 결제창 표시명을 `빵빵카(주)` 기준으로 맞춘다.
+- 운영자 전용 예약 이메일에는 전화번호와 생년월일을 전체 표시한다.
+- 결제 성공 후 고객에게 Solapi 예약확정 SMS를 발송한다.
+- 카카오 알림톡은 채널/pfId/템플릿 승인 후 다음 phase로 분리한다.
+
+### 구현 기준
+- Mobile KCP payload: `shop_name = 빵빵카(주)`
+- PC KCP payload: `site_name`, `kcp_pay_title = 빵빵카(주)`
+- 운영자 이메일은 `BOOKING_EMAIL_TO` 전용으로 보고 고객 전화번호/생년월일 전체를 표시한다.
+- 고객 SMS는 결제 승인 및 예약 생성 성공 후 발송한다.
+- SMS 실패는 예약/결제 성공을 롤백하지 않고 `reservation_status_events`에 기록한다.
+- 회원 예약은 `https://rentcar00.com/reservations`, 비회원 예약은 `https://rentcar00.com/guest-bookings` 링크를 보낸다.
+- 문의번호 기본값은 `02-592-0079`이며 필요 시 `BOOKING_CUSTOMER_SMS_CONTACT` env로 덮어쓸 수 있다.
+
+### 고객 SMS 문구
+```text
+[빵빵카(주)] 예약이 확정되었습니다.
+예약번호: {예약번호}
+차량: {차량명}
+대여: {대여일시}
+반납: {반납일시}
+금액: {금액}
+
+예약 조회:
+{회원/비회원별 링크}
+
+문의: 02-592-0079
+```
+
+### 남은 리스크
+- 카드 승인 문자에 표시되는 `렌터카_2`가 계속 나오면 코드 파라미터가 아니라 KCP/카드사 가맹점 등록명 수정이 필요하다.
+- 카카오 알림톡은 `SOLAPI_KAKAO_PF_ID`, `SOLAPI_KAKAO_BOOKING_TEMPLATE_ID`, 승인 템플릿 확정 후 별도 phase로 구현한다.

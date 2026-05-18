@@ -9,6 +9,7 @@ const { getUserFromAccessToken } = require('../../server/auth/getUserFromAccessT
 const { ensureProfileForUser } = require('../../server/auth/ensureProfileForUser')
 const { sendBookingConfirmationEmail } = require('../../server/email/sendBookingConfirmationEmail')
 const { sendAdminBookingAlert } = require('../../server/notifications/sendAdminBookingAlert')
+const { sendCustomerBookingSms } = require('../../server/notifications/sendCustomerBookingSms')
 const { createBookingCompleteToken, verifyBookingCompleteToken } = require('../../server/security/bookingCompleteToken')
 const { createGuestLookupToken, verifyGuestLookupToken } = require('../../server/security/guestLookupToken')
 const { checkGuestLookupProtection, applyRetryAfter, delayFailureResponse } = require('../../server/security/guestLookupProtection')
@@ -238,7 +239,12 @@ async function handleCreate(req, res) {
 
     let emailMeta = null
     try {
-      const emailResult = await sendBookingConfirmationEmail({ booking: result.booking, req })
+      const emailResult = await sendBookingConfirmationEmail({
+        booking: result.booking,
+        req,
+        customerPhone: validation.normalized.customerPhone,
+        customerBirth: validation.normalized.customerBirth,
+      })
       emailMeta = {
         delivered: true,
         messageId: emailResult.messageId,
@@ -318,6 +324,48 @@ async function handleCreate(req, res) {
       }
     }
 
+    let customerSmsMeta = null
+    try {
+      const customerSmsResult = await sendCustomerBookingSms({
+        booking: result.booking,
+        customerPhone: validation.normalized.customerPhone,
+        isMemberBooking: Boolean(authUser?.id),
+      })
+      customerSmsMeta = customerSmsResult
+
+      await recordReservationStatusEvent({
+        supabaseClient,
+        bookingOrderId: result.booking.id,
+        eventType: customerSmsResult.skipped ? 'customer_booking_sms_skipped' : 'customer_booking_sms_sent',
+        eventPayload: {
+          requestedBy: authUser ? 'member_web' : 'guest_web',
+          reason: customerSmsResult.reason || null,
+          to: customerSmsResult.to || null,
+          messageId: customerSmsResult.messageId || null,
+        },
+      })
+    } catch (customerSmsError) {
+      console.error('[customer-booking-sms] failed', {
+        reservationCode: result.booking.publicReservationCode,
+        message: customerSmsError?.message || 'unknown_customer_sms_error',
+      })
+
+      await recordReservationStatusEvent({
+        supabaseClient,
+        bookingOrderId: result.booking.id,
+        eventType: 'customer_booking_sms_failed',
+        eventPayload: {
+          requestedBy: authUser ? 'member_web' : 'guest_web',
+          message: customerSmsError?.message || 'unknown_customer_sms_error',
+        },
+      }).catch(() => null)
+
+      customerSmsMeta = {
+        delivered: false,
+        skipped: false,
+      }
+    }
+
     return res.status(201).json({
       booking: result.booking,
       completionToken: createBookingCompleteToken({
@@ -326,6 +374,7 @@ async function handleCreate(req, res) {
       }).token,
       email: emailMeta,
       adminAlert: adminAlertMeta,
+      customerSms: customerSmsMeta,
     })
   } catch (error) {
     return res.status(500).json({

@@ -3,9 +3,9 @@
 const { createEmailTransport } = require('./emailTransport')
 const { buildBookingConfirmationEmail } = require('./bookingConfirmationEmail')
 
-async function sendBookingConfirmationEmail({ booking, req } = {}) {
+async function sendBookingConfirmationEmail({ booking, req, customerPhone, customerBirth } = {}) {
   const { transporter, config } = createEmailTransport()
-  const email = buildBookingConfirmationEmail({ booking, req })
+  const email = buildBookingConfirmationEmail({ booking, req, customerPhone, customerBirth })
 
   const info = await transporter.sendMail({
     from: `${config.bookingEmailFromName} <${config.bookingEmailFrom}>`,
