@@ -53,6 +53,10 @@ function roundUpToThousand(value) {
   return Math.max(0, Math.ceil(normalizeNumber(value, 0) / 1000) * 1000)
 }
 
+function roundDownToTenThousand(value) {
+  return Math.max(0, Math.floor(normalizeNumber(value, 0) / 10000) * 10000)
+}
+
 function roundPercent(value, fallback = 0) {
   const next = normalizeNumber(value, fallback)
   return Math.max(0, Math.round(next * 100) / 100)
@@ -107,9 +111,9 @@ function buildRatePayloadFromBase(base24h, ratios, pricingOptionType) {
     fee12h: roundUpToThousand(applied24h * ratios.fee12h),
     fee24h: applied24h,
     fee1h: roundUpToThousand(applied24h * option.hour1),
-    week1Price: roundUpToThousand(applied24h * option.week1),
-    week2Price: roundUpToThousand(applied24h * option.week2),
-    month1Price: roundUpToThousand(applied24h * option.month1),
+    week1Price: roundDownToTenThousand(applied24h * option.week1),
+    week2Price: roundDownToTenThousand(applied24h * option.week2),
+    month1Price: roundDownToTenThousand(applied24h * option.month1),
     long24hPrice: roundUpToThousand(applied24h * ratios.long24hPrice),
     long1hPrice: roundUpToThousand(applied24h * ratios.long1hPrice),
   }

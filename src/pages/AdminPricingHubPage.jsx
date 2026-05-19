@@ -24,6 +24,10 @@ function roundUpToThousand(value) {
   return Math.max(0, Math.ceil(toNumber(value, 0) / 1000) * 1000)
 }
 
+function roundDownToTenThousand(value) {
+  return Math.max(0, Math.floor(toNumber(value, 0) / 10000) * 10000)
+}
+
 function roundPercent(value, fallback = 0) {
   const next = toNumber(value, fallback)
   return Math.max(0, Math.round(next * 100) / 100)
@@ -91,9 +95,9 @@ function buildComputedRate(legacyPolicy, base24Input, weekdayRatePercentInput, w
     fee6h: roundUpToThousand(weekdayApplied24h * legacyRatios.fee6h),
     fee12h: roundUpToThousand(weekdayApplied24h * legacyRatios.fee12h),
     fee1h: roundUpToThousand(base24h * option.hour1),
-    week1Price: roundUpToThousand(base24h * option.week1),
-    week2Price: roundUpToThousand(base24h * option.week2),
-    month1Price: roundUpToThousand(base24h * option.month1),
+    week1Price: roundDownToTenThousand(base24h * option.week1),
+    week2Price: roundDownToTenThousand(base24h * option.week2),
+    month1Price: roundDownToTenThousand(base24h * option.month1),
     long24hPrice: roundUpToThousand(weekdayApplied24h * legacyRatios.long24hPrice),
     long1hPrice: roundUpToThousand(weekdayApplied24h * legacyRatios.long1hPrice),
   }
