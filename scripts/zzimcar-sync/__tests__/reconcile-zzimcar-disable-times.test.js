@@ -3,7 +3,9 @@ const assert = require('node:assert/strict');
 
 const {
   applyAddition,
+  applyDeletion,
   buildMapByImsReservationId,
+  findSharedActiveDisableTimeMappings,
   hasChanged,
   isDuplicateDisableTimeError,
   planReconcile,
@@ -53,6 +55,61 @@ test('planReconcile splits add/delete/change/unchanged correctly', () => {
   assert.equal(plan.deletions[0].actual.imsReservationId, 'A4');
   assert.equal(plan.unchanged.length, 1);
   assert.equal(plan.unchanged[0].desired.imsReservationId, 'A1');
+});
+
+
+test('findSharedActiveDisableTimeMappings finds other active mappings using same disable time pid', () => {
+  const actual = { imsReservationId: 'A1', zzimcarDisableTimePid: 'P1' };
+  const actualRows = [
+    { imsReservationId: 'A1', zzimcarDisableTimePid: 'P1', syncStatus: 'active' },
+    { imsReservationId: 'A2', zzimcarDisableTimePid: 'P1', syncStatus: 'active' },
+    { imsReservationId: 'A3', zzimcarDisableTimePid: 'P1', syncStatus: 'deleted' },
+    { imsReservationId: 'A4', zzimcarDisableTimePid: 'P2', syncStatus: 'active' },
+  ];
+
+  const shared = findSharedActiveDisableTimeMappings({ actual, actualRows });
+  assert.equal(shared.length, 1);
+  assert.equal(shared[0].imsReservationId, 'A2');
+});
+
+test('applyDeletion skips zzimcar delete when another active mapping shares same disable time pid', async () => {
+  let deleteCalled = false;
+  const actual = { imsReservationId: 'A1', zzimcarDisableTimePid: 'P1' };
+  const actualRows = [
+    actual,
+    { imsReservationId: 'A2', zzimcarDisableTimePid: 'P1', syncStatus: 'active' },
+  ];
+  const client = {
+    async deleteDisableTime() {
+      deleteCalled = true;
+    },
+  };
+
+  const result = await applyDeletion({ actual, actualRows, client, shouldSave: true });
+  assert.equal(deleteCalled, false);
+  assert.equal(result.skippedZzimcarDelete, true);
+  assert.equal(result.sharedActiveMappings.length, 1);
+  assert.equal(result.deleteResult, null);
+});
+
+test('applyDeletion deletes zzimcar disable time when no other active mapping shares pid', async () => {
+  let deletedPid = null;
+  const actual = { imsReservationId: 'A1', zzimcarDisableTimePid: 'P1' };
+  const actualRows = [
+    actual,
+    { imsReservationId: 'A2', zzimcarDisableTimePid: 'P1', syncStatus: 'deleted' },
+  ];
+  const client = {
+    async deleteDisableTime({ pid }) {
+      deletedPid = pid;
+      return { ok: true };
+    },
+  };
+
+  const result = await applyDeletion({ actual, actualRows, client, shouldSave: true });
+  assert.equal(deletedPid, 'P1');
+  assert.equal(result.skippedZzimcarDelete, false);
+  assert.deepEqual(result.deleteResult, { ok: true });
 });
 
 test('isDuplicateDisableTimeError detects zzimcar duplicate message', () => {

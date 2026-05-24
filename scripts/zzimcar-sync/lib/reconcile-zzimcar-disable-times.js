@@ -115,13 +115,30 @@ async function applyAddition({ desired, client, shouldSave }) {
   };
 }
 
-async function applyDeletion({ actual, client, shouldSave }) {
+function findSharedActiveDisableTimeMappings({ actual, actualRows = [] } = {}) {
+  if (!actual?.zzimcarDisableTimePid) return [];
+  return (Array.isArray(actualRows) ? actualRows : []).filter((row) => (
+    row
+    && String(row.imsReservationId) !== String(actual.imsReservationId)
+    && String(row.syncStatus || 'active') === 'active'
+    && row.zzimcarDisableTimePid != null
+    && String(row.zzimcarDisableTimePid) === String(actual.zzimcarDisableTimePid)
+  ));
+}
+
+async function applyDeletion({ actual, actualRows = [], client, shouldSave }) {
+  const sharedActiveMappings = findSharedActiveDisableTimeMappings({ actual, actualRows });
   let deleteResult = null;
+  let skippedZzimcarDelete = false;
   if (shouldSave) {
     if (!actual.zzimcarDisableTimePid) {
       throw new Error(`Missing zzimcarDisableTimePid for imsReservationId=${actual.imsReservationId}`);
     }
-    deleteResult = await client.deleteDisableTime({ pid: actual.zzimcarDisableTimePid });
+    if (sharedActiveMappings.length > 0) {
+      skippedZzimcarDelete = true;
+    } else {
+      deleteResult = await client.deleteDisableTime({ pid: actual.zzimcarDisableTimePid });
+    }
   }
 
   return {
@@ -129,6 +146,8 @@ async function applyDeletion({ actual, client, shouldSave }) {
     action: 'delete',
     actual,
     applied: shouldSave,
+    skippedZzimcarDelete,
+    sharedActiveMappings,
     deleteResult,
   };
 }
@@ -258,7 +277,7 @@ async function reconcileZzimcarDisableTimes({
 
   for (const entry of plan.deletions) {
     try {
-      const result = await applyDeletion({ ...entry, client: zzimcarClient, shouldSave });
+      const result = await applyDeletion({ ...entry, actualRows, client: zzimcarClient, shouldSave });
       results.deletions.push(result);
       if (shouldSave) {
         await markMappingDeleted({ imsReservationId: result.imsReservationId, supabaseClient: supabase });
@@ -367,6 +386,7 @@ module.exports = {
   applyChange,
   applyDeletion,
   buildMapByImsReservationId,
+  findSharedActiveDisableTimeMappings,
   findExactDisableTime,
   hasChanged,
   isDuplicateDisableTimeError,
