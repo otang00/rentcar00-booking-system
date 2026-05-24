@@ -4,7 +4,9 @@ const assert = require('node:assert/strict');
 const {
   applyAddition,
   applyDeletion,
+  applyMissingDisableTimeRecovery,
   buildMapByImsReservationId,
+  findDisableTimeForMapping,
   findSharedActiveDisableTimeMappings,
   hasChanged,
   isDuplicateDisableTimeError,
@@ -110,6 +112,93 @@ test('applyDeletion deletes zzimcar disable time when no other active mapping sh
   assert.equal(deletedPid, 'P1');
   assert.equal(result.skippedZzimcarDelete, false);
   assert.deepEqual(result.deleteResult, { ok: true });
+});
+
+
+test('findDisableTimeForMapping matches by pid or exact window', () => {
+  const actual = {
+    imsReservationId: 'A1',
+    zzimcarVehiclePid: '22304',
+    zzimcarDisableTimePid: 'P1',
+    startAt: '2026-05-01T01:00:00.000Z',
+    endAt: '2026-05-01T02:00:00.000Z',
+  };
+  const byPid = findDisableTimeForMapping({
+    actual,
+    disableTimes: [{ pid: 'P1', startDtime: '2026-05-02 10:00:00', endDtime: '2026-05-02 11:00:00' }],
+  });
+  assert.equal(byPid.pid, 'P1');
+
+  const byWindow = findDisableTimeForMapping({
+    actual: { ...actual, zzimcarDisableTimePid: 'missing' },
+    disableTimes: [{ pid: 'P2', startDtime: '2026-05-01 10:00:00', endDtime: '2026-05-01 11:00:00' }],
+  });
+  assert.equal(byWindow.pid, 'P2');
+});
+
+test('applyMissingDisableTimeRecovery creates disable time when active mapping pid is missing in zzimcar', async () => {
+  const desired = {
+    imsReservationId: 'A1',
+    carNumber: '101하9257',
+    startAt: '2026-05-01T01:00:00.000Z',
+    endAt: '2026-05-01T02:00:00.000Z',
+  };
+  const actual = {
+    imsReservationId: 'A1',
+    carNumber: '101하9257',
+    zzimcarVehiclePid: '22304',
+    zzimcarDisableTimePid: 'old-pid',
+    startAt: desired.startAt,
+    endAt: desired.endAt,
+  };
+  const client = {
+    async getDisableTimes() {
+      return [];
+    },
+    async createDisableTime(payload) {
+      assert.deepEqual(payload, {
+        vehiclePid: '22304',
+        startDtime: '2026-05-01 10:00:00',
+        endDtime: '2026-05-01 11:00:00',
+      });
+      return { disableTimePid: 'new-pid' };
+    },
+  };
+
+  const result = await applyMissingDisableTimeRecovery({ desired, actual, client, shouldSave: true });
+  assert.equal(result.recovered, true);
+  assert.equal(result.disableTimePid, 'new-pid');
+  assert.equal(result.createResult.disableTimePid, 'new-pid');
+});
+
+test('applyMissingDisableTimeRecovery does not create when mapped disable time exists', async () => {
+  let createCalled = false;
+  const desired = {
+    imsReservationId: 'A1',
+    carNumber: '101하9257',
+    startAt: '2026-05-01T01:00:00.000Z',
+    endAt: '2026-05-01T02:00:00.000Z',
+  };
+  const actual = {
+    imsReservationId: 'A1',
+    zzimcarVehiclePid: '22304',
+    zzimcarDisableTimePid: 'existing-pid',
+    startAt: desired.startAt,
+    endAt: desired.endAt,
+  };
+  const client = {
+    async getDisableTimes() {
+      return [{ pid: 'existing-pid', startDtime: '2026-05-01 10:00:00', endDtime: '2026-05-01 11:00:00' }];
+    },
+    async createDisableTime() {
+      createCalled = true;
+    },
+  };
+
+  const result = await applyMissingDisableTimeRecovery({ desired, actual, client, shouldSave: true });
+  assert.equal(createCalled, false);
+  assert.equal(result.recovered, false);
+  assert.equal(result.disableTimePid, 'existing-pid');
 });
 
 test('isDuplicateDisableTimeError detects zzimcar duplicate message', () => {

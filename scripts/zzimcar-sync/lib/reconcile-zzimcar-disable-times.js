@@ -57,50 +57,66 @@ function isDuplicateDisableTimeError(error) {
   return message.includes('VEHICLE_SCHEDULE_DUPLICATION_ERROR') || message.includes('차량 스케줄이 중복되었습니다');
 }
 
-async function applyAddition({ desired, client, shouldSave }) {
-  const vehicle = await client.findVehicleByCarNumber({ carNumber: desired.carNumber });
-  const payload = {
-    vehiclePid: vehicle.vehiclePid,
+function buildDisableTimePayloadFromDesired({ desired, vehiclePid }) {
+  return {
+    vehiclePid,
     startDtime: formatKstDateTime(desired.startAt),
     endDtime: formatKstDateTime(desired.endAt),
   };
+}
+
+async function createOrRecoverDisableTime({ desired, vehiclePid, client }) {
+  const payload = buildDisableTimePayloadFromDesired({ desired, vehiclePid });
+  let createResult = null;
+  let disableTimePid = null;
+
+  try {
+    createResult = await client.createDisableTime(payload);
+    disableTimePid = createResult?.disableTimePid || null;
+  } catch (error) {
+    if (!isDuplicateDisableTimeError(error)) {
+      throw error;
+    }
+
+    const disableTimes = await client.getDisableTimes({ vehiclePid });
+    const exact = findExactDisableTime({ rows: disableTimes, payload });
+    disableTimePid = exact?.pid || null;
+    createResult = {
+      payload,
+      body: null,
+      disableTimePid,
+      duplicateRecovered: Boolean(disableTimePid),
+      error: error.message,
+    };
+
+    if (!disableTimePid) {
+      throw error;
+    }
+  }
+
+  if (!disableTimePid) {
+    const disableTimes = await client.getDisableTimes({ vehiclePid });
+    const exact = findExactDisableTime({ rows: disableTimes, payload });
+    disableTimePid = exact?.pid || null;
+  }
+
+  if (!disableTimePid) {
+    throw new Error(`Disable time pid not found after create for imsReservationId=${desired.imsReservationId}`);
+  }
+
+  return { payload, createResult, disableTimePid };
+}
+
+async function applyAddition({ desired, client, shouldSave }) {
+  const vehicle = await client.findVehicleByCarNumber({ carNumber: desired.carNumber });
+  const payload = buildDisableTimePayloadFromDesired({ desired, vehiclePid: vehicle.vehiclePid });
 
   let createResult = null;
   let disableTimePid = null;
   if (shouldSave) {
-    try {
-      createResult = await client.createDisableTime(payload);
-      disableTimePid = createResult?.disableTimePid || null;
-    } catch (error) {
-      if (!isDuplicateDisableTimeError(error)) {
-        throw error;
-      }
-
-      const disableTimes = await client.getDisableTimes({ vehiclePid: vehicle.vehiclePid });
-      const exact = findExactDisableTime({ rows: disableTimes, payload });
-      disableTimePid = exact?.pid || null;
-      createResult = {
-        payload,
-        body: null,
-        disableTimePid,
-        duplicateRecovered: Boolean(disableTimePid),
-        error: error.message,
-      };
-
-      if (!disableTimePid) {
-        throw error;
-      }
-    }
-
-    if (!disableTimePid) {
-      const disableTimes = await client.getDisableTimes({ vehiclePid: vehicle.vehiclePid });
-      const exact = findExactDisableTime({ rows: disableTimes, payload });
-      disableTimePid = exact?.pid || null;
-    }
-
-    if (!disableTimePid) {
-      throw new Error(`Disable time pid not found after create for imsReservationId=${desired.imsReservationId}`);
-    }
+    const created = await createOrRecoverDisableTime({ desired, vehiclePid: vehicle.vehiclePid, client });
+    createResult = created.createResult;
+    disableTimePid = created.disableTimePid;
   }
 
   return {
@@ -166,6 +182,78 @@ async function applyChange({ desired, actual, client, shouldSave }) {
   };
 }
 
+function findDisableTimeForMapping({ actual, disableTimes = [] } = {}) {
+  if (!actual) return null;
+  const payload = actual.zzimcarVehiclePid
+    ? {
+      startDtime: formatKstDateTime(actual.startAt),
+      endDtime: formatKstDateTime(actual.endAt),
+    }
+    : null;
+
+  return (Array.isArray(disableTimes) ? disableTimes : []).find((row) => (
+    (actual.zzimcarDisableTimePid && String(row.pid) === String(actual.zzimcarDisableTimePid))
+    || (payload && row.startDtime === payload.startDtime && row.endDtime === payload.endDtime)
+  )) || null;
+}
+
+async function applyMissingDisableTimeRecovery({ desired, actual, client, shouldSave }) {
+  const vehiclePid = actual.zzimcarVehiclePid;
+  if (!vehiclePid) {
+    throw new Error(`Missing zzimcarVehiclePid for imsReservationId=${actual.imsReservationId}`);
+  }
+
+  const payload = buildDisableTimePayloadFromDesired({ desired, vehiclePid });
+  let existing = null;
+  if (shouldSave) {
+    const disableTimes = await client.getDisableTimes({ vehiclePid });
+    existing = findDisableTimeForMapping({ actual, disableTimes });
+  }
+
+  let createResult = null;
+  let disableTimePid = existing?.pid || null;
+  if (shouldSave && !disableTimePid) {
+    const created = await createOrRecoverDisableTime({ desired, vehiclePid, client });
+    createResult = created.createResult;
+    disableTimePid = created.disableTimePid;
+  }
+
+  return {
+    imsReservationId: desired.imsReservationId,
+    action: 'recover_missing_disable_time',
+    desired,
+    actual,
+    vehiclePid,
+    payload,
+    applied: shouldSave,
+    existingDisableTime: existing,
+    recovered: shouldSave && !existing,
+    disableTimePid,
+    createResult,
+  };
+}
+
+async function recoverMissingDisableTimes({ unchanged = [], client, shouldSave } = {}) {
+  const recoveries = [];
+  const stillUnchanged = [];
+
+  for (const entry of Array.isArray(unchanged) ? unchanged : []) {
+    if (!shouldSave) {
+      stillUnchanged.push(entry);
+      continue;
+    }
+
+    const result = await applyMissingDisableTimeRecovery({ ...entry, client, shouldSave });
+    if (result.recovered) {
+      recoveries.push(result);
+    } else {
+      stillUnchanged.push(entry);
+    }
+  }
+
+  return { recoveries, unchanged: stillUnchanged };
+}
+
 async function reconcileZzimcarDisableTimes({
   shouldSave = false,
   now = new Date(),
@@ -185,8 +273,8 @@ async function reconcileZzimcarDisableTimes({
     });
     const plan = planReconcile({ desiredRows, actualRows });
 
-    const results = { additions: [], deletions: [], changes: [], unchanged: plan.unchanged, errors: [] };
-    const requiresZzimcarAccess = shouldSave && (plan.additions.length > 0 || plan.deletions.length > 0 || plan.changes.length > 0);
+    const results = { additions: [], deletions: [], changes: [], recoveries: [], unchanged: plan.unchanged, errors: [] };
+    const requiresZzimcarAccess = shouldSave && (plan.additions.length > 0 || plan.deletions.length > 0 || plan.changes.length > 0 || plan.unchanged.length > 0);
 
     if (!shouldSave) {
       const summary = {
@@ -196,12 +284,14 @@ async function reconcileZzimcarDisableTimes({
         additionsCount: plan.additions.length,
         deletionsCount: plan.deletions.length,
         changesCount: plan.changes.length,
+        recoveriesCount: 0,
         unchangedCount: plan.unchanged.length,
         errorsCount: 0,
         results: {
           additions: plan.additions.map(({ desired }) => ({ action: 'add', imsReservationId: desired.imsReservationId, desired, applied: false })),
           deletions: plan.deletions.map(({ actual }) => ({ action: 'delete', imsReservationId: actual.imsReservationId, actual, applied: false })),
           changes: plan.changes.map(({ desired, actual }) => ({ action: 'change', imsReservationId: desired.imsReservationId, desired, actual, applied: false })),
+          recoveries: [],
           unchanged: plan.unchanged,
           errors: [],
         },
@@ -221,12 +311,14 @@ async function reconcileZzimcarDisableTimes({
           additionsCount: plan.additions.length,
           deletionsCount: plan.deletions.length,
           changesCount: plan.changes.length,
+          recoveriesCount: 0,
           unchangedCount: plan.unchanged.length,
           errorsCount: 1,
           results: {
             additions: [],
             deletions: [],
             changes: [],
+            recoveries: [],
             unchanged: plan.unchanged,
             errors: [{ action: 'auth', error: error.message }],
           },
@@ -346,6 +438,40 @@ async function reconcileZzimcarDisableTimes({
     }
   }
 
+  const verifiedUnchanged = [];
+  for (const entry of results.unchanged) {
+    try {
+      const result = await applyMissingDisableTimeRecovery({ ...entry, client: zzimcarClient, shouldSave });
+      if (result.recovered) {
+        results.recoveries.push(result);
+        if (shouldSave) {
+          await upsertMapping({
+            mapping: {
+              imsReservationId: result.imsReservationId,
+              carNumber: result.desired.carNumber,
+              zzimcarVehiclePid: result.vehiclePid,
+              zzimcarDisableTimePid: result.disableTimePid,
+              startAt: result.desired.startAt,
+              endAt: result.desired.endAt,
+              syncStatus: 'active',
+            },
+            supabaseClient: supabase,
+          });
+        }
+      } else {
+        verifiedUnchanged.push(entry);
+      }
+    } catch (error) {
+      verifiedUnchanged.push(entry);
+      results.errors.push({
+        action: 'recover_missing_disable_time',
+        imsReservationId: entry.desired.imsReservationId,
+        error: error.message,
+      });
+    }
+  }
+  results.unchanged = verifiedUnchanged;
+
     const summary = {
       mode: shouldSave ? 'save' : 'dry-run',
       desiredCount: desiredRows.length,
@@ -353,11 +479,12 @@ async function reconcileZzimcarDisableTimes({
       additionsCount: results.additions.length,
       deletionsCount: results.deletions.length,
       changesCount: results.changes.length,
+      recoveriesCount: results.recoveries.length,
       unchangedCount: results.unchanged.length,
       errorsCount: results.errors.length,
       results,
     };
-    const finalStatus = results.errors.length > 0 ? (results.additions.length > 0 || results.deletions.length > 0 || results.changes.length > 0 ? 'partial_success' : 'failed') : 'success';
+    const finalStatus = results.errors.length > 0 ? (results.additions.length > 0 || results.deletions.length > 0 || results.changes.length > 0 || results.recoveries.length > 0 ? 'partial_success' : 'failed') : 'success';
     await finishRun({ runId: run.id, status: finalStatus, summary, supabaseClient: supabase });
     return summary;
   } catch (error) {
@@ -370,6 +497,7 @@ async function reconcileZzimcarDisableTimes({
         additionsCount: 0,
         deletionsCount: 0,
         changesCount: 0,
+        recoveriesCount: 0,
         unchangedCount: 0,
         errorsCount: 1,
         results: { errors: [{ error: error.message }] },
@@ -384,12 +512,16 @@ async function reconcileZzimcarDisableTimes({
 module.exports = {
   applyAddition,
   applyChange,
+  applyMissingDisableTimeRecovery,
+  buildDisableTimePayloadFromDesired,
   applyDeletion,
   buildMapByImsReservationId,
   findSharedActiveDisableTimeMappings,
+  findDisableTimeForMapping,
   findExactDisableTime,
   hasChanged,
   isDuplicateDisableTimeError,
   planReconcile,
+  recoverMissingDisableTimes,
   reconcileZzimcarDisableTimes,
 };
