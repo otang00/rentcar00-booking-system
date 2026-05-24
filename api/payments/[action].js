@@ -17,6 +17,7 @@ const { ensureProfileForUser } = require('../../server/auth/ensureProfileForUser
 const { sendBookingConfirmationEmail } = require('../../server/email/sendBookingConfirmationEmail')
 const { sendAdminBookingAlert } = require('../../server/notifications/sendAdminBookingAlert')
 const { sendCustomerBookingSms } = require('../../server/notifications/sendCustomerBookingSms')
+const { enqueueOpsAppReservationEvent } = require('../../server/notifications/opsAppReservationEventOutbox')
 const { recordReservationStatusEvent } = require('../../server/booking-core/bookingConfirmationService')
 const { createBookingCompleteToken } = require('../../server/security/bookingCompleteToken')
 const { hashOtpValue } = require('../../server/auth/phoneOtp')
@@ -409,10 +410,56 @@ async function dispatchBookingCreatedNotifications({ supabaseClient, booking, bo
     }
   }
 
+  let opsAppEventMeta = null
+  try {
+    const opsAppEventResult = await enqueueOpsAppReservationEvent({
+      supabaseClient,
+      booking,
+      bookingInput,
+      requestedBy,
+    })
+    opsAppEventMeta = opsAppEventResult
+
+    await recordReservationStatusEvent({
+      supabaseClient,
+      bookingOrderId: booking.id,
+      eventType: opsAppEventResult.skipped ? 'ops_app_reservation_event_skipped' : 'ops_app_reservation_event_queued',
+      eventPayload: {
+        requestedBy,
+        eventId: opsAppEventResult.eventId || null,
+        outboxId: opsAppEventResult.outboxId || null,
+        reason: opsAppEventResult.reason || null,
+        deduped: Boolean(opsAppEventResult.deduped),
+      },
+    })
+  } catch (opsAppEventError) {
+    console.error('[ops-app-reservation-event-outbox] failed', {
+      reservationCode: booking.publicReservationCode,
+      message: opsAppEventError?.message || 'unknown_ops_app_event_outbox_error',
+    })
+
+    await recordReservationStatusEvent({
+      supabaseClient,
+      bookingOrderId: booking.id,
+      eventType: 'ops_app_reservation_event_queue_failed',
+      eventPayload: {
+        requestedBy,
+        eventId: opsAppEventError?.eventId || null,
+        message: opsAppEventError?.message || 'unknown_ops_app_event_outbox_error',
+      },
+    }).catch(() => null)
+
+    opsAppEventMeta = {
+      enqueued: false,
+      skipped: false,
+    }
+  }
+
   return {
     email: emailMeta,
     adminAlert: adminAlertMeta,
     customerSms: customerSmsMeta,
+    opsAppEvent: opsAppEventMeta,
   }
 }
 
