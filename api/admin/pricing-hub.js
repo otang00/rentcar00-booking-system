@@ -66,8 +66,8 @@ const DEFAULT_PRICING_OPTION_TYPE = 'semi_premium'
 const DEFAULT_WEEKDAY_PERCENT = 90
 const DEFAULT_WEEKEND_PERCENT = 115
 const PRICING_OPTION_CONFIG = {
-  basic: { hour1: 0.12, week1: 5.5, week2: 7.5, month1: 10.5 },
-  semi_premium: { hour1: 0.12, week1: 5.5, week2: 8.0, month1: 12.0 },
+  basic: { hour1: 0.12, week1: 5.5, week2: 7.5, month1: 9.0 },
+  semi_premium: { hour1: 0.12, week1: 5.5, week2: 8.0, month1: 11.0 },
   premium: { hour1: 0.14, week1: 6.5, week2: 9.0, month1: 14.0 },
 }
 
@@ -269,7 +269,7 @@ async function fetchActiveCarGroups(supabaseClient) {
 async function fetchActivePolicies(supabaseClient) {
   const { data, error } = await supabaseClient
     .from('price_policies')
-    .select('id, policy_name, active, base_daily_price, weekday_1_2d_price, weekday_3_4d_price, weekday_5_6d_price, weekday_7d_plus_price, weekend_1_2d_price, weekend_3_4d_price, weekend_5_6d_price, weekend_7d_plus_price, hour_1_price, hour_6_price, hour_12_price, effective_from, effective_to')
+    .select('id, policy_name, pricing_option_type, active, base_daily_price, weekday_1_2d_price, weekday_3_4d_price, weekday_5_6d_price, weekday_7d_plus_price, weekend_1_2d_price, weekend_3_4d_price, weekend_5_6d_price, weekend_7d_plus_price, hour_1_price, hour_6_price, hour_12_price, effective_from, effective_to')
     .eq('active', true)
     .order('policy_name', { ascending: true })
 
@@ -282,7 +282,7 @@ async function fetchPolicyBase(supabaseClient, pricePolicyId) {
 
   const { data, error } = await supabaseClient
     .from('price_policies')
-    .select('id, policy_name, active, base_daily_price, weekday_1_2d_price, weekday_3_4d_price, weekday_5_6d_price, weekday_7d_plus_price, weekend_1_2d_price, weekend_3_4d_price, weekend_5_6d_price, weekend_7d_plus_price, hour_1_price, hour_6_price, hour_12_price, effective_from, effective_to')
+    .select('id, policy_name, pricing_option_type, active, base_daily_price, weekday_1_2d_price, weekday_3_4d_price, weekday_5_6d_price, weekday_7d_plus_price, weekend_1_2d_price, weekend_3_4d_price, weekend_5_6d_price, weekend_7d_plus_price, hour_1_price, hour_6_price, hour_12_price, effective_from, effective_to')
     .eq('id', pricePolicyId)
     .maybeSingle()
 
@@ -307,7 +307,7 @@ async function fetchPolicyBase(supabaseClient, pricePolicyId) {
     effective_from: data.effective_from,
     effective_to: data.effective_to,
     policy_active: data.active,
-    pricing_option_type: DEFAULT_PRICING_OPTION_TYPE,
+    pricing_option_type: normalizePricingOptionType(data.pricing_option_type),
     car_group_id: null,
     ims_group_id: null,
     group_name: '',
@@ -318,7 +318,7 @@ async function fetchPolicyBase(supabaseClient, pricePolicyId) {
 async function fetchGroupMappings(supabaseClient, carGroupIds) {
   let query = supabaseClient
     .from('price_policy_groups')
-    .select('id, car_group_id, price_policy_id, pricing_option_type, active, created_at, updated_at')
+    .select('id, car_group_id, price_policy_id, active, created_at, updated_at')
     .order('updated_at', { ascending: false })
 
   if (Array.isArray(carGroupIds) && carGroupIds.length > 0) {
@@ -363,7 +363,7 @@ function buildEditorState(baseRow, periods = [], ratesByPeriodId = {}, now = new
   return {
     activePeriodId: activePeriod?.id || null,
     activePeriodName: activePeriod?.period_name || null,
-    pricingOptionType: normalizePricingOptionType(commonMetadata.pricingOptionType || baseRow?.pricing_option_type),
+    pricingOptionType: normalizePricingOptionType(baseRow?.pricing_option_type || commonMetadata.pricingOptionType),
     base24h,
     weekdayPercent: savedWeekdayPercent != null
       ? roundPercent(savedWeekdayPercent, DEFAULT_WEEKDAY_PERCENT)
@@ -475,6 +475,7 @@ async function handleList(req, res, supabaseClient) {
     pricePolicyId: policy.id,
     policyName: policy.policy_name,
     baseDailyPrice: policy.base_daily_price,
+    pricingOptionType: normalizePricingOptionType(policy.pricing_option_type),
   }))
 
   return res.status(200).json({ items, unconfiguredGroups, policyOptions })
@@ -518,6 +519,7 @@ async function handleGetPolicyEditor(req, res, supabaseClient) {
     return {
       pricePolicyId: targetPricePolicyId,
       policyName: base?.policy_name || '-',
+      pricingOptionType: normalizePricingOptionType(base?.pricing_option_type),
       legacyPolicy: {
         baseDailyPrice: base?.base_daily_price,
         weekday12dPrice: base?.weekday_1_2d_price,
@@ -688,7 +690,6 @@ async function handleSaveGroupSetting(req, res, supabaseClient, authUser) {
   const id = normalizeText(body.id || body.pricePolicyGroupId)
   const carGroupId = normalizeText(body.carGroupId)
   const pricePolicyId = normalizeText(body.pricePolicyId)
-  const pricingOptionType = normalizePricingOptionType(body.pricingOptionType)
   const active = body.active !== false
 
   if (!carGroupId || !pricePolicyId) {
@@ -722,7 +723,6 @@ async function handleSaveGroupSetting(req, res, supabaseClient, authUser) {
 
   const basePayload = {
     price_policy_id: pricePolicyId,
-    pricing_option_type: pricingOptionType,
     active,
     metadata,
   }
@@ -754,7 +754,6 @@ async function handleSaveGroupSetting(req, res, supabaseClient, authUser) {
       pricePolicyGroupId: data.id,
       carGroupId: data.car_group_id,
       pricePolicyId: data.price_policy_id,
-      pricingOptionType: normalizePricingOptionType(data.pricing_option_type),
       active: data.active !== false,
     },
   })
@@ -805,15 +804,13 @@ async function handleSaveEditor(req, res, supabaseClient, authUser) {
 
   const computed = buildComputedRate(base, body.base24h, body.weekdayPercent, body.weekendPercent, body.pricingOptionType)
 
-  if (base.price_policy_group_id) {
-    const { error: mappingError } = await supabaseClient
-      .from('price_policy_groups')
-      .update({ pricing_option_type: computed.pricingOptionType })
-      .eq('id', base.price_policy_group_id)
+  const { error: policyOptionError } = await supabaseClient
+    .from('price_policies')
+    .update({ pricing_option_type: computed.pricingOptionType })
+    .eq('id', base.price_policy_id)
 
-    if (mappingError) {
-      return res.status(500).json({ error: 'save_editor_mapping_failed', message: mappingError.message })
-    }
+  if (policyOptionError) {
+    return res.status(500).json({ error: 'save_editor_policy_option_failed', message: policyOptionError.message })
   }
 
   const metadata = {
@@ -825,11 +822,7 @@ async function handleSaveEditor(req, res, supabaseClient, authUser) {
     weekendPercent: computed.weekendRatePercent,
   }
 
-  if (base.price_policy_group_id) {
-    metadata.pricingOptionType = computed.pricingOptionType
-  }
-
-  const policyOnlySave = !base.price_policy_group_id
+  metadata.pricingOptionType = computed.pricingOptionType
 
   const rows = [
     { rate_scope: 'common', values: computed.common },
@@ -841,10 +834,10 @@ async function handleSaveEditor(req, res, supabaseClient, authUser) {
     fee_6h: item.values.fee6h,
     fee_12h: item.values.fee12h,
     fee_24h: item.values.fee24h,
-    fee_1h: policyOnlySave ? null : item.values.fee1h,
-    week_1_price: policyOnlySave ? null : item.values.week1Price,
-    week_2_price: policyOnlySave ? null : item.values.week2Price,
-    month_1_price: policyOnlySave ? null : item.values.month1Price,
+    fee_1h: item.values.fee1h,
+    week_1_price: item.values.week1Price,
+    week_2_price: item.values.week2Price,
+    month_1_price: item.values.month1Price,
     long_24h_price: item.values.long24hPrice,
     long_1h_price: item.values.long1hPrice,
     metadata,

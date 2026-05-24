@@ -41,8 +41,8 @@ const DEFAULT_PRICING_OPTION_TYPE = 'semi_premium'
 const DEFAULT_WEEKDAY_PERCENT = 90
 const DEFAULT_WEEKEND_PERCENT = 115
 const PRICING_OPTION_CONFIG = {
-  basic: { hour1: 0.12, week1: 5.5, week2: 7.5, month1: 10.5 },
-  semi_premium: { hour1: 0.12, week1: 5.5, week2: 8.0, month1: 12.0 },
+  basic: { hour1: 0.12, week1: 5.5, week2: 7.5, month1: 9.0 },
+  semi_premium: { hour1: 0.12, week1: 5.5, week2: 8.0, month1: 11.0 },
   premium: { hour1: 0.14, week1: 6.5, week2: 9.0, month1: 14.0 },
 }
 const PRICING_OPTION_LABELS = {
@@ -232,7 +232,6 @@ export default function AdminPricingHubPage() {
   const [groupEditorLoading, setGroupEditorLoading] = useState(false)
   const [groupEditorError, setGroupEditorError] = useState('')
   const [selectedConnectionPolicyId, setSelectedConnectionPolicyId] = useState('')
-  const [connectionPricingOptionTypeInput, setConnectionPricingOptionTypeInput] = useState(DEFAULT_PRICING_OPTION_TYPE)
   const [connectionActiveInput, setConnectionActiveInput] = useState(true)
   const [connectionPolicyEditor, setConnectionPolicyEditor] = useState(null)
   const [connectionPolicyLoading, setConnectionPolicyLoading] = useState(false)
@@ -276,8 +275,8 @@ export default function AdminPricingHubPage() {
   }, [selectedGroup])
 
   const connectionPolicyPreview = useMemo(
-    () => buildPolicySummary(connectionPolicyEditor, connectionPricingOptionTypeInput),
-    [connectionPolicyEditor, connectionPricingOptionTypeInput],
+    () => buildPolicySummary(connectionPolicyEditor, selectedConnectionPolicyOption?.pricingOptionType),
+    [connectionPolicyEditor, selectedConnectionPolicyOption],
   )
 
   const policyEditorPreview = useMemo(() => {
@@ -385,7 +384,6 @@ export default function AdminPricingHubPage() {
   useEffect(() => {
     if (!selectedGroup) return
     setSelectedConnectionPolicyId(selectedGroup.pricePolicyId || '')
-    setConnectionPricingOptionTypeInput(normalizePricingOptionType(selectedGroup.pricingOptionType))
     setConnectionActiveInput(selectedGroup.groupSettingActive !== false)
     setPolicyEditorPolicyId((prev) => prev || selectedGroup.pricePolicyId || '')
   }, [selectedGroup])
@@ -441,7 +439,7 @@ export default function AdminPricingHubPage() {
         setBase24hInput(String(roundAmount(editorState.base24h || legacyPolicy.baseDailyPrice || 0)))
         setWeekdayPercentInput(roundPercent(editorState.weekdayPercent, DEFAULT_WEEKDAY_PERCENT))
         setWeekendPercentInput(roundPercent(editorState.weekendPercent, DEFAULT_WEEKEND_PERCENT))
-        setPolicyPreviewOptionTypeInput(connectionPricingOptionTypeInput || DEFAULT_PRICING_OPTION_TYPE)
+        setPolicyPreviewOptionTypeInput(normalizePricingOptionType(editorState.pricingOptionType || result?.policies?.[0]?.pricingOptionType || DEFAULT_PRICING_OPTION_TYPE))
       })
       .catch((error) => {
         if (ignore) return
@@ -494,7 +492,6 @@ export default function AdminPricingHubPage() {
         id: selectedGroup.pricePolicyGroupId,
         carGroupId: selectedGroup.carGroupId,
         pricePolicyId: selectedConnectionPolicyId,
-        pricingOptionType: connectionPricingOptionTypeInput,
         active: connectionActiveInput,
       })
       await refreshGroupData(result?.item?.pricePolicyGroupId || selectedGroup.pricePolicyGroupId, searchQuery)
@@ -518,6 +515,7 @@ export default function AdminPricingHubPage() {
         base24h: policyEditorPreview?.base24h,
         weekdayPercent: policyEditorPreview?.weekdayRatePercent,
         weekendPercent: policyEditorPreview?.weekendRatePercent,
+        pricingOptionType: policyEditorPreview?.pricingOptionType || policyPreviewOptionTypeInput,
       })
 
       const nextPolicyEditor = await getPricingHubPolicyEditor(session, { pricePolicyId: policyEditorPolicyId })
@@ -607,7 +605,7 @@ export default function AdminPricingHubPage() {
                       </div>
                       <div className="pricing-hub-group-card__meta" style={{ display: 'grid', gap: 4 }}>
                         <span>정책 <strong>{item.policyName}</strong></span>
-                        <span>옵션 <strong>{PRICING_OPTION_LABELS[normalizePricingOptionType(item.pricingOptionType)]}</strong></span>
+                        <span>정책등급 <strong>{PRICING_OPTION_LABELS[normalizePricingOptionType(item.pricingOptionType)]}</strong></span>
                         <span>기준24 <strong>{formatMoney(item.currentVariables?.base24h)}</strong></span>
                         <span>주중/주말 <strong>{item.currentVariables?.weekdayPercent}% / {item.currentVariables?.weekendPercent}%</strong></span>
                         <span>계산 주중24 <strong>{formatMoney(item.currentRateSummary?.weekday24h)}</strong></span>
@@ -635,7 +633,7 @@ export default function AdminPricingHubPage() {
                         </InfoBlock>
                         <InfoBlock title="연결 정보">
                           <div className="reservation-result-row"><span>현재 연결 정책</span><strong>{selectedGroup.policyName}</strong></div>
-                          <div className="reservation-result-row"><span>옵션타입</span><strong style={{ color: '#1d4ed8' }}>{PRICING_OPTION_LABELS[normalizePricingOptionType(selectedGroup.pricingOptionType)]}</strong></div>
+                          <div className="reservation-result-row"><span>정책등급</span><strong style={{ color: '#1d4ed8' }}>{PRICING_OPTION_LABELS[normalizePricingOptionType(selectedGroup.pricingOptionType)]}</strong></div>
                         </InfoBlock>
                       </div>
                       <InfoBlock title="차량 번호">
@@ -668,16 +666,13 @@ export default function AdminPricingHubPage() {
                       <span>연결할 정책</span>
                       <select className="field-input pricing-hub-select" value={selectedConnectionPolicyId} onChange={(e) => setSelectedConnectionPolicyId(e.target.value)} disabled={!selectedGroup || savingGroupSetting}>
                         {policyOptions.map((option) => (
-                          <option key={option.pricePolicyId} value={option.pricePolicyId}>{option.policyName}</option>
+                          <option key={option.pricePolicyId} value={option.pricePolicyId}>{option.policyName} · {PRICING_OPTION_LABELS[normalizePricingOptionType(option.pricingOptionType)]}</option>
                         ))}
                       </select>
                     </div>
-                    <InfoBlock title="옵션타입">
-                      <select className="field-input" value={connectionPricingOptionTypeInput} onChange={(e) => setConnectionPricingOptionTypeInput(normalizePricingOptionType(e.target.value))} disabled={!selectedGroup || savingGroupSetting}>
-                        <option value="basic">기본</option>
-                        <option value="semi_premium">세미프리미엄</option>
-                        <option value="premium">프리미엄</option>
-                      </select>
+                    <InfoBlock title="선택 정책등급">
+                      <div className="reservation-result-row"><span>정책등급</span><strong>{PRICING_OPTION_LABELS[normalizePricingOptionType(selectedConnectionPolicyOption?.pricingOptionType)]}</strong></div>
+                      <p className="small-note" style={{ margin: 0 }}>등급은 차량 연결이 아니라 정책 수정에서만 변경합니다.</p>
                     </InfoBlock>
                     <InfoBlock title="상태">
                       <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between' }}>
@@ -713,7 +708,7 @@ export default function AdminPricingHubPage() {
                     <span>수정할 정책</span>
                     <select className="field-input pricing-hub-select" value={policyEditorPolicyId} onChange={(e) => setPolicyEditorPolicyId(e.target.value)} disabled={saving}>
                       {policyOptions.map((option) => (
-                        <option key={option.pricePolicyId} value={option.pricePolicyId}>{option.policyName}</option>
+                        <option key={option.pricePolicyId} value={option.pricePolicyId}>{option.policyName} · {PRICING_OPTION_LABELS[normalizePricingOptionType(option.pricingOptionType)]}</option>
                       ))}
                     </select>
                   </div>
@@ -752,7 +747,7 @@ export default function AdminPricingHubPage() {
                     </div>
                   </div>
                   <div className="reservation-result-row pricing-hub-adjust-row">
-                    <span>미리보기 옵션타입</span>
+                    <span>정책등급</span>
                     <select className="field-input pricing-hub-select" value={policyPreviewOptionTypeInput} onChange={(e) => setPolicyPreviewOptionTypeInput(normalizePricingOptionType(e.target.value))} disabled={!policyEditorPolicyId || saving}>
                       <option value="basic">기본</option>
                       <option value="semi_premium">세미프리미엄</option>
@@ -771,7 +766,7 @@ export default function AdminPricingHubPage() {
                       { label: '30일', value: policyEditorPreview?.month1Price },
                     ]} />
                   </InfoBlock>
-                  <p className="small-note" style={{ margin: 0 }}>하단 옵션타입은 저장값이 아니라 미리보기용입니다.</p>
+                  <p className="small-note" style={{ margin: 0 }}>정책등급은 가격정책 자체에 저장되며 차량 연결에서는 변경하지 않습니다.</p>
                 </div>
               </div>
             </div>

@@ -213,6 +213,95 @@ const res = await fetch(`${apiBaseUrl}/v2/company-car-schedules/delete`, {
 
 ---
 
+## 차량 추가 시 홈페이지 DB 반영 체크
+
+IMS에 차량이 먼저 등록된 뒤, 홈페이지 DB에 반영할 때는 아래 순서로 확인한다.
+
+### 1. IMS 차량 기본 식별값 확인
+IMS 차량 목록 API (`GET /v2/rent-company-cars`)에서 아래 값을 확인한다.
+
+- `id` → 홈페이지 `cars.source_car_id`
+- `car_group_id` → 홈페이지 `cars.source_group_id`
+- `car_identity` → 차량번호
+- `car_name` → 차량명
+- `car_group_name` → 그룹명
+- `model_year`
+- `oil_type`
+- `seater`
+- `color`
+- `insurance_age`
+- `can_general_rental`
+- `can_monthly_rental`
+
+### 2. 홈페이지 DB 매핑 확인
+차량 추가 전 아래를 먼저 본다.
+
+1. `car_groups.ims_group_id = IMS car_group_id` 가 이미 있는지
+2. 있으면 그 그룹이 어떤 `price_policy_id` 에 연결돼 있는지
+3. 없으면 `car_groups` 신규 생성 + `price_policy_groups` 연결까지 같이 필요
+
+즉, 가격정책 ID는 IMS에서 직접 받는 값이 아니라
+**IMS 그룹 ID → 홈페이지 car_groups → price_policy_groups.price_policy_id** 순서로 매핑한다.
+
+### 3. 사진 URL 확인 규칙
+차량 대표사진은 단순히 IMS `car_model.id` 를 S3 경로에 넣으면 안 된다.
+
+틀린 방식:
+```text
+https://ims-mobility-public.s3.ap-northeast-2.amazonaws.com/cars/{car_model.id}.png
+```
+
+이 값은 IMS 내부 모델 ID일 뿐이고, premove/partner 홈페이지의 이미지 ID와 다를 수 있다.
+
+정확한 순서:
+1. premove partner 검색/상세 HTML에서 `carInfo.imageUrl` 을 확인한다.
+2. partner 쪽 `carInfo.id` 는 보통 IMS `car_group_id` 와 매칭된다.
+3. 기존 추적 스크립트 기준으로는 `IMS car_group_id` ↔ `partner carId` 를 조인해 `partner_imageUrl` 을 얻는다.
+4. 새 그룹이 partner 검색에 아직 노출되지 않으면 이미지 URL은 확정하지 말고 후보로만 둔다.
+
+기존 추적 파일:
+```text
+openclaw_backup_20260518_153845/.openclaw/workspace/tmp/ims-api-probe-20260408/partner-imageurl-export.js
+openclaw_backup_20260518_153845/.openclaw/workspace/tmp/ims-api-probe-20260408/join-ims-partner-imageurl.py
+openclaw_backup_20260518_153845/.openclaw/workspace/tmp/ims-api-probe-20260408/ims_with_partner_imageurl.csv
+```
+
+주의:
+- 현재 IMS 차량 목록 응답에서 `car_photos` 는 비어 있을 수 있다.
+- `car_model.id` 기반 URL은 실제 대표사진 검증용으로 쓰면 안 된다.
+- 이후 `cars.image_url` 에 원본 URL을 넣고, 필요 시 `scripts/mirror-car-images.js` 로 Supabase Storage 미러링 가능하다.
+
+### 4. 이번 확인 사례
+#### 175호2135 / 스타리아
+- IMS 차량 ID: `242896`
+- IMS 그룹 ID: `25141`
+- IMS 차량명: `스타리아 투어러(2023년)_디젤`
+- IMS 그룹명: `스타리아 투어러 (2021년)_디젤`
+- `car_model.id`: `331`
+- 주의: `cars/331.png` 는 실제 대표사진으로 확정하면 안 됨
+- 확정 대표 이미지 URL: `https://ims-mobility-public.s3.ap-northeast-2.amazonaws.com/cars/688.png`
+- 비고: `cars/1105.png` 도 유사/중복 후보였으나 DB 반영값은 `688` 로 고정
+
+#### 165허8095 / 모닝
+- IMS 차량 ID: `242895`
+- IMS 그룹 ID: `25142`
+- IMS 차량명: `모닝 어반 (2020년)_가솔린`
+- IMS 그룹명: `모닝 어반 (2020년)_가솔린`
+- `car_model.id`: `2`
+- 주의: `cars/2.png` 는 실제 대표사진으로 확정하면 안 됨
+- 확정 대표 이미지 URL: `https://ims-mobility-public.s3.ap-northeast-2.amazonaws.com/cars/6.png`
+
+### 5. 최종 반영 체크리스트
+1. IMS 차량 ID 확인
+2. IMS 그룹 ID 확인
+3. 홈페이지 `car_groups` 존재 여부 확인
+4. 연결할 `price_policy_id` 확인
+5. `cars` row insert/upsert
+6. `ims_can_general_rental`, `ims_can_monthly_rental` 반영
+7. `image_url` 입력 또는 미러링 실행
+8. 가격정책 신규 생성이 필요하면 `price_policies` + `pricing_hub_periods` + `pricing_hub_rates` + `price_policy_groups` 를 함께 생성
+9. 검색/상세에서 노출 확인
+
 ## 3) 예약 생성
 
 ### 현재 확인 상태
