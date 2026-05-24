@@ -2,9 +2,50 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
+  ACTIVE_IMS_STATUSES,
+  INACTIVE_IMS_STATUSES,
   isDesiredImsReservation,
   normalizeDesiredReservation,
 } = require('../lib/fetch-desired-ims-reservations');
+const { mapImsStatus } = require('../../ims-sync/normalize-ims-reservation');
+
+
+test('mapImsStatus treats using_car as confirmed blocking status', () => {
+  assert.equal(mapImsStatus('using_car'), 'confirmed');
+  assert.equal(ACTIVE_IMS_STATUSES.has(mapImsStatus('using_car')), true);
+});
+
+test('active IMS statuses remain desired while inactive statuses are excluded', () => {
+  const now = new Date('2026-04-29T03:00:00.000Z');
+  for (const status of ACTIVE_IMS_STATUSES) {
+    assert.equal(isDesiredImsReservation({
+      ims_reservation_id: `active-${status}`,
+      car_number: '101하9257',
+      status,
+      end_at: '2026-04-29T05:00:00.000Z',
+    }, now), true, `${status} should block zzimcar availability`);
+  }
+
+  for (const status of INACTIVE_IMS_STATUSES) {
+    assert.equal(isDesiredImsReservation({
+      ims_reservation_id: `inactive-${status}`,
+      car_number: '101하9257',
+      status,
+      end_at: '2026-04-29T05:00:00.000Z',
+    }, now), false, `${status} should not block zzimcar availability`);
+  }
+});
+
+test('stale or missing last_synced_at does not release active future reservation', () => {
+  const now = new Date('2026-04-29T03:00:00.000Z');
+  assert.equal(isDesiredImsReservation({
+    ims_reservation_id: 'A1',
+    car_number: '101하9257',
+    status: 'confirmed',
+    end_at: '2026-04-29T05:00:00.000Z',
+    last_synced_at: '2026-04-01T00:00:00.000Z',
+  }, now), true);
+});
 
 test('isDesiredImsReservation accepts active future reservation', () => {
   const now = new Date('2026-04-29T03:00:00.000Z');
