@@ -56,3 +56,51 @@ export async function completeAdminBookingRefund(session, token, payload = {}) {
     booking: toBookingViewModel(result.booking),
   }
 }
+
+export async function fetchAdminBookingChangeCarCandidates(session, token, params = {}) {
+  const accessToken = session?.access_token
+  const query = new URLSearchParams({
+    action: 'change-car-candidates',
+    token,
+    q: params.q || '',
+    deliveryDateTime: params.deliveryDateTime || '',
+    returnDateTime: params.returnDateTime || '',
+  })
+
+  const response = await fetch(`/api/admin/bookings?${query.toString()}`, {
+    method: 'GET',
+    headers: {
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
+  })
+
+  const result = await parseApiResponse(response, '변경 가능한 차량을 불러오지 못했습니다.')
+  return {
+    items: Array.isArray(result.items) ? result.items : [],
+  }
+}
+
+export async function changeAdminBooking(session, token, payload = {}) {
+  const accessToken = session?.access_token
+  const response = await fetch('/api/admin/bookings?action=change', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
+    body: JSON.stringify({
+      token,
+      changeType: payload.changeType || 'date',
+      deliveryDateTime: payload.deliveryDateTime || '',
+      returnDateTime: payload.returnDateTime || '',
+      sourceCarId: payload.sourceCarId || '',
+      reason: payload.reason || '',
+    }),
+  })
+
+  const result = await parseApiResponse(response, '예약 변경에 실패했습니다.')
+  return {
+    booking: toBookingViewModel(result.booking),
+    change: result.change || null,
+  }
+}
