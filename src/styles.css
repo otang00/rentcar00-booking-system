@@ -1866,3 +1866,152 @@
 .color-preview-shell .footer div{
   color:#dbeafe;
 }
+
+/* Color preview v2: keep bright header/logo, promote blue button tone across page */
+.color-preview-shell{
+  --color-cta-bg:#168fd0;
+  --color-cta-bg-hover:#0f78b2;
+  --color-soft-bg:#eaf6fc;
+  --color-soft-bg-hover:#d7eef9;
+  --color-soft-text:#0f78b2;
+}
+
+.color-preview-shell .app-header{
+  background:rgba(255,255,255,.98);
+  border-bottom:1px solid #dbe3ef;
+  box-shadow:0 10px 26px rgba(16,24,39,.05);
+}
+
+.color-preview-shell .app-header__brand{
+  filter:none;
+}
+
+.color-preview-shell .app-header__button,
+.color-preview-shell .search-panel-footer>.btn,
+.color-preview-shell .btn-dark,
+.color-preview-shell .outline.block,
+.color-preview-shell .payment-method-card.is-active,
+.color-preview-shell .tab-row .is-active,
+.color-preview-shell .btn-select.is-active{
+  background:#168fd0;
+  border-color:#168fd0;
+  color:#fff;
+  box-shadow:0 10px 22px rgba(22,143,208,.18);
+}
+
+.color-preview-shell .app-header__button:hover,
+.color-preview-shell .search-panel-footer>.btn:hover,
+.color-preview-shell .btn-dark:hover,
+.color-preview-shell .outline.block:hover{
+  background:#0f78b2;
+  border-color:#0f78b2;
+}
+
+.color-preview-shell .app-header__button.is-soft,
+.color-preview-shell .btn-soft,
+.color-preview-shell .btn-tab,
+.color-preview-shell .sort-buttons.simple .btn,
+.color-preview-shell .age-buttons .btn,
+.color-preview-shell .action-age-buttons .btn{
+  background:#eaf6fc;
+  color:#0f78b2;
+  border-color:#d7eef9;
+  box-shadow:none;
+}
+
+.color-preview-shell .age-buttons .btn.is-active,
+.color-preview-shell .action-age-buttons .btn.is-active,
+.color-preview-shell .sort-buttons.simple .btn.is-active,
+.color-preview-shell .btn-tab.is-active{
+  background:#168fd0;
+  border-color:#168fd0;
+  color:#fff;
+}
+
+.color-preview-shell .search-box,
+.color-preview-shell .search-panel-card,
+.color-preview-shell .detail-card,
+.color-preview-shell .car-card,
+.color-preview-shell .landing-contact-card,
+.color-preview-shell .sort-bar{
+  background:#fff;
+  border-color:#dbe3ef;
+  box-shadow:0 16px 34px rgba(16,24,39,.07);
+}
+
+.color-preview-shell .search-top{
+  background:#f8fbfe;
+  border-bottom-color:#dbe3ef;
+}
+
+.color-preview-shell .search-top .btn-tab.is-active,
+.color-preview-shell .search-top button.is-active{
+  background:#168fd0;
+  color:#fff;
+}
+
+.color-preview-shell .field-input,
+.color-preview-shell .field-select,
+.color-preview-shell .delivery-readonly-box,
+.color-preview-shell .delivery-detail-input,
+.color-preview-shell .schedule-card,
+.color-preview-shell .pickup-location-readonly-box,
+.color-preview-shell .detail-location-input{
+  border-color:#cfe2f0;
+  background:#fbfdff;
+}
+
+.color-preview-shell .field-input:focus,
+.color-preview-shell .field-select:focus,
+.color-preview-shell .delivery-detail-input:focus,
+.color-preview-shell .detail-location-input:focus{
+  outline:2px solid rgba(22,143,208,.18);
+  border-color:#168fd0;
+}
+
+.color-preview-shell .mini-tags span,
+.color-preview-shell .meta-row span,
+.color-preview-shell .refined-price span,
+.color-preview-shell .field-note,
+.color-preview-shell .schedule-note,
+.color-preview-shell .small-note{
+  color:#526173;
+}
+
+.color-preview-shell .refined-price strong,
+.color-preview-shell .prices strong,
+.color-preview-shell .car-head h3,
+.color-preview-shell .detail-card h2,
+.color-preview-shell .legal-card h1{
+  color:#101827;
+}
+
+.color-preview-shell .delivery-modal-header,
+.color-preview-shell .delivery-mobile-actions,
+.color-preview-shell .delivery-mobile-selected-summary,
+.color-preview-shell .delivery-inline-choice-head{
+  background:#fff;
+  border-color:#dbe3ef;
+}
+
+.color-preview-shell .delivery-inline-step-card.is-active,
+.color-preview-shell .delivery-option-button.is-active,
+.color-preview-shell .delivery-fee-card.is-active,
+.color-preview-shell .delivery-region-button.is-active,
+.color-preview-shell .delivery-region-card.is-active{
+  background:#168fd0;
+  border-color:#168fd0;
+  color:#fff;
+}
+
+.color-preview-shell .delivery-inline-step-card.is-active small,
+.color-preview-shell .delivery-inline-step-card.is-active strong,
+.color-preview-shell .delivery-inline-step-card.is-active em{
+  color:#fff;
+}
+
+.color-preview-shell .landing-contact-card span,
+.color-preview-shell .footer-section-title,
+.color-preview-shell .footer-label{
+  color:#0f78b2;
+}
