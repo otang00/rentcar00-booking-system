@@ -2061,3 +2061,86 @@
 .color-preview-shell .footer-cafe24-logo{
   content:url('/bbang-wordmark-navy.png');
 }
+
+/* Color preview v4: typography cleanup based on mockup */
+.color-preview-shell{
+  font-family:"Segoe UI","Noto Sans KR",-apple-system,BlinkMacSystemFont,sans-serif;
+  letter-spacing:-.018em;
+}
+
+.color-preview-shell .app-header,
+.color-preview-shell .landing-page,
+.color-preview-shell .footer,
+.color-preview-shell input,
+.color-preview-shell select,
+.color-preview-shell button{
+  font-family:"Segoe UI","Noto Sans KR",-apple-system,BlinkMacSystemFont,sans-serif;
+}
+
+.color-preview-shell .search-panel-title,
+.color-preview-shell .search-panel-summary,
+.color-preview-shell .landing-contact-card strong,
+.color-preview-shell .car-head h3,
+.color-preview-shell .detail-card h2,
+.color-preview-shell .legal-card h1,
+.color-preview-shell .footer-section-title{
+  font-weight:900;
+  letter-spacing:-.055em;
+  line-height:1.15;
+}
+
+.color-preview-shell .search-panel-title{
+  font-size:21px;
+}
+
+.color-preview-shell .search-panel-summary{
+  font-size:20px;
+  line-height:1.36;
+}
+
+.color-preview-shell .field-label,
+.color-preview-shell .schedule-card-label,
+.color-preview-shell .btn,
+.color-preview-shell .app-header__button,
+.color-preview-shell .btn-select strong,
+.color-preview-shell .mini-tags span,
+.color-preview-shell .meta-row span{
+  font-weight:850;
+  letter-spacing:-.025em;
+}
+
+.color-preview-shell .field-note,
+.color-preview-shell .schedule-note,
+.color-preview-shell .small-note,
+.color-preview-shell .inline-meta,
+.color-preview-shell .feature-line,
+.color-preview-shell .footer p,
+.color-preview-shell .footer span,
+.color-preview-shell .footer div{
+  letter-spacing:-.012em;
+  line-height:1.55;
+}
+
+.color-preview-shell .refined-price strong,
+.color-preview-shell .prices strong{
+  font-weight:950;
+  letter-spacing:-.055em;
+}
+
+.color-preview-shell .delivery-readonly-box,
+.color-preview-shell .field-input,
+.color-preview-shell .field-select,
+.color-preview-shell .pickup-location-readonly-box{
+  font-weight:750;
+  letter-spacing:-.025em;
+}
+
+@media (max-width:960px){
+  .color-preview-shell .search-panel-title{
+    font-size:19px;
+  }
+
+  .color-preview-shell .search-panel-summary{
+    font-size:18px;
+  }
+}
