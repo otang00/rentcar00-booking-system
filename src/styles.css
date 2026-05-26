@@ -3580,3 +3580,137 @@
     padding:0 8px;
   }
 }
+
+/* Color preview calendar final polish */
+.color-preview-date-modal{
+  width:min(960px,100%);
+  padding:20px;
+  border-radius:26px;
+}
+
+.color-preview-date-modal-head-v4{
+  margin-bottom:14px;
+  padding-right:38px;
+}
+
+.color-preview-date-title-wrap span{
+  font-size:32px;
+  color:#0f172a;
+}
+
+.color-preview-date-nav{
+  background:#168fd0;
+  border-color:#168fd0;
+  color:#fff;
+  box-shadow:0 10px 20px rgba(22,143,208,.22);
+}
+
+.color-preview-date-nav:not(:disabled):hover{
+  transform:translateY(-1px);
+  box-shadow:0 13px 24px rgba(22,143,208,.27);
+}
+
+.color-preview-date-nav:disabled{
+  background:#edf3f8;
+  border-color:#dbe3ef;
+  color:#a8b6c5;
+}
+
+.color-preview-date-modal-x{
+  top:0;
+  background:#f8fafc;
+  color:#334155;
+}
+
+.color-preview-date-modal-x:hover{
+  background:#eaf6fc;
+  border-color:#168fd0;
+}
+
+.color-preview-calendar-panel{
+  background:#fff;
+  box-shadow:0 8px 22px rgba(16,24,39,.05);
+}
+
+.color-preview-calendar-panel header{
+  text-align:center;
+}
+
+.color-preview-calendar-day:not(:disabled):hover{
+  border-color:#168fd0;
+  background:#eaf6fc;
+}
+
+.color-preview-calendar-day.is-pickup,
+.color-preview-calendar-day.is-return{
+  box-shadow:0 8px 18px rgba(22,143,208,.22);
+}
+
+.color-preview-date-range-summary.color-preview-date-time-summary{
+  margin-top:12px;
+}
+
+.color-preview-date-time-summary>div{
+  background:#fff;
+  border-color:#dbe3ef;
+  box-shadow:0 8px 22px rgba(16,24,39,.05);
+}
+
+.color-preview-date-time-summary>div:not(.is-waiting){
+  border-color:#b7dff3;
+}
+
+.color-preview-time-card{
+  grid-template-columns:76px 1fr;
+  align-items:center;
+  gap:10px;
+}
+
+.color-preview-time-card label{
+  color:#526173;
+}
+
+.color-preview-date-confirm{
+  box-shadow:0 14px 28px rgba(22,143,208,.22);
+}
+
+.color-preview-date-confirm:not(:disabled):hover{
+  background:#0f78b2;
+}
+
+@media(max-width:960px){
+  .color-preview-date-modal{
+    width:min(420px,100%);
+    max-height:92vh;
+    padding:12px;
+  }
+
+  .color-preview-date-modal-head-v4{
+    margin-bottom:10px;
+  }
+
+  .color-preview-date-title-wrap span{
+    font-size:24px;
+  }
+
+  .color-preview-calendar-panel{
+    padding:10px;
+  }
+
+  .color-preview-calendar-day{
+    min-height:36px;
+  }
+
+  .color-preview-date-range-summary.color-preview-date-time-summary{
+    grid-template-columns:1fr !important;
+    gap:8px;
+  }
+
+  .color-preview-time-card{
+    grid-template-columns:70px 1fr;
+  }
+
+  .color-preview-date-confirm{
+    min-height:52px;
+  }
+}

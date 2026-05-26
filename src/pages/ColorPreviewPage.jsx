@@ -79,9 +79,6 @@ function formatModalDateLabel(dateKey) {
   return `${parsed.getFullYear()}.${String(parsed.getMonth() + 1).padStart(2, '0')}.${String(parsed.getDate()).padStart(2, '0')}(${week})`
 }
 
-function getYearOptions(baseYear) {
-  return Array.from({ length: 5 }, (_, index) => baseYear - 1 + index)
-}
 
 function DateRangeModal({
   open,
@@ -99,7 +96,6 @@ function DateRangeModal({
   onClose,
   onPrevMonth,
   onNextMonth,
-  onMonthChange,
   onDateClick,
   onPickupTimeChange,
   onReturnTimeChange,
@@ -111,7 +107,6 @@ function DateRangeModal({
   const rightMonth = addMonths(leftMonth, 1)
   const monthEntries = [leftMonth, rightMonth]
   const weekdays = ['일', '월', '화', '수', '목', '금', '토']
-  const yearOptions = getYearOptions(leftMonth.getFullYear())
   const minMonth = startOfMonth(parseDateTimeString(`${minPickupDateKey} 00:00`) || leftMonth)
   const maxMonth = startOfMonth(parseDateTimeString(`${maxPickupDateKey} 00:00`) || leftMonth)
   const isPrevDisabled = leftMonth <= minMonth
@@ -374,7 +369,6 @@ function ColorPreviewHero() {
         onClose={() => setIsDateModalOpen(false)}
         onPrevMonth={() => setMonthCursor((current) => addMonths(current, -1))}
         onNextMonth={() => setMonthCursor((current) => addMonths(current, 1))}
-        onMonthChange={(year, month) => setMonthCursor(startOfMonth(new Date(year, month, 1)))}
         onDateClick={handleCalendarDateClick}
         onPickupTimeChange={setDraftPickupTime}
         onReturnTimeChange={setDraftReturnTime}
