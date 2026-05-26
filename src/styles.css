@@ -3853,3 +3853,64 @@
     gap:5px;
   }
 }
+
+/* Final sequence tweak: date-date-time-time and smaller month arrows */
+.color-preview-date-title-cluster .color-preview-date-nav{
+  width:34px;
+  height:34px;
+  border-radius:12px;
+}
+
+.color-preview-date-title-cluster .color-preview-date-nav svg{
+  width:16px;
+  height:16px;
+}
+
+.color-preview-date-range-summary.color-preview-date-time-summary{
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.color-preview-date-time-summary .color-preview-date-summary-card,
+.color-preview-date-time-summary .color-preview-time-summary-card{
+  min-width:0;
+  padding:11px;
+}
+
+.color-preview-date-time-summary .color-preview-time-summary-card{
+  display:grid;
+  grid-template-columns:72px minmax(0,1fr);
+  align-items:center;
+  gap:8px;
+}
+
+.color-preview-date-time-summary .is-waiting{
+  opacity:.58;
+}
+
+@media(max-width:960px){
+  .color-preview-date-title-cluster .color-preview-date-nav{
+    width:30px;
+    height:30px;
+    border-radius:10px;
+  }
+
+  .color-preview-date-title-cluster .color-preview-date-nav svg{
+    width:14px;
+    height:14px;
+  }
+
+  .color-preview-date-range-summary.color-preview-date-time-summary{
+    grid-template-columns:1fr 1fr !important;
+  }
+
+  .color-preview-date-time-summary .color-preview-date-summary-card,
+  .color-preview-date-time-summary .color-preview-time-summary-card{
+    padding:8px;
+  }
+
+  .color-preview-date-time-summary .color-preview-time-summary-card{
+    grid-template-columns:1fr;
+    gap:5px;
+  }
+}

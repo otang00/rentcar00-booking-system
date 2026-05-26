@@ -168,27 +168,27 @@ function DateRangeModal({
         </div>
 
         <div className="color-preview-date-range-summary color-preview-date-time-summary">
-          <div>
+          <div className="color-preview-date-summary-card">
             <span>대여일</span>
             <strong>{formatModalDateLabel(pickupDate)}</strong>
-            <div className="color-preview-time-card">
-              <label>대여 시간</label>
-              <select value={pickupTime} onChange={(event) => onPickupTimeChange(event.target.value)} disabled={!pickupDate}>
-                <option value="">시간 선택</option>
-                {pickupTimeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
-              </select>
-            </div>
           </div>
-          <div className={!returnDate ? 'is-waiting' : ''}>
+          <div className={`color-preview-date-summary-card ${!returnDate ? 'is-waiting' : ''}`}>
             <span>반납일</span>
             <strong>{formatModalDateLabel(returnDate)}</strong>
-            <div className="color-preview-time-card">
-              <label>반납 시간</label>
-              <select value={returnTime} onChange={(event) => onReturnTimeChange(event.target.value)} disabled={!returnDate || !pickupTime}>
-                <option value="">시간 선택</option>
-                {returnTimeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
-              </select>
-            </div>
+          </div>
+          <div className={`color-preview-time-card color-preview-time-summary-card ${!returnDate ? 'is-waiting' : ''}`}>
+            <label>대여 시간</label>
+            <select value={pickupTime} onChange={(event) => onPickupTimeChange(event.target.value)} disabled={!returnDate}>
+              <option value="">시간 선택</option>
+              {pickupTimeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+            </select>
+          </div>
+          <div className={`color-preview-time-card color-preview-time-summary-card ${!returnDate || !pickupTime ? 'is-waiting' : ''}`}>
+            <label>반납 시간</label>
+            <select value={returnTime} onChange={(event) => onReturnTimeChange(event.target.value)} disabled={!returnDate || !pickupTime}>
+              <option value="">시간 선택</option>
+              {returnTimeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+            </select>
           </div>
         </div>
 
