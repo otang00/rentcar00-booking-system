@@ -2015,3 +2015,44 @@
 .color-preview-shell .footer-label{
   color:#0f78b2;
 }
+
+/* Color preview v3: brighten hero and footer backgrounds */
+.color-preview-shell .landing-banner-shell,
+.color-preview-shell .landing-banner-track{
+  background:linear-gradient(180deg,#f8fbfe 0%,#eaf6fc 100%);
+}
+
+.color-preview-shell .landing-hero-section{
+  background:#f8fbfe;
+}
+
+.color-preview-shell .landing-banner-slide{
+  background:transparent;
+}
+
+.color-preview-shell .landing-banner-image{
+  filter:saturate(.98) contrast(1.02);
+}
+
+.color-preview-shell .footer{
+  background:#ffffff;
+  border-top-color:#dbe3ef;
+  color:#526173;
+}
+
+.color-preview-shell .footer a,
+.color-preview-shell .footer strong,
+.color-preview-shell .footer-phone{
+  color:#101827 !important;
+}
+
+.color-preview-shell .footer p,
+.color-preview-shell .footer span,
+.color-preview-shell .footer div{
+  color:#526173;
+}
+
+.color-preview-shell .footer-section-title,
+.color-preview-shell .footer-label{
+  color:#0f78b2 !important;
+}
