@@ -3914,3 +3914,42 @@
     gap:5px;
   }
 }
+
+/* Main search card date/time display */
+.color-preview-shell .color-preview-date-picker-card em{
+  display:block;
+  color:#0f78b2;
+  font-style:normal;
+  font-size:14px;
+  font-weight:1000;
+  letter-spacing:-.03em;
+}
+
+@media(min-width:961px){
+  .color-preview-shell .color-preview-date-picker-card em{
+    margin-top:2px;
+  }
+}
+
+@media(max-width:960px){
+  .color-preview-shell .color-preview-date-picker-card{
+    grid-template-columns:auto 1fr auto;
+    align-items:center;
+    column-gap:8px;
+  }
+
+  .color-preview-shell .color-preview-date-picker-card small,
+  .color-preview-shell .color-preview-date-picker-card strong,
+  .color-preview-shell .color-preview-date-picker-card em{
+    margin:0;
+  }
+
+  .color-preview-shell .color-preview-date-picker-card strong{
+    font-size:15px;
+  }
+
+  .color-preview-shell .color-preview-date-picker-card em{
+    justify-self:end;
+    font-size:14px;
+  }
+}

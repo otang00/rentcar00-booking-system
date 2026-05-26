@@ -335,8 +335,8 @@ function ColorPreviewHero() {
               <span>대여 / 반납</span>
               <button type="button" className="color-preview-date-trigger" onClick={openDateModal}>
                 <div className="color-preview-date-grid color-preview-date-picker-grid">
-                  <div className="color-preview-date-picker-card"><small><CalendarIcon /> 대여</small><strong>{formatDisplay(searchState.deliveryDateTime)}</strong></div>
-                  <div className="color-preview-date-picker-card"><small><CalendarIcon /> 반납</small><strong>{formatDisplay(searchState.returnDateTime)}</strong></div>
+                  <div className="color-preview-date-picker-card"><small><CalendarIcon /> 대여</small><strong>{formatDisplay(searchState.deliveryDateTime)}</strong><em>{deliverySchedule.time}</em></div>
+                  <div className="color-preview-date-picker-card"><small><CalendarIcon /> 반납</small><strong>{formatDisplay(searchState.returnDateTime)}</strong><em>{returnSchedule.time}</em></div>
                 </div>
               </button>
             </div>
