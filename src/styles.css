@@ -4124,3 +4124,10 @@
     grid-template-columns:1fr;
   }
 }
+
+/* Final spacing tweak for rental schedule label */
+.color-preview-shell .color-preview-schedule-field>span{
+  display:block;
+  margin-top:4px;
+  margin-bottom:2px;
+}
