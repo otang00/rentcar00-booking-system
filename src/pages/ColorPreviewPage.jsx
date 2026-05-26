@@ -219,7 +219,7 @@ function ColorPreviewHero() {
   const earliestPickupDate = useMemo(() => getEarliestPickupDateTime(), [])
   const earliestPickupDateKey = useMemo(() => formatDateKey(new Date()), [])
   const latestPickupDateKey = useMemo(() => formatDateKey(getLatestPickupDateTime()), [])
-  const modalPickupDateTime = useMemo(() => buildDateTimeValue(draftPickupDate || deliverySchedule.date, draftPickupTime), [draftPickupDate, deliverySchedule.date, draftPickupTime])
+  const modalPickupDateTime = useMemo(() => buildDateTimeValue(draftPickupDate || deliverySchedule.date, draftPickupTime || '09:00'), [draftPickupDate, deliverySchedule.date, draftPickupTime])
   const modalMinReturnDateKey = useMemo(() => {
     const pickupAt = parseDateTimeString(modalPickupDateTime)
     return pickupAt ? formatDateKey(getEarliestReturnDateTime(pickupAt)) : ''
@@ -250,10 +250,8 @@ function ColorPreviewHero() {
   }
 
   const openDateModal = () => {
-    const pickup = splitDateTimeString(searchState.deliveryDateTime)
-    const returned = splitDateTimeString(searchState.returnDateTime)
-    setDraftPickupDate(pickup.date)
-    setDraftReturnDate(returned.date)
+    setDraftPickupDate('')
+    setDraftReturnDate('')
     setDraftPickupTime('')
     setDraftReturnTime('')
     setMonthCursor(startOfMonth(parseDateTimeString(searchState.deliveryDateTime) || earliestPickupDate))
