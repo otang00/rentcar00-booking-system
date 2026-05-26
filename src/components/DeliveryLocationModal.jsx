@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 function findSelectedPath(provinces, selectedDongId) {
   if (!selectedDongId) return null
@@ -10,6 +10,7 @@ function findSelectedPath(provinces, selectedDongId) {
           return {
             provinceId: province.id,
             cityId: city.id,
+            dong,
           }
         }
       }
@@ -17,6 +18,39 @@ function findSelectedPath(provinces, selectedDongId) {
   }
 
   return null
+}
+
+function findDong(provinces, dongId) {
+  if (!dongId) return null
+
+  for (const province of provinces) {
+    for (const city of province.cities || []) {
+      for (const dong of city.dongs || []) {
+        if (dong.id === dongId) {
+          return { province, city, dong }
+        }
+      }
+    }
+  }
+
+  return null
+}
+
+function StepCard({ step, label, value, active, done, disabled, onClick }) {
+  return (
+    <button
+      type="button"
+      className={`delivery-inline-step-card ${active ? 'is-active' : ''} ${done ? 'is-done' : ''} ${disabled ? 'is-disabled' : ''}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <span>
+        <small>{step}</small>
+        <strong>{value}</strong>
+      </span>
+      <em>{active ? '선택중' : done ? '완료' : '대기'}</em>
+    </button>
+  )
 }
 
 export default function DeliveryLocationModal({
@@ -28,98 +62,163 @@ export default function DeliveryLocationModal({
 }) {
   const [selectedProvinceId, setSelectedProvinceId] = useState(null)
   const [selectedCityId, setSelectedCityId] = useState(null)
+  const [draftDongId, setDraftDongId] = useState(null)
   const [mobileStep, setMobileStep] = useState('province')
-  const provinceButtonRefs = useRef(new Map())
-  const cityButtonRefs = useRef(new Map())
-  const dongCardRefs = useRef(new Map())
-  const desktopProvinceListRef = useRef(null)
-  const desktopCityListRef = useRef(null)
-  const desktopDongListRef = useRef(null)
-  const mobileListRef = useRef(null)
 
   const provinces = Array.isArray(company?.deliveryCostList) ? company.deliveryCostList : []
-  const deliveryTimes = Array.isArray(company?.deliveryTimes) ? company.deliveryTimes : []
 
   useEffect(() => {
-    if (!open || !provinces.length) return
+    if (!open) return
 
     const selectedPath = findSelectedPath(provinces, selectedDongId)
     if (selectedPath) {
       setSelectedProvinceId(selectedPath.provinceId)
       setSelectedCityId(selectedPath.cityId)
+      setDraftDongId(selectedDongId)
       setMobileStep('dong')
       return
     }
 
-    setSelectedProvinceId(provinces[0]?.id || null)
-    setSelectedCityId(provinces[0]?.cities?.[0]?.id || null)
+    setSelectedProvinceId(null)
+    setSelectedCityId(null)
+    setDraftDongId(null)
     setMobileStep('province')
   }, [open, provinces, selectedDongId])
 
   const selectedProvince = useMemo(() => {
-    if (!provinces.length) return null
-    return provinces.find((province) => province.id === selectedProvinceId) || provinces[0]
+    if (!provinces.length || !selectedProvinceId) return null
+    return provinces.find((province) => province.id === selectedProvinceId) || null
   }, [provinces, selectedProvinceId])
 
   const cities = selectedProvince?.cities || []
 
   const selectedCity = useMemo(() => {
-    if (!cities.length) return null
-    return cities.find((city) => city.id === selectedCityId) || cities[0]
+    if (!cities.length || !selectedCityId) return null
+    return cities.find((city) => city.id === selectedCityId) || null
   }, [cities, selectedCityId])
 
   const dongs = selectedCity?.dongs || []
+  const draftSelection = useMemo(() => findDong(provinces, draftDongId), [provinces, draftDongId])
+  const selectedLocationLabel = draftSelection?.dong?.fullLabel
+    || [draftSelection?.province?.name, draftSelection?.city?.name, draftSelection?.dong?.name].filter(Boolean).join(' ')
+    || ''
 
-  const mobileStepTitle = {
-    province: '시/도 선택',
-    city: '시/구/군 선택',
-    dong: '딜리버리 지역 선택',
+  const canConfirm = Boolean(draftSelection?.dong)
+
+  function handleProvinceSelect(province) {
+    setSelectedProvinceId(province.id)
+    setSelectedCityId(null)
+    setDraftDongId(null)
+    setMobileStep('city')
   }
 
-  useEffect(() => {
-    if (!open) return
+  function handleCitySelect(city) {
+    setSelectedCityId(city.id)
+    setDraftDongId(null)
+    setMobileStep('dong')
+  }
 
-    const rafId = window.requestAnimationFrame(() => {
-      const provinceButton = provinceButtonRefs.current.get(selectedProvince?.id)
-      const cityButton = cityButtonRefs.current.get(selectedCity?.id)
-      const dongCard = dongCardRefs.current.get(selectedDongId)
+  function handleDongSelect(dong) {
+    setDraftDongId(dong.id)
+  }
 
-      provinceButton?.scrollIntoView({ block: 'start' })
-      cityButton?.scrollIntoView({ block: 'start' })
-      dongCard?.scrollIntoView({ block: 'start' })
-
-      if (mobileListRef.current) {
-        mobileListRef.current.scrollTop = 0
-      }
+  function handleConfirm() {
+    if (!draftSelection?.dong) return
+    onSelect({
+      dongId: draftSelection.dong.id,
+      deliveryAddress: draftSelection.dong.fullLabel,
     })
+    onClose()
+  }
 
-    return () => window.cancelAnimationFrame(rafId)
-  }, [open, selectedProvince?.id, selectedCity?.id, selectedDongId, mobileStep])
+  function renderMobileChoices() {
+    if (mobileStep === 'province') {
+      return (
+        <div className="delivery-inline-choice-panel">
+          <div className="delivery-inline-choice-head">
+            <strong>시/도를 선택해주세요</strong>
+            <p>선택하면 다음 카드가 활성화됩니다.</p>
+          </div>
+          <div className="delivery-inline-choice-list">
+            {provinces.map((province) => (
+              <button
+                key={province.id}
+                type="button"
+                className={`delivery-option-button delivery-region-button ${selectedProvince?.id === province.id ? 'is-active' : ''}`}
+                onClick={() => handleProvinceSelect(province)}
+              >
+                {province.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )
+    }
 
-  useEffect(() => {
-    if (!open) return
-    desktopProvinceListRef.current?.scrollTo({ top: 0 })
-    desktopCityListRef.current?.scrollTo({ top: 0 })
-    desktopDongListRef.current?.scrollTo({ top: 0 })
-  }, [open, selectedProvinceId, selectedCityId])
+    if (mobileStep === 'city') {
+      return (
+        <div className="delivery-inline-choice-panel">
+          <div className="delivery-inline-choice-head">
+            <strong>시/구/군을 선택해주세요</strong>
+            <p>{selectedProvince?.name || '시/도'} 안에서 선택합니다.</p>
+          </div>
+          <div className="delivery-inline-choice-list">
+            {cities.map((city) => (
+              <button
+                key={city.id}
+                type="button"
+                className={`delivery-option-button delivery-region-button ${selectedCity?.id === city.id ? 'is-active' : ''}`}
+                onClick={() => handleCitySelect(city)}
+              >
+                {city.name}
+              </button>
+            ))}
+            {cities.length === 0 && <div className="delivery-empty">선택 가능한 시/구/군이 없습니다.</div>}
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className="delivery-inline-choice-panel">
+        <div className="delivery-inline-choice-head">
+          <strong>딜리버리 지역을 선택해주세요</strong>
+          <p>{[selectedProvince?.name, selectedCity?.name].filter(Boolean).join(' ')} 안에서 선택합니다.</p>
+        </div>
+        <div className="delivery-inline-choice-list">
+          {dongs.map((dong) => (
+            <button
+              key={dong.id}
+              type="button"
+              className={`delivery-fee-card delivery-region-card ${draftDongId === dong.id ? 'is-active' : ''}`}
+              onClick={() => handleDongSelect(dong)}
+            >
+              <div className="delivery-fee-head delivery-region-summary">
+                <strong>{dong.name}</strong>
+                <span>{selectedCity?.name}</span>
+              </div>
+            </button>
+          ))}
+          {dongs.length === 0 && <div className="delivery-empty">선택 가능한 딜리버리 지역이 없습니다.</div>}
+        </div>
+      </div>
+    )
+  }
 
   if (!open) return null
 
   return (
     <div className="delivery-modal-backdrop" onClick={onClose}>
       <div className="delivery-modal delivery-region-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="딜리버리 지역 선택">
-        <div className="delivery-modal-header">
+        <div className="delivery-modal-header delivery-region-modal-header">
           <div>
             <strong>딜리버리 지역 선택</strong>
-            <p>{company?.fullGarageAddress || '회사 주소 확인 필요'}</p>
+            <p><b>선택 위치:</b> {selectedLocationLabel || '아직 선택되지 않았습니다.'}</p>
           </div>
-          <button className="btn btn-outline btn-md delivery-modal-close" onClick={onClose}>닫기</button>
-        </div>
-
-        <div className="delivery-modal-hours">
-          {deliveryTimes.length > 0
-            ? deliveryTimes.map((item) => `${item.dayOfWeek} ${item.startAt.slice(0, 5)}~${item.endAt.slice(0, 5)}`).join(' · ')
-            : '딜리버리 가능 시간 확인 필요'}
+          <div className="delivery-modal-actions delivery-desktop-actions">
+            <button className="btn btn-dark btn-md" type="button" onClick={handleConfirm} disabled={!canConfirm}>선택 완료</button>
+            <button className="btn btn-outline btn-md delivery-modal-close" type="button" onClick={onClose}>닫기</button>
+          </div>
         </div>
 
         <div className="delivery-modal-body delivery-region-grid delivery-desktop-only">
@@ -128,19 +227,13 @@ export default function DeliveryLocationModal({
               <span className="field-label">시/도</span>
             </div>
             <div className="delivery-column-content">
-              <div className="delivery-option-list delivery-region-list" ref={desktopProvinceListRef}>
+              <div className="delivery-option-list delivery-region-list">
                 {provinces.map((province) => (
                   <button
                     key={province.id}
                     className={`delivery-option-button delivery-region-button ${selectedProvince?.id === province.id ? 'is-active' : ''}`}
-                    ref={(node) => {
-                      if (node) provinceButtonRefs.current.set(province.id, node)
-                      else provinceButtonRefs.current.delete(province.id)
-                    }}
-                    onClick={() => {
-                      setSelectedProvinceId(province.id)
-                      setSelectedCityId(province.cities?.[0]?.id || null)
-                    }}
+                    type="button"
+                    onClick={() => handleProvinceSelect(province)}
                   >
                     {province.name}
                   </button>
@@ -154,20 +247,18 @@ export default function DeliveryLocationModal({
               <span className="field-label">시/구/군</span>
             </div>
             <div className="delivery-column-content">
-              <div className="delivery-option-list delivery-region-list" ref={desktopCityListRef}>
+              <div className="delivery-option-list delivery-region-list">
                 {cities.map((city) => (
                   <button
                     key={city.id}
                     className={`delivery-option-button delivery-region-button ${selectedCity?.id === city.id ? 'is-active' : ''}`}
-                    ref={(node) => {
-                      if (node) cityButtonRefs.current.set(city.id, node)
-                      else cityButtonRefs.current.delete(city.id)
-                    }}
-                    onClick={() => setSelectedCityId(city.id)}
+                    type="button"
+                    onClick={() => handleCitySelect(city)}
                   >
                     {city.name}
                   </button>
                 ))}
+                {cities.length === 0 && <div className="delivery-empty">시/도를 먼저 선택해 주세요.</div>}
               </div>
             </div>
           </div>
@@ -177,22 +268,13 @@ export default function DeliveryLocationModal({
               <span className="field-label">딜리버리 지역</span>
             </div>
             <div className="delivery-column-content">
-              <div className="delivery-fee-list delivery-region-list" ref={desktopDongListRef}>
+              <div className="delivery-fee-list delivery-region-list">
                 {dongs.map((dong) => (
                   <button
                     key={dong.id}
-                    className={`delivery-fee-card delivery-region-card ${selectedDongId === dong.id ? 'is-active' : ''}`}
-                    ref={(node) => {
-                      if (node) dongCardRefs.current.set(dong.id, node)
-                      else dongCardRefs.current.delete(dong.id)
-                    }}
-                    onClick={() => {
-                      onSelect({
-                        dongId: dong.id,
-                        deliveryAddress: dong.fullLabel,
-                      })
-                      onClose()
-                    }}
+                    className={`delivery-fee-card delivery-region-card ${draftDongId === dong.id ? 'is-active' : ''}`}
+                    type="button"
+                    onClick={() => handleDongSelect(dong)}
                   >
                     <div className="delivery-fee-head delivery-region-summary">
                       <strong>{dong.name}</strong>
@@ -200,118 +282,59 @@ export default function DeliveryLocationModal({
                     </div>
                   </button>
                 ))}
-                {dongs.length === 0 && (
-                  <div className="delivery-empty">선택 가능한 딜리버리 지역이 없습니다.</div>
-                )}
+                {dongs.length === 0 && <div className="delivery-empty">시/구/군을 먼저 선택해 주세요.</div>}
               </div>
             </div>
           </div>
         </div>
 
         <div className="delivery-mobile-flow delivery-mobile-only">
-          <div className="delivery-mobile-summary">
-            <button
-              type="button"
-              className={`delivery-mobile-chip ${mobileStep === 'province' ? 'is-active' : ''}`}
-              onClick={() => setMobileStep('province')}
-            >
-              {selectedProvince?.name || '시/도'}
-            </button>
-            <button
-              type="button"
-              className={`delivery-mobile-chip ${mobileStep === 'city' ? 'is-active' : ''}`}
-              onClick={() => selectedProvince && setMobileStep('city')}
-              disabled={!selectedProvince}
-            >
-              {selectedCity?.name || '시/구/군'}
-            </button>
-            <button
-              type="button"
-              className={`delivery-mobile-chip ${mobileStep === 'dong' ? 'is-active' : ''}`}
-              onClick={() => selectedCity && setMobileStep('dong')}
-              disabled={!selectedCity}
-            >
-              딜리버리 지역
-            </button>
-          </div>
-
-          <div className="delivery-mobile-panel">
-            <div className="delivery-mobile-panel-header">
-              {mobileStep !== 'province' && (
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm delivery-mobile-back"
-                  onClick={() => setMobileStep(mobileStep === 'dong' ? 'city' : 'province')}
-                >
-                  이전
-                </button>
-              )}
-              <strong>{mobileStepTitle[mobileStep]}</strong>
+          <div className="delivery-inline-steps">
+            <div>
+              <StepCard
+                step="1. 시/도"
+                value={selectedProvince?.name || '시/도를 선택해주세요'}
+                active={mobileStep === 'province'}
+                done={Boolean(selectedProvince)}
+                disabled={false}
+                onClick={() => setMobileStep('province')}
+              />
+              {mobileStep === 'province' ? renderMobileChoices() : null}
             </div>
 
-            {mobileStep === 'province' && (
-              <div className="delivery-option-list delivery-region-list delivery-mobile-list" ref={mobileListRef}>
-                {provinces.map((province) => (
-                  <button
-                    key={province.id}
-                    className={`delivery-option-button delivery-region-button ${selectedProvince?.id === province.id ? 'is-active' : ''}`}
-                    onClick={() => {
-                      setSelectedProvinceId(province.id)
-                      setSelectedCityId(province.cities?.[0]?.id || null)
-                      setMobileStep('city')
-                    }}
-                  >
-                    {province.name}
-                  </button>
-                ))}
-              </div>
-            )}
+            <div>
+              <StepCard
+                step="2. 시/구/군"
+                value={selectedCity?.name || (selectedProvince ? '시/구/군을 선택해주세요' : '시/도 선택 후 활성화')}
+                active={mobileStep === 'city'}
+                done={Boolean(selectedCity)}
+                disabled={!selectedProvince}
+                onClick={() => selectedProvince && setMobileStep('city')}
+              />
+              {mobileStep === 'city' ? renderMobileChoices() : null}
+            </div>
 
-            {mobileStep === 'city' && (
-              <div className="delivery-option-list delivery-region-list delivery-mobile-list" ref={mobileListRef}>
-                {cities.map((city) => (
-                  <button
-                    key={city.id}
-                    className={`delivery-option-button delivery-region-button ${selectedCity?.id === city.id ? 'is-active' : ''}`}
-                    onClick={() => {
-                      setSelectedCityId(city.id)
-                      setMobileStep('dong')
-                    }}
-                  >
-                    {city.name}
-                  </button>
-                ))}
-                {cities.length === 0 && (
-                  <div className="delivery-empty">선택 가능한 시/구/군이 없습니다.</div>
-                )}
-              </div>
-            )}
+            <div>
+              <StepCard
+                step="3. 딜리버리 지역"
+                value={draftSelection?.dong?.name || (selectedCity ? '딜리버리 지역을 선택해주세요' : '시/구/군 선택 후 활성화')}
+                active={mobileStep === 'dong'}
+                done={Boolean(draftSelection?.dong)}
+                disabled={!selectedCity}
+                onClick={() => selectedCity && setMobileStep('dong')}
+              />
+              {mobileStep === 'dong' ? renderMobileChoices() : null}
+            </div>
+          </div>
 
-            {mobileStep === 'dong' && (
-              <div className="delivery-fee-list delivery-region-list delivery-mobile-list" ref={mobileListRef}>
-                {dongs.map((dong) => (
-                  <button
-                    key={dong.id}
-                    className={`delivery-fee-card delivery-region-card ${selectedDongId === dong.id ? 'is-active' : ''}`}
-                    onClick={() => {
-                      onSelect({
-                        dongId: dong.id,
-                        deliveryAddress: dong.fullLabel,
-                      })
-                      onClose()
-                    }}
-                  >
-                    <div className="delivery-fee-head delivery-region-summary">
-                      <strong>{dong.name}</strong>
-                      <span>{selectedCity?.name}</span>
-                    </div>
-                  </button>
-                ))}
-                {dongs.length === 0 && (
-                  <div className="delivery-empty">선택 가능한 딜리버리 지역이 없습니다.</div>
-                )}
-              </div>
-            )}
+          <div className="delivery-mobile-selected-summary">
+            <span>선택 위치</span>
+            <strong>{selectedLocationLabel || '아직 선택되지 않았습니다.'}</strong>
+          </div>
+
+          <div className="delivery-mobile-actions">
+            <button className="btn btn-outline btn-md" type="button" onClick={onClose}>닫기</button>
+            <button className="btn btn-dark btn-md" type="button" onClick={handleConfirm} disabled={!canConfirm}>선택 완료</button>
           </div>
         </div>
       </div>
