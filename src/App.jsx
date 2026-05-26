@@ -34,6 +34,7 @@ export default function App() {
       <Route path="/landing" element={<Navigate to="/" replace />} />
       <Route path="/landing-v2" element={<LandingV2Page />} />
       <Route path="/color-preview" element={<LazyRoute><ColorPreviewPage /></LazyRoute>} />
+      <Route path="/new-main" element={<LazyRoute><ColorPreviewPage /></LazyRoute>} />
       <Route path="/cars" element={<CarsPage />} />
       <Route path="/cars/:carId" element={<LandingPage />} />
       <Route path="/reservations" element={<LazyRoute><MemberReservationsPage /></LazyRoute>} />
