@@ -5,11 +5,8 @@ import { landingContactItems } from '../data/landing'
 function ColorPreviewHero() {
   return (
     <section className="color-preview-hero">
-      <div className="color-preview-car-visual" aria-hidden="true">
-        <div className="color-preview-car-top" />
-        <div className="color-preview-car-body" />
-        <div className="color-preview-wheel is-left" />
-        <div className="color-preview-wheel is-right" />
+      <div className="color-preview-car-photo" aria-hidden="true">
+        <img src="/assets/mock-cars/mock-car-2.jpg" alt="" />
       </div>
 
       <div className="container color-preview-hero-grid">
