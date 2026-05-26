@@ -2056,3 +2056,8 @@
 .color-preview-shell .footer-label{
   color:#0f78b2 !important;
 }
+
+.color-preview-shell .app-header__wordmark,
+.color-preview-shell .footer-cafe24-logo{
+  content:url('/bbang-wordmark-navy.png');
+}
