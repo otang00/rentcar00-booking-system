@@ -3953,3 +3953,74 @@
     font-size:14px;
   }
 }
+
+/* Color preview search card typography scale-up */
+.color-preview-shell .color-preview-search-head strong{
+  font-size:30px;
+}
+
+.color-preview-shell .color-preview-field>span{
+  font-size:15.5px;
+}
+
+.color-preview-shell .color-preview-select-row b{
+  font-size:17.5px;
+}
+
+.color-preview-shell .color-preview-select-row em{
+  font-size:14px;
+}
+
+.color-preview-shell .color-preview-date-picker-card small{
+  font-size:14px;
+}
+
+.color-preview-shell .color-preview-date-picker-card strong{
+  font-size:18px;
+}
+
+.color-preview-shell .color-preview-date-picker-card em{
+  font-size:15.5px;
+}
+
+.color-preview-shell .color-preview-age-grid button{
+  font-size:15.5px;
+}
+
+.color-preview-shell .color-preview-cta{
+  font-size:20px;
+}
+
+@media(max-width:960px){
+  .color-preview-shell .color-preview-search-head strong{
+    font-size:27px;
+  }
+
+  .color-preview-shell .color-preview-field>span{
+    font-size:15px;
+  }
+
+  .color-preview-shell .color-preview-select-row b{
+    font-size:16.5px;
+  }
+
+  .color-preview-shell .color-preview-date-picker-card small{
+    font-size:13.5px;
+  }
+
+  .color-preview-shell .color-preview-date-picker-card strong{
+    font-size:16px;
+  }
+
+  .color-preview-shell .color-preview-date-picker-card em{
+    font-size:15px;
+  }
+
+  .color-preview-shell .color-preview-age-grid button{
+    font-size:15px;
+  }
+
+  .color-preview-shell .color-preview-cta{
+    font-size:19px;
+  }
+}
