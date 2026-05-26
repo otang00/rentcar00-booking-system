@@ -2646,3 +2646,26 @@
     transform:none;
   }
 }
+
+/* Color preview mobile: hide hero trust cards and bring search card up */
+@media(max-width:960px){
+  .color-preview-mockup-shell .color-preview-trust{
+    display:none;
+  }
+
+  .color-preview-mockup-shell .color-preview-copy{
+    padding-bottom:40px;
+  }
+
+  .color-preview-mockup-shell .color-preview-search-card{
+    margin-top:-18px;
+  }
+
+  .color-preview-mockup-shell .color-preview-hero-grid{
+    padding-bottom:22px;
+  }
+
+  .color-preview-mockup-shell .color-preview-car-photo{
+    opacity:.18;
+  }
+}
