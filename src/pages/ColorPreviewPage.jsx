@@ -323,7 +323,7 @@ function ColorPreviewHero() {
 
         <div className="color-preview-action-column">
           <aside className="color-preview-search-card" aria-label="예약 가능 차량 검색">
-            <div className="color-preview-search-head"><strong>예약 가능 차량 검색</strong></div>
+            <button type="button" className="color-preview-cta color-preview-cta-top" onClick={goSearch}>예약 가능 차량 검색</button>
             <label className="color-preview-field">
               <span>딜리버리 위치</span>
               <button type="button" className="color-preview-select-row" onClick={() => setIsLocationOpen(true)}>
@@ -347,7 +347,6 @@ function ColorPreviewHero() {
                 <button type="button" className={searchState.driverAge === 21 ? 'is-active' : ''} onClick={() => updateSearchState({ driverAge: 21 })}>만 21세 이상</button>
               </div>
             </div>
-            <button type="button" className="color-preview-cta" onClick={goSearch}>예약 가능 차량 검색</button>
           </aside>
         </div>
       </div>
