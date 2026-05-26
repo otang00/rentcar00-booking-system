@@ -116,12 +116,18 @@ function DateRangeModal({
     <div className="color-preview-modal-backdrop" onClick={onClose}>
       <div className="color-preview-date-modal" onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label="대여 반납 날짜 선택">
         <div className="color-preview-date-modal-head color-preview-date-modal-head-v4">
-          <button type="button" className="color-preview-date-nav" onClick={onPrevMonth} disabled={isPrevDisabled} aria-label="이전 달"><ChevronIcon direction="left" /></button>
-          <div className="color-preview-date-title-wrap">
-            <span>{leftMonth.getFullYear()}년 {leftMonth.getMonth() + 1}월</span>
+          <div className="color-preview-date-title-cluster">
+            <button type="button" className="color-preview-date-nav" onClick={onPrevMonth} disabled={isPrevDisabled} aria-label="이전 달"><ChevronIcon direction="left" /></button>
+            <div className="color-preview-date-title-wrap">
+              <span>{leftMonth.getFullYear()}년 {leftMonth.getMonth() + 1}월</span>
+            </div>
+            <button type="button" className="color-preview-date-nav" onClick={onNextMonth} disabled={isNextDisabled} aria-label="다음 달"><ChevronIcon direction="right" /></button>
           </div>
-          <button type="button" className="color-preview-date-nav" onClick={onNextMonth} disabled={isNextDisabled} aria-label="다음 달"><ChevronIcon direction="right" /></button>
-          <button type="button" className="color-preview-date-modal-x" onClick={onClose} aria-label="닫기">×</button>
+          <button type="button" className="color-preview-date-modal-x" onClick={onClose} aria-label="닫기">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
         </div>
 
         <div className="color-preview-calendar-grid">
@@ -168,6 +174,7 @@ function DateRangeModal({
             <div className="color-preview-time-card">
               <label>대여 시간</label>
               <select value={pickupTime} onChange={(event) => onPickupTimeChange(event.target.value)} disabled={!pickupDate}>
+                <option value="">시간 선택</option>
                 {pickupTimeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
               </select>
             </div>
@@ -177,7 +184,8 @@ function DateRangeModal({
             <strong>{formatModalDateLabel(returnDate)}</strong>
             <div className="color-preview-time-card">
               <label>반납 시간</label>
-              <select value={returnTime} onChange={(event) => onReturnTimeChange(event.target.value)} disabled={!returnDate}>
+              <select value={returnTime} onChange={(event) => onReturnTimeChange(event.target.value)} disabled={!returnDate || !pickupTime}>
+                <option value="">시간 선택</option>
                 {returnTimeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
               </select>
             </div>
@@ -223,17 +231,6 @@ function ColorPreviewHero() {
   const modalPickupTimeOptions = useMemo(() => getPickupTimeOptions(draftPickupDate || deliverySchedule.date), [draftPickupDate, deliverySchedule.date])
   const modalReturnTimeOptions = useMemo(() => getReturnTimeOptions(draftReturnDate || returnSchedule.date, modalPickupDateTime), [draftReturnDate, returnSchedule.date, modalPickupDateTime])
 
-  useEffect(() => {
-    if (modalPickupTimeOptions.length && !modalPickupTimeOptions.includes(draftPickupTime)) {
-      setDraftPickupTime(modalPickupTimeOptions[0])
-    }
-  }, [modalPickupTimeOptions, draftPickupTime])
-
-  useEffect(() => {
-    if (modalReturnTimeOptions.length && !modalReturnTimeOptions.includes(draftReturnTime)) {
-      setDraftReturnTime(modalReturnTimeOptions[0])
-    }
-  }, [modalReturnTimeOptions, draftReturnTime])
 
   useEffect(() => {
     let isCancelled = false
@@ -257,8 +254,8 @@ function ColorPreviewHero() {
     const returned = splitDateTimeString(searchState.returnDateTime)
     setDraftPickupDate(pickup.date)
     setDraftReturnDate(returned.date)
-    setDraftPickupTime(pickup.time || '09:00')
-    setDraftReturnTime(returned.time || '09:00')
+    setDraftPickupTime('')
+    setDraftReturnTime('')
     setMonthCursor(startOfMonth(parseDateTimeString(searchState.deliveryDateTime) || earliestPickupDate))
     setIsDateModalOpen(true)
   }
@@ -276,19 +273,24 @@ function ColorPreviewHero() {
     if (!draftPickupDate || (draftPickupDate && draftReturnDate)) {
       setDraftPickupDate(dateKey)
       setDraftReturnDate('')
+      setDraftPickupTime('')
+      setDraftReturnTime('')
       return
     }
     if (dateKey === draftPickupDate) return
     if (dateKey < draftPickupDate) {
       setDraftReturnDate(draftPickupDate)
       setDraftPickupDate(dateKey)
+      setDraftPickupTime('')
+      setDraftReturnTime('')
       return
     }
     setDraftReturnDate(dateKey)
+    setDraftReturnTime('')
   }
 
   const confirmDateRange = () => {
-    if (!draftPickupDate || !draftReturnDate) return
+    if (!draftPickupDate || !draftReturnDate || !draftPickupTime || !draftReturnTime) return
     updateSearchState({
       deliveryDateTime: buildDateTimeValue(draftPickupDate, draftPickupTime),
       returnDateTime: buildDateTimeValue(draftReturnDate, draftReturnTime),
