@@ -200,6 +200,32 @@ function DateRangeModal({
   )
 }
 
+
+function DriverAgeModal({ open, selectedAge, onSelectAge, onClose, onConfirm }) {
+  if (!open) return null
+
+  return (
+    <div className="color-preview-modal-backdrop" onClick={onClose}>
+      <div className="color-preview-age-modal" onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label="운전자 연령 선택">
+        <button type="button" className="color-preview-date-modal-x color-preview-age-modal-x" onClick={onClose} aria-label="닫기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+        <div className="color-preview-age-modal-head">
+          <strong>운전자 연령 선택</strong>
+          <p>예약 가능 차량 검색에 적용할 운전자 연령을 선택해 주세요.</p>
+        </div>
+        <div className="color-preview-age-modal-options">
+          <button type="button" className={selectedAge === 26 ? 'is-active' : ''} onClick={() => onSelectAge(26)}>만 26세 이상</button>
+          <button type="button" className={selectedAge === 21 ? 'is-active' : ''} onClick={() => onSelectAge(21)}>만 21세 이상</button>
+        </div>
+        <button type="button" className="color-preview-age-confirm" onClick={onConfirm} disabled={!selectedAge}>확인하고 검색</button>
+      </div>
+    </div>
+  )
+}
+
 function ColorPreviewHero() {
   const navigate = useNavigate()
   const scheduleRef = useRef(null)
@@ -207,6 +233,9 @@ function ColorPreviewHero() {
   const [company, setCompany] = useState(() => getMockCompany())
   const [isLocationOpen, setIsLocationOpen] = useState(false)
   const [isDateModalOpen, setIsDateModalOpen] = useState(false)
+  const [isAgeModalOpen, setIsAgeModalOpen] = useState(false)
+  const [pendingSearchState, setPendingSearchState] = useState(null)
+  const [draftDriverAge, setDraftDriverAge] = useState(26)
   const [searchError, setSearchError] = useState('')
   const [monthCursor, setMonthCursor] = useState(() => startOfMonth(getEarliestPickupDateTime()))
   const [draftPickupDate, setDraftPickupDate] = useState('')
@@ -289,11 +318,29 @@ function ColorPreviewHero() {
 
   const confirmDateRange = () => {
     if (!draftPickupDate || !draftReturnDate || !draftPickupTime || !draftReturnTime) return
-    updateSearchState({
+    const nextState = normalizeSearchState({
+      ...searchState,
+      pickupOption: 'delivery',
       deliveryDateTime: buildDateTimeValue(draftPickupDate, draftPickupTime),
       returnDateTime: buildDateTimeValue(draftReturnDate, draftReturnTime),
     })
+    setSearchState(nextState)
+    setPendingSearchState(nextState)
+    setDraftDriverAge(nextState.driverAge || 26)
     setIsDateModalOpen(false)
+    setIsAgeModalOpen(true)
+  }
+
+  const confirmDriverAgeSearch = () => {
+    const finalState = normalizeSearchState({
+      ...(pendingSearchState || searchState),
+      pickupOption: 'delivery',
+      driverAge: draftDriverAge,
+    })
+    setSearchState(finalState)
+    setPendingSearchState(null)
+    setIsAgeModalOpen(false)
+    navigate(`/?${buildSearchQuery(finalState)}`)
   }
 
   const goSearch = () => {
@@ -372,6 +419,13 @@ function ColorPreviewHero() {
         onPickupTimeChange={setDraftPickupTime}
         onReturnTimeChange={setDraftReturnTime}
         onConfirm={confirmDateRange}
+      />
+      <DriverAgeModal
+        open={isAgeModalOpen}
+        selectedAge={draftDriverAge}
+        onSelectAge={setDraftDriverAge}
+        onClose={() => setIsAgeModalOpen(false)}
+        onConfirm={confirmDriverAgeSearch}
       />
     </section>
   )
