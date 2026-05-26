@@ -168,22 +168,22 @@ function DateRangeModal({
         </div>
 
         <div className="color-preview-date-range-summary color-preview-date-time-summary">
-          <div className="color-preview-date-summary-card">
+          <div className={`color-preview-date-summary-card ${!pickupDate ? 'is-flow-active' : ''}`}>
             <span>대여일</span>
             <strong>{formatModalDateLabel(pickupDate)}</strong>
           </div>
-          <div className={`color-preview-date-summary-card ${!returnDate ? 'is-waiting' : ''}`}>
+          <div className={`color-preview-date-summary-card ${!returnDate ? 'is-waiting' : ''} ${pickupDate && !returnDate ? 'is-flow-active' : ''}`}>
             <span>반납일</span>
             <strong>{formatModalDateLabel(returnDate)}</strong>
           </div>
-          <div className={`color-preview-time-card color-preview-time-summary-card ${!returnDate ? 'is-waiting' : ''}`}>
+          <div className={`color-preview-time-card color-preview-time-summary-card ${!returnDate ? 'is-waiting' : ''} ${returnDate && !pickupTime ? 'is-flow-active' : ''}`}>
             <label>대여 시간</label>
             <select value={pickupTime} onChange={(event) => onPickupTimeChange(event.target.value)} disabled={!returnDate}>
               <option value="">시간 선택</option>
               {pickupTimeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
             </select>
           </div>
-          <div className={`color-preview-time-card color-preview-time-summary-card ${!returnDate || !pickupTime ? 'is-waiting' : ''}`}>
+          <div className={`color-preview-time-card color-preview-time-summary-card ${!returnDate || !pickupTime ? 'is-waiting' : ''} ${returnDate && pickupTime && !returnTime ? 'is-flow-active' : ''}`}>
             <label>반납 시간</label>
             <select value={returnTime} onChange={(event) => onReturnTimeChange(event.target.value)} disabled={!returnDate || !pickupTime}>
               <option value="">시간 선택</option>
@@ -193,7 +193,7 @@ function DateRangeModal({
         </div>
 
         <div className="color-preview-date-modal-footer">
-          <button type="button" className="color-preview-date-confirm" onClick={onConfirm} disabled={!pickupDate || !returnDate || !pickupTime || !returnTime}>확인</button>
+          <button type="button" className={`color-preview-date-confirm ${pickupDate && returnDate && pickupTime && returnTime ? 'is-flow-active' : ''}`} onClick={onConfirm} disabled={!pickupDate || !returnDate || !pickupTime || !returnTime}>확인</button>
         </div>
       </div>
     </div>
@@ -215,11 +215,11 @@ function DriverAgeModal({ open, selectedAge, onSelectAge, onClose, onConfirm }) 
         <div className="color-preview-age-modal-head">
           <strong>운전자 연령 선택</strong>
         </div>
-        <div className="color-preview-age-modal-options">
+        <div className="color-preview-age-modal-options is-flow-active">
           <button type="button" className={selectedAge === 26 ? 'is-active' : ''} onClick={() => onSelectAge(26)}>만 26세 이상</button>
           <button type="button" className={selectedAge === 21 ? 'is-active' : ''} onClick={() => onSelectAge(21)}>만 21세 이상</button>
         </div>
-        <button type="button" className="color-preview-age-confirm" onClick={onConfirm} disabled={!selectedAge}>예약 가능 차량 검색</button>
+        <button type="button" className={`color-preview-age-confirm ${selectedAge ? 'is-flow-active' : ''}`} onClick={onConfirm} disabled={!selectedAge}>예약 가능 차량 검색</button>
       </div>
     </div>
   )
@@ -370,14 +370,14 @@ function ColorPreviewHero() {
         <div className="color-preview-action-column">
           <aside className="color-preview-search-card" aria-label="예약 가능 차량 검색">
             <button type="button" className="color-preview-cta color-preview-cta-top" onClick={goSearch}>예약 가능 차량 검색</button>
-            <label className="color-preview-field">
+            <label className={`color-preview-field ${!searchState.dongId ? 'is-flow-active' : ''}`}>
               <span>딜리버리 위치</span>
               <button type="button" className="color-preview-select-row" onClick={() => setIsLocationOpen(true)}>
                 <b>{searchState.deliveryAddress || '지역을 선택해 주세요'}</b><em>선택</em>
               </button>
               {searchError && <p className="color-preview-error-note">{searchError}</p>}
             </label>
-            <div className="color-preview-field color-preview-schedule-field" ref={scheduleRef}>
+            <div className={`color-preview-field color-preview-schedule-field ${searchState.dongId ? 'is-flow-active' : ''}`} ref={scheduleRef}>
               <span>대여 / 반납</span>
               <button type="button" className="color-preview-date-trigger" onClick={openDateModal}>
                 <div className="color-preview-date-grid color-preview-date-picker-grid">
