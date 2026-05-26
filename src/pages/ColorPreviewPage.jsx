@@ -214,13 +214,12 @@ function DriverAgeModal({ open, selectedAge, onSelectAge, onClose, onConfirm }) 
         </button>
         <div className="color-preview-age-modal-head">
           <strong>운전자 연령 선택</strong>
-          <p>예약 가능 차량 검색에 적용할 운전자 연령을 선택해 주세요.</p>
         </div>
         <div className="color-preview-age-modal-options">
           <button type="button" className={selectedAge === 26 ? 'is-active' : ''} onClick={() => onSelectAge(26)}>만 26세 이상</button>
           <button type="button" className={selectedAge === 21 ? 'is-active' : ''} onClick={() => onSelectAge(21)}>만 21세 이상</button>
         </div>
-        <button type="button" className="color-preview-age-confirm" onClick={onConfirm} disabled={!selectedAge}>확인하고 검색</button>
+        <button type="button" className="color-preview-age-confirm" onClick={onConfirm} disabled={!selectedAge}>예약 가능 차량 검색</button>
       </div>
     </div>
   )
