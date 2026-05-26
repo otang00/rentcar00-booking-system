@@ -1,6 +1,7 @@
 'use strict'
 
 const { calculateGroupPrice } = require('./calculateGroupPrice')
+const { roundFinalAppliedPrice } = require('./finalPriceRounding')
 
 function getDeliveryPrice({ search = {}, deliveryRegion = null } = {}) {
   return search.pickupOption === 'delivery'
@@ -37,7 +38,8 @@ function buildAppliedGroupPricing({ policy, searchWindow, search = {}, deliveryR
   })
 
   const basePrice = Number(computed?.price || 0)
-  const discountPrice = Number(computed?.discountPrice || 0)
+  const rawDiscountPrice = Number(computed?.discountPrice || 0)
+  const discountPrice = roundFinalAppliedPrice(rawDiscountPrice, computed?.durationBucket)
   const finalDeliveryPrice = Number(computed?.deliveryPrice || deliveryPrice || 0)
   const insurancePrice = 0
 

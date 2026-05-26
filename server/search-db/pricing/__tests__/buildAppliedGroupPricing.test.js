@@ -40,6 +40,36 @@ test('buildAppliedGroupPricing returns search and detail pricing from one policy
   assert.equal(applied.detailPricing.finalPrice, 76000)
 })
 
+test('buildAppliedGroupPricing rounds final applied rental to thousand unit for normal ranges', () => {
+  const applied = buildAppliedGroupPricing({
+    policy: createPolicy(),
+    search: { pickupOption: 'pickup' },
+    searchWindow: {
+      startAt: new Date('2026-04-13T01:00:00.000Z'),
+      endAt: new Date('2026-04-13T07:00:00.000Z'),
+    },
+  })
+
+  assert.equal(applied.discountPrice, 32000)
+  assert.equal(applied.detailPricing.rentalCost, 32000)
+  assert.equal(applied.detailPricing.finalPrice, 32000)
+})
+
+test('buildAppliedGroupPricing rounds final applied rental to ten-thousand unit for 15~30 day range', () => {
+  const applied = buildAppliedGroupPricing({
+    policy: createPolicy(),
+    search: { pickupOption: 'pickup' },
+    searchWindow: {
+      startAt: new Date('2026-04-13T01:00:00.000Z'),
+      endAt: new Date('2026-05-03T01:00:00.000Z'),
+    },
+  })
+
+  assert.equal(applied.discountPrice, 1620000)
+  assert.equal(applied.detailPricing.rentalCost, 1620000)
+  assert.equal(applied.detailPricing.finalPrice, 1620000)
+})
+
 test('buildAppliedGroupPricing returns zero rental when policy is missing', () => {
   const applied = buildAppliedGroupPricing({
     policy: null,

@@ -8,6 +8,9 @@ const {
 } = require('../../server/booking-core/guestBookingService')
 const { ensureBookingAvailability } = require('../../server/booking-core/bookingAvailabilityService')
 const { buildSearchWindow } = require('../../server/search-db/helpers/buildSearchWindow')
+const { fetchDeliveryRegions } = require('../../server/search-db/repositories/fetchDeliveryRegions')
+const { fetchPriceRules } = require('../../server/search-db/repositories/fetchPriceRules')
+const { buildAppliedGroupPricing } = require('../../server/search-db/pricing/buildAppliedGroupPricing')
 const { validateDetailSearch } = require('../../server/search/searchState')
 const { verifyDetailToken } = require('../../server/security/detailToken')
 const { validateGuestBookingCreateInput, validateDriverAgeRequirement, serializeBookingOrder } = require('../../server/booking-core/guestBookingUtils')
@@ -493,6 +496,51 @@ async function consumePhoneVerification({ supabaseClient, verificationId }) {
     .eq('id', verificationId)
 }
 
+async function calculateServerBookingPricing({ supabaseClient, car, search, searchWindow } = {}) {
+  const [deliveryRegions, priceRules] = await Promise.all([
+    search?.pickupOption === 'delivery' && search?.dongId != null
+      ? fetchDeliveryRegions({ supabaseClient, dongId: search.dongId })
+      : Promise.resolve([]),
+    fetchPriceRules({
+      supabaseClient,
+      carIds: [car?.id, car?.source_car_id].filter(Boolean),
+      sourceGroupIds: [car?.source_group_id].filter((value) => value != null),
+      searchWindow,
+    }),
+  ])
+
+  const priceRule = Array.isArray(priceRules) && priceRules.length > 0 ? priceRules[0] : null
+  if (!priceRule) {
+    const error = new Error('예약 가격 정책을 찾지 못했습니다. 다시 검색해 주세요.')
+    error.code = 'booking_price_policy_not_found'
+    throw error
+  }
+
+  const deliveryRegion = Array.isArray(deliveryRegions) && deliveryRegions.length > 0 ? deliveryRegions[0] : null
+  const appliedPricing = buildAppliedGroupPricing({
+    policy: priceRule,
+    searchWindow,
+    search,
+    deliveryRegion,
+  })
+
+  const detailPricing = appliedPricing.detailPricing || {}
+  const finalAmount = Math.round(Number(detailPricing.finalPrice || 0))
+  if (!Number.isFinite(finalAmount) || finalAmount <= 0) {
+    const error = new Error('결제 금액을 계산하지 못했습니다. 다시 검색해 주세요.')
+    error.code = 'invalid_server_booking_amount'
+    throw error
+  }
+
+  return {
+    quotedTotalAmount: finalAmount,
+    rentalAmount: Math.round(Number(detailPricing.rentalCost || 0)),
+    insuranceAmount: Math.round(Number(detailPricing.insurancePrice || 0)),
+    deliveryAmount: Math.round(Number(appliedPricing.deliveryPrice || 0)),
+    finalAmount,
+  }
+}
+
 async function handlePaymentApproval({ supabaseClient, sessionToken, encData, encInfo, req }) {
   const tokenValidation = verifyPaymentSessionToken({ token: sessionToken })
   if (!tokenValidation.isValid) {
@@ -775,13 +823,13 @@ async function handlePrepare(req, res) {
       })
     }
 
-    const amount = Math.round(Number(validation.normalized.finalAmount || validation.normalized.quotedTotalAmount || 0))
-    if (!Number.isFinite(amount) || amount <= 0) {
-      return res.status(400).json({
-        error: 'invalid_payment_amount',
-        message: '결제 금액을 확인해 주세요.',
-      })
-    }
+    const serverPricing = await calculateServerBookingPricing({
+      supabaseClient,
+      car,
+      search: detailSearchValidation.normalized,
+      searchWindow,
+    })
+    const amount = serverPricing.finalAmount
 
     const orderId = `KCP-${Date.now()}-${Math.floor(Math.random() * 900000) + 100000}`
     const sessionToken = createPaymentSessionToken({
@@ -793,6 +841,7 @@ async function handlePrepare(req, res) {
         verificationId: reservationVerification?.verification?.id || null,
         bookingInput: {
           ...validation.normalized,
+          ...serverPricing,
           driverAge: payload.driverAge ?? null,
           order: payload.order ?? null,
           dongId: payload.dongId ?? null,
