@@ -1712,3 +1712,157 @@
     display:none;
   }
 }
+
+/* Color preview route only: navy/blue theme without production landing structure changes */
+.color-preview-shell{
+  --bg:#f5f7fb;
+  --surface:#ffffff;
+  --text:#101827;
+  --muted:#526173;
+  --border:#dbe3ef;
+  --primary:#168fd0;
+  --primary-strong:#0f78b2;
+  --primary-soft:#eaf6fc;
+  --band:#eaf6fc;
+  --color-bg-base:#f5f7fb;
+  --color-surface-base:#ffffff;
+  --color-text-base:#101827;
+  --color-text-muted:#526173;
+  --color-border-base:#dbe3ef;
+  --color-cta-bg:#168fd0;
+  --color-cta-bg-hover:#0f78b2;
+  --color-cta-text:#ffffff;
+  --color-soft-bg:#eaf6fc;
+  --color-soft-bg-hover:#d7eef9;
+  --color-soft-text:#0f78b2;
+  background:#f5f7fb;
+}
+
+.color-preview-shell .app-header{
+  background:rgba(255,255,255,.96);
+  border-bottom-color:#dbe3ef;
+}
+
+.color-preview-shell .app-header__button{
+  background:#101827;
+  border-color:#101827;
+  color:#fff;
+}
+
+.color-preview-shell .app-header__button.is-soft{
+  background:#eaf6fc;
+  border-color:#eaf6fc;
+  color:#0f78b2;
+}
+
+.color-preview-shell .landing-page{
+  background:#f5f7fb;
+}
+
+.color-preview-shell .landing-banner-shell{
+  background:#101827;
+}
+
+.color-preview-shell .landing-banner-track{
+  background:linear-gradient(135deg,#101827,#16243a 58%,#10324c);
+}
+
+.color-preview-shell .landing-banner-slide picture{
+  background:transparent;
+}
+
+.color-preview-shell .landing-banner-image{
+  filter:saturate(.95) contrast(1.03);
+}
+
+.color-preview-shell .landing-banner-dots button{
+  background:rgba(255,255,255,.38);
+}
+
+.color-preview-shell .landing-banner-dots button.is-active{
+  background:#168fd0;
+}
+
+.color-preview-shell .search-box,
+.color-preview-shell .search-panel-card,
+.color-preview-shell .landing-contact-card,
+.color-preview-shell .car-card,
+.color-preview-shell .sort-bar,
+.color-preview-shell .detail-card,
+.color-preview-shell .panel,
+.color-preview-shell .panel-sub,
+.color-preview-shell .panel-info,
+.color-preview-shell .panel-form{
+  border-color:#dbe3ef;
+  box-shadow:0 14px 34px rgba(16,24,39,.08);
+}
+
+.color-preview-shell .search-panel-title,
+.color-preview-shell .search-panel-icon,
+.color-preview-shell .landing-contact-card strong,
+.color-preview-shell .detail-card h2{
+  color:#101827;
+}
+
+.color-preview-shell .delivery-readonly-box,
+.color-preview-shell .schedule-card,
+.color-preview-shell .pickup-location-readonly-box,
+.color-preview-shell .detail-info-cell,
+.color-preview-shell .detail-search-section,
+.color-preview-shell .btn-select,
+.color-preview-shell .info-grid>div{
+  background:#fbfdff;
+  border-color:#dbe3ef;
+}
+
+.color-preview-shell .btn-dark,
+.color-preview-shell .btn-select.is-active,
+.color-preview-shell .btn-tab.is-active,
+.color-preview-shell .delivery-option-button.is-active,
+.color-preview-shell .delivery-fee-card.is-active,
+.color-preview-shell .delivery-region-button.is-active,
+.color-preview-shell .delivery-region-card.is-active{
+  background:#168fd0;
+  border-color:#168fd0;
+  color:#fff;
+}
+
+.color-preview-shell .btn-dark:hover{
+  background:#0f78b2;
+  border-color:#0f78b2;
+}
+
+.color-preview-shell .btn-soft,
+.color-preview-shell .btn-tab,
+.color-preview-shell .mini-tags span,
+.color-preview-shell .meta-row span{
+  background:#eaf6fc;
+  color:#0f78b2;
+}
+
+.color-preview-shell .field-label,
+.color-preview-shell .search-panel-summary,
+.color-preview-shell .landing-section-copy p,
+.color-preview-shell .landing-contact-card p,
+.color-preview-shell .inline-meta,
+.color-preview-shell .feature-line{
+  color:#526173;
+}
+
+.color-preview-shell .footer{
+  background:#101827;
+  border-top-color:#1f2a3d;
+  color:#dbeafe;
+}
+
+.color-preview-shell .footer a,
+.color-preview-shell .footer strong,
+.color-preview-shell .footer-phone{
+  color:#fff !important;
+}
+
+.color-preview-shell .footer p,
+.color-preview-shell .footer span,
+.color-preview-shell .footer div{
+  color:#dbeafe;
+}
