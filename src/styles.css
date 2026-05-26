@@ -2596,3 +2596,53 @@
     transform-origin:right bottom;
   }
 }
+
+/* Color preview hero photo as subtle full background */
+.color-preview-mockup-shell .color-preview-hero-grid{
+  z-index:2;
+}
+
+.color-preview-mockup-shell .color-preview-car-photo{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border-radius:0;
+  opacity:.26;
+  box-shadow:none;
+  transform:none;
+  z-index:0;
+}
+
+.color-preview-mockup-shell .color-preview-car-photo:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:linear-gradient(90deg,rgba(16,24,39,.94) 0%,rgba(16,24,39,.76) 44%,rgba(16,24,39,.42) 100%);
+  pointer-events:none;
+}
+
+.color-preview-mockup-shell .color-preview-car-photo:after{
+  background:radial-gradient(circle at 72% 28%,rgba(22,143,208,.34),transparent 34%);
+  z-index:2;
+}
+
+.color-preview-mockup-shell .color-preview-car-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  filter:grayscale(1) contrast(1.12) brightness(.82);
+  transform:scale(1.02);
+}
+
+@media(max-width:960px){
+  .color-preview-mockup-shell .color-preview-car-photo{
+    inset:0;
+    width:100%;
+    height:100%;
+    opacity:.22;
+    transform:none;
+  }
+}
