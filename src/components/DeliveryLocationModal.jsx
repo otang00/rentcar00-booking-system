@@ -216,7 +216,7 @@ export default function DeliveryLocationModal({
             <p><b>선택 위치:</b> {selectedLocationLabel || '아직 선택되지 않았습니다.'}</p>
           </div>
           <div className="delivery-modal-actions delivery-desktop-actions">
-            <button className="btn btn-dark btn-md" type="button" onClick={handleConfirm} disabled={!canConfirm}>선택 완료</button>
+            <button className={`btn btn-dark btn-md ${canConfirm ? 'is-flow-active' : ''}`} type="button" onClick={handleConfirm} disabled={!canConfirm}>선택 완료</button>
             <button className="btn btn-outline btn-md delivery-modal-close" type="button" onClick={onClose}>닫기</button>
           </div>
         </div>
@@ -334,7 +334,7 @@ export default function DeliveryLocationModal({
 
           <div className="delivery-mobile-actions">
             <button className="btn btn-outline btn-md" type="button" onClick={onClose}>닫기</button>
-            <button className="btn btn-dark btn-md" type="button" onClick={handleConfirm} disabled={!canConfirm}>선택 완료</button>
+            <button className={`btn btn-dark btn-md ${canConfirm ? 'is-flow-active' : ''}`} type="button" onClick={handleConfirm} disabled={!canConfirm}>선택 완료</button>
           </div>
         </div>
       </div>

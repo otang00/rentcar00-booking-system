@@ -97,6 +97,8 @@ function DateRangeModal({
   onPrevMonth,
   onNextMonth,
   onDateClick,
+  onTouchStart,
+  onTouchEnd,
   onPickupTimeChange,
   onReturnTimeChange,
   onConfirm,
@@ -114,7 +116,7 @@ function DateRangeModal({
 
   return (
     <div className="color-preview-modal-backdrop" onClick={onClose}>
-      <div className="color-preview-date-modal" onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label="대여 반납 날짜 선택">
+      <div className="color-preview-date-modal" onClick={(event) => event.stopPropagation()} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} role="dialog" aria-modal="true" aria-label="대여 반납 날짜 선택">
         <div className="color-preview-date-modal-head color-preview-date-modal-head-v4">
           <div className="color-preview-date-title-cluster">
             <button type="button" className="color-preview-date-nav" onClick={onPrevMonth} disabled={isPrevDisabled} aria-label="이전 달"><ChevronIcon direction="left" /></button>
@@ -153,7 +155,7 @@ function DateRangeModal({
                       <button
                         key={dateKey}
                         type="button"
-                        className={`color-preview-calendar-day ${isPickup ? 'is-pickup' : ''} ${isReturn ? 'is-return' : ''} ${isInRange ? 'is-in-range' : ''}`}
+                        className={`color-preview-calendar-day ${isPickup ? 'is-pickup' : ''} ${isReturn ? 'is-return' : ''} ${isInRange ? 'is-in-range' : ''} ${isWaitingReturn && !isDisabled ? 'is-flow-active' : ''} ${!pickupDate && !isDisabled ? 'is-flow-active' : ''}`}
                         disabled={isDisabled}
                         onClick={() => onDateClick(dateKey)}
                       >
@@ -215,7 +217,7 @@ function DriverAgeModal({ open, selectedAge, onSelectAge, onClose, onConfirm }) 
         <div className="color-preview-age-modal-head">
           <strong>운전자 연령 선택</strong>
         </div>
-        <div className="color-preview-age-modal-options is-flow-active">
+        <div className="color-preview-age-modal-options">
           <button type="button" className={selectedAge === 26 ? 'is-active' : ''} onClick={() => onSelectAge(26)}>만 26세 이상</button>
           <button type="button" className={selectedAge === 21 ? 'is-active' : ''} onClick={() => onSelectAge(21)}>만 21세 이상</button>
         </div>
@@ -235,6 +237,7 @@ function ColorPreviewHero() {
   const [isAgeModalOpen, setIsAgeModalOpen] = useState(false)
   const [pendingSearchState, setPendingSearchState] = useState(null)
   const [draftDriverAge, setDraftDriverAge] = useState(26)
+  const [dateModalTouchStartX, setDateModalTouchStartX] = useState(null)
   const [searchError, setSearchError] = useState('')
   const [monthCursor, setMonthCursor] = useState(() => startOfMonth(getEarliestPickupDateTime()))
   const [draftPickupDate, setDraftPickupDate] = useState('')
@@ -342,6 +345,29 @@ function ColorPreviewHero() {
     navigate(`/?${buildSearchQuery(finalState)}`)
   }
 
+  const handleDateModalTouchEnd = (event) => {
+    if (dateModalTouchStartX == null) return
+
+    const touchEndX = event.changedTouches?.[0]?.clientX
+    if (typeof touchEndX !== 'number') return
+
+    const deltaX = touchEndX - dateModalTouchStartX
+    setDateModalTouchStartX(null)
+
+    if (Math.abs(deltaX) < 48) return
+
+    const minMonth = startOfMonth(parseDateTimeString(`${earliestPickupDateKey} 00:00`) || monthCursor)
+    const maxMonth = startOfMonth(parseDateTimeString(`${latestPickupDateKey} 00:00`) || monthCursor)
+
+    if (deltaX < 0 && monthCursor < maxMonth) {
+      setMonthCursor((current) => addMonths(current, 1))
+    }
+
+    if (deltaX > 0 && monthCursor > minMonth) {
+      setMonthCursor((current) => addMonths(current, -1))
+    }
+  }
+
   const goSearch = () => {
     if (!searchState.dongId) {
       setSearchError('딜리버리 위치를 먼저 선택해 주세요.')
@@ -415,6 +441,8 @@ function ColorPreviewHero() {
         onPrevMonth={() => setMonthCursor((current) => addMonths(current, -1))}
         onNextMonth={() => setMonthCursor((current) => addMonths(current, 1))}
         onDateClick={handleCalendarDateClick}
+        onTouchStart={(event) => setDateModalTouchStartX(event.touches?.[0]?.clientX ?? null)}
+        onTouchEnd={handleDateModalTouchEnd}
         onPickupTimeChange={setDraftPickupTime}
         onReturnTimeChange={setDraftReturnTime}
         onConfirm={confirmDateRange}

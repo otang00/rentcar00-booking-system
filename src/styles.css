@@ -4168,3 +4168,24 @@
     animation:none;
   }
 }
+
+/* Guided flow refinements */
+.delivery-modal-actions .is-flow-active,
+.delivery-mobile-actions .is-flow-active,
+.color-preview-calendar-day.is-flow-active:not(:disabled){
+  animation:color-preview-flow-pulse 1.35s ease-in-out infinite;
+}
+
+.color-preview-calendar-day.is-flow-active:not(:disabled){
+  border-color:#cbd5e1;
+  background:#f8fafc;
+}
+
+.color-preview-calendar-day.is-flow-active:not(:disabled):hover{
+  background:#eaf6fc;
+  border-color:#168fd0;
+}
+
+.color-preview-age-modal-options.is-flow-active{
+  animation:none;
+}
