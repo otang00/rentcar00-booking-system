@@ -111,3 +111,21 @@ export function saveDeliveryRegionsBulk(session, payload) {
   })
 }
 
+export function listVehicleOps(session, params = {}) {
+  return request(session, {
+    method: 'GET',
+    action: 'list-vehicle-ops',
+    params,
+    fallbackMessage: '차량 운영 목록을 불러오지 못했습니다.',
+  })
+}
+
+export function saveVehicleOps(session, payload) {
+  return request(session, {
+    method: 'POST',
+    action: 'save-vehicle-ops',
+    body: payload,
+    fallbackMessage: '차량 운영 상태 저장에 실패했습니다.',
+  })
+}
+

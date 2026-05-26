@@ -685,6 +685,92 @@ async function handleSaveDeliveryRegionsBulk(req, res, supabaseClient) {
   })
 }
 
+function serializeVehicleOps(row = {}) {
+  return {
+    id: row.id,
+    sourceCarId: row.source_car_id || null,
+    sourceGroupId: row.source_group_id || null,
+    carNumber: row.car_number || '',
+    carName: row.display_name || row.name || '',
+    name: row.name || '',
+    active: row.active !== false,
+    imsCanGeneralRental: row.ims_can_general_rental !== false,
+    homepageRentalEnabled: row.homepage_rental_enabled !== false,
+    homepageLongRentalEnabled: row.homepage_long_rental_enabled !== false,
+    updatedAt: row.updated_at || null,
+  }
+}
+
+async function handleListVehicleOps(req, res, supabaseClient) {
+  const q = normalizeText(req.query?.q).toLowerCase()
+  const activeFilter = normalizeText(req.query?.active).toLowerCase()
+
+  let query = supabaseClient
+    .from('cars')
+    .select('id, source_car_id, source_group_id, car_number, name, display_name, active, ims_can_general_rental, homepage_rental_enabled, homepage_long_rental_enabled, updated_at')
+    .order('car_number', { ascending: true })
+    .limit(500)
+
+  if (activeFilter === 'true' || activeFilter === 'active') {
+    query = query.eq('homepage_rental_enabled', true)
+  } else if (activeFilter === 'false' || activeFilter === 'inactive') {
+    query = query.eq('homepage_rental_enabled', false)
+  }
+
+  const { data, error } = await query
+  if (error) {
+    return res.status(500).json({ error: 'vehicle_ops_list_failed', message: error.message })
+  }
+
+  const rows = Array.isArray(data) ? data : []
+  const filteredRows = q
+    ? rows.filter((row) => [
+        row.source_car_id,
+        row.source_group_id,
+        row.car_number,
+        row.display_name,
+        row.name,
+      ].some((value) => String(value || '').toLowerCase().includes(q)))
+    : rows
+
+  return res.status(200).json({
+    items: filteredRows.map(serializeVehicleOps),
+    totalCount: filteredRows.length,
+  })
+}
+
+async function handleSaveVehicleOps(req, res, supabaseClient) {
+  const body = await parseJsonBody(req)
+  const id = normalizeText(body.id)
+  const sourceCarId = body.sourceCarId != null && body.sourceCarId !== '' ? Number(body.sourceCarId) : null
+
+  if (!id && (!Number.isInteger(sourceCarId) || sourceCarId <= 0)) {
+    return res.status(400).json({ error: 'invalid_vehicle_ops_target', message: 'id 또는 sourceCarId 가 필요합니다.' })
+  }
+
+  const payload = {
+    homepage_rental_enabled: body.homepageRentalEnabled !== false,
+    homepage_long_rental_enabled: body.homepageLongRentalEnabled !== false,
+    updated_at: new Date().toISOString(),
+  }
+
+  let query = supabaseClient
+    .from('cars')
+    .update(payload)
+
+  query = id ? query.eq('id', id) : query.eq('source_car_id', sourceCarId)
+
+  const { data, error } = await query
+    .select('id, source_car_id, source_group_id, car_number, name, display_name, active, ims_can_general_rental, homepage_rental_enabled, homepage_long_rental_enabled, updated_at')
+    .single()
+
+  if (error) {
+    return res.status(500).json({ error: 'vehicle_ops_save_failed', message: error.message })
+  }
+
+  return res.status(200).json({ item: serializeVehicleOps(data) })
+}
+
 async function handleSaveGroupSetting(req, res, supabaseClient, authUser) {
   const body = await parseJsonBody(req)
   const id = normalizeText(body.id || body.pricePolicyGroupId)
@@ -983,6 +1069,10 @@ module.exports = async function handler(req, res) {
       return handleListDeliveryRegions(req, res, supabaseClient)
     }
 
+    if (req.method === 'GET' && action === 'list-vehicle-ops') {
+      return handleListVehicleOps(req, res, supabaseClient)
+    }
+
     if (req.method === 'POST' && action === 'save-period') {
       return handleSavePeriod(req, res, supabaseClient)
     }
@@ -1005,6 +1095,10 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'POST' && action === 'save-delivery-regions-bulk') {
       return handleSaveDeliveryRegionsBulk(req, res, supabaseClient)
+    }
+
+    if (req.method === 'POST' && action === 'save-vehicle-ops') {
+      return handleSaveVehicleOps(req, res, supabaseClient)
     }
 
     return res.status(404).json({ error: 'not_found' })
