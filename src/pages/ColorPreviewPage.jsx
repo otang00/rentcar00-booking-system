@@ -59,32 +59,6 @@ function ColorPreviewHero() {
   )
 }
 
-function ColorPreviewInfo() {
-  return (
-    <section className="color-preview-info">
-      <div className="container color-preview-info-grid">
-        <article className="color-preview-panel">
-          <h2>컬러 재배치</h2>
-          <div className="color-preview-palette">
-            <div className="is-navy"><b>Navy</b><span>신뢰</span></div>
-            <div className="is-blue"><b>Blue</b><span>CTA</span></div>
-            <div className="is-sky"><b>Sky</b><span>보조</span></div>
-            <div className="is-yellow"><b>Yellow</b><span>강조</span></div>
-            <div className="is-white"><b>White</b><span>카드</span></div>
-          </div>
-        </article>
-
-        <article className="color-preview-panel">
-          <h2>히어로 핵심</h2>
-          <div className="color-preview-notes">
-            <div><strong>검색카드 전면 배치</strong><span>예약 서비스는 히어로에서 바로 검색하게 하는 게 전환에 유리합니다.</span></div>
-            <div><strong>슬라이드 배너 축소</strong><span>여러 장 배너보다 한 메시지 + 검색 진입이 더 명확합니다.</span></div>
-          </div>
-        </article>
-      </div>
-    </section>
-  )
-}
 
 export default function ColorPreviewPage() {
   return (
@@ -92,7 +66,6 @@ export default function ColorPreviewPage() {
       <Header brandName="빵빵카 주식회사" showGuestBookingAction />
       <main className="landing-page">
         <ColorPreviewHero />
-        <ColorPreviewInfo />
         <ContactInfoStrip items={landingContactItems} />
       </main>
       <Footer />
