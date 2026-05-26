@@ -13,12 +13,12 @@ function ColorPreviewHero() {
         <div className="color-preview-copy">
           <span className="color-preview-eyebrow">서울·수도권 딜리버리 렌터카</span>
           <h1>원하는 위치에서<br />바로 받는 렌터카</h1>
-          <p>지역과 시간을 먼저 선택하면 예약 가능한 차량만 보여드립니다. 복잡한 상담 전에 실제 가능 차량과 최종가를 먼저 확인하세요.</p>
+          <p>지역과 시간을 먼저 선택하면 예약 가능한 차량만 보여드립니다. 복잡한 상담 없이 간편 결제하고 예약하세요.</p>
 
           <div className="color-preview-trust">
-            <div><strong>실시간 가능차량</strong><span>예약 중복 차량 제외</span></div>
-            <div><strong>딜리버리 대응</strong><span>서울·수도권 중심</span></div>
-            <div><strong>최종가 표시</strong><span>검색 기준 금액 노출</span></div>
+            <div><strong>실시간 가능 차량 예약</strong><span>예약 가능한 차량만 확인</span></div>
+            <div><strong>딜리버리 대응</strong><span>서울·수도권 전지역 딜리버리</span></div>
+            <div><strong>최종가 표시</strong><span>금액으로 결제후 즉시 예약</span></div>
           </div>
         </div>
 
