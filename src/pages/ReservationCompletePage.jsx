@@ -83,7 +83,7 @@ export default function ReservationCompletePage() {
     <PageShell className="color-preview-shell color-preview-mockup-shell account-shell reservation-flow-shell">
       <section className="section-bg account-page-shell">
         <div className="container signup-page-container reservation-flow-container">
-          <article className="reservation-flow-card">
+          <article className="reservation-flow-card reservation-complete-card">
             <div className="login-title-block signup-title-block"><h1>{reservation ? '예약 확정' : paymentError ? '결제 실패' : '예약 확정'}</h1><span>{isDemo ? '화면 확인용 샘플' : reservation ? '예약 완료' : loadError || '확인 필요'}</span></div>
 
             {reservation ? (

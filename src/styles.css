@@ -6910,3 +6910,67 @@
 .sort-buttons{
   justify-content:flex-end;
 }
+
+
+/* Reservation complete screen only: larger readable text */
+.reservation-complete-card .login-title-block h1{
+  font-size:32px;
+  line-height:1.18;
+}
+
+.reservation-complete-card .login-title-block span{
+  font-size:16px;
+}
+
+.reservation-complete-card .reservation-result-card__eyebrow{
+  font-size:14px;
+}
+
+.reservation-complete-card .reservation-result-card__title{
+  font-size:22px;
+  line-height:1.25;
+}
+
+.reservation-complete-card .reservation-result-card__status{
+  min-height:34px;
+  padding:0 12px;
+  font-size:14px;
+}
+
+.reservation-complete-card .reservation-result-card__price span{
+  font-size:15px;
+}
+
+.reservation-complete-card .reservation-result-card__price strong{
+  font-size:30px;
+}
+
+.reservation-complete-card .reservation-result-row{
+  min-height:54px;
+}
+
+.reservation-complete-card .reservation-result-row span{
+  font-size:15px;
+}
+
+.reservation-complete-card .reservation-result-row strong{
+  font-size:17px;
+}
+
+.reservation-complete-card .signup-bottom-links a{
+  font-size:15px;
+}
+
+@media(max-width:760px){
+  .reservation-complete-card .login-title-block h1{
+    font-size:29px;
+  }
+
+  .reservation-complete-card .reservation-result-card__title{
+    font-size:20px;
+  }
+
+  .reservation-complete-card .reservation-result-card__price strong{
+    font-size:28px;
+  }
+}
