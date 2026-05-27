@@ -5262,3 +5262,67 @@
     font-size:20px;
   }
 }
+
+/* Login page correction: keep global header/footer and use brand logo */
+.login-page-shell .app-header__nav,
+.login-page-shell .footer{
+  display:initial;
+}
+
+.login-page-shell .app-header{
+  position:sticky;
+  background:#fffffff7;
+  border-bottom:1px solid #e7eef5;
+  box-shadow:0 10px 30px rgba(16,24,39,.04);
+}
+
+.login-page-shell .app-header__inner{
+  min-height:86px;
+  justify-content:space-between;
+}
+
+.login-page-shell .app-header__brand{
+  justify-content:flex-start;
+}
+
+.login-page-shell .app-header__wordmark{
+  display:block;
+}
+
+.login-page-shell .footer{
+  display:block;
+}
+
+.login-page-section{
+  min-height:auto;
+  padding:36px 0 64px;
+}
+
+.login-brand-mark{
+  width:min(220px,62vw);
+  margin-top:10px;
+  display:flex;
+  justify-content:center;
+  filter:hue-rotate(170deg) saturate(1.15) brightness(1.05);
+}
+
+.login-brand-mark img{
+  width:100%;
+  height:auto;
+  object-fit:contain;
+}
+
+@media(max-width:760px){
+  .login-page-shell .app-header__inner{
+    min-height:72px;
+  }
+
+  .login-page-section{
+    padding:24px 0 48px;
+  }
+
+  .login-brand-mark{
+    width:min(190px,58vw);
+    margin-top:6px;
+  }
+}
