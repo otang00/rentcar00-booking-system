@@ -1,1 +1,258 @@
 /* Search page styles will be moved here in later phases. */
+
+/* Search page renewal */
+.search-page-shell{
+  background:#f4f8fb;
+}
+
+.search-page-main{
+  padding-top:18px;
+}
+
+.search-results-page{
+  padding:0 0 20px;
+}
+
+.search-results-stack{
+  gap:14px;
+  padding-top:0;
+}
+
+.search-summary-panel{
+  padding:18px;
+  border-radius:24px;
+  background:#fff;
+  box-shadow:0 16px 36px rgba(16,24,39,.07);
+}
+
+.search-summary-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:14px;
+}
+
+.search-summary-head span,
+.search-list-head span{
+  display:block;
+  color:#168fd0;
+  font-size:13px;
+  font-weight:1000;
+  letter-spacing:-.02em;
+}
+
+.search-summary-head strong{
+  display:block;
+  margin-top:3px;
+  color:#101827;
+  font-size:26px;
+  line-height:1.12;
+  font-weight:1000;
+  letter-spacing:-.06em;
+}
+
+.search-summary-grid{
+  display:grid;
+  grid-template-columns:1.25fr repeat(3,1fr);
+  gap:10px;
+}
+
+.search-summary-grid>div{
+  min-width:0;
+  border:1px solid #dbe7f0;
+  border-radius:16px;
+  background:#fbfdff;
+  padding:12px 13px;
+}
+
+.search-summary-grid span{
+  display:block;
+  color:#526173;
+  font-size:12px;
+  font-weight:900;
+  margin-bottom:5px;
+}
+
+.search-summary-grid strong{
+  display:block;
+  overflow:hidden;
+  color:#101827;
+  font-size:15px;
+  line-height:1.25;
+  font-weight:950;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.search-sort-row{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:0 0 2px;
+}
+
+.search-sort-row .btn{
+  min-height:38px;
+  padding:0 16px;
+  border-radius:999px;
+  font-size:13px;
+  white-space:nowrap;
+}
+
+.search-car-list{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  width:70%;
+  margin:0 auto;
+}
+
+.search-car-card{
+  display:grid;
+  grid-template-columns:180px minmax(0,1fr);
+  min-height:112px;
+  border-radius:20px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 12px 28px rgba(16,24,39,.06);
+  transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.search-car-card:hover{
+  transform:translateY(-2px);
+  border-color:#c6d8e6;
+  box-shadow:0 18px 36px rgba(16,24,39,.09);
+}
+
+.search-car-thumb{
+  padding:10px;
+  background:linear-gradient(180deg,#ffffff,#f5f9fc);
+}
+
+.search-car-thumb img{
+  width:100%;
+  height:100%;
+  max-height:92px;
+  object-fit:contain;
+}
+
+.search-car-body{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-width:0;
+  padding:12px 18px 11px 0;
+}
+
+.search-car-title-row h3{
+  margin:0;
+  color:#101827;
+  font-size:17px;
+  line-height:1.18;
+  font-weight:1000;
+  letter-spacing:-.045em;
+}
+
+.search-car-price{
+  flex:0 0 auto;
+  align-items:flex-end;
+  text-align:right;
+  margin-top:auto;
+}
+
+.search-car-price strong{
+  display:block;
+  color:#101827;
+  font-size:24px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.055em;
+}
+
+.search-car-specs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+
+.search-car-specs span{
+  border-radius:999px;
+  background:#eaf3f8;
+  color:#18384f;
+  padding:4px 7px;
+  font-size:11.5px;
+  line-height:1;
+  font-weight:900;
+}
+
+.search-state-card{
+  border-radius:22px;
+}
+
+.color-preview-shell .color-preview-cta.is-flow-active{
+  animation:color-preview-flow-pulse 1.35s ease-in-out infinite;
+}
+
+@media(max-width:860px){
+  .search-summary-head{
+    align-items:stretch;
+    flex-direction:column;
+  }
+
+  .search-summary-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .search-car-list{
+    width:100%;
+    margin:0;
+  }
+
+}
+
+@media(max-width:520px){
+  .search-page-main{
+    padding-top:10px;
+  }
+
+  .search-summary-panel{
+    padding:15px;
+    border-radius:22px;
+  }
+
+  .search-summary-head strong{
+    font-size:23px;
+  }
+
+  .search-summary-grid{
+    grid-template-columns:1fr;
+  }
+
+  .search-sort-row{
+    justify-content:flex-start;
+    gap:8px;
+  }
+
+  .search-car-card{
+    grid-template-columns:104px minmax(0,1fr);
+    min-height:102px;
+  }
+
+  .search-car-body{
+    padding:10px 13px 9px 0;
+  }
+
+  .search-car-thumb img{
+    max-height:84px;
+  }
+
+  .search-car-title-row h3{
+    font-size:16px;
+  }
+
+  .search-car-price strong{
+    font-size:23px;
+  }
+}
