@@ -408,14 +408,13 @@ export default function SignupPage() {
 
           <form className="signup-page-form" onSubmit={handleSubmit}>
               <div className="signup-section-stack">
-                <section className="auth-main-card signup-flow-card">
-                  <SectionTitle title="기본정보" />
+                <section className="signup-login-input-card">
 
                   <div className="field-group">
-                    <label className="field-label" htmlFor="signup-name">이름</label>
+                    <label className="login-input-label" htmlFor="signup-name">이름</label>
                     <input
                       id="signup-name"
-                      className="field-input"
+                      className="login-line-input"
                       type="text"
                       placeholder="홍길동"
                       value={name}
@@ -427,10 +426,10 @@ export default function SignupPage() {
                   </div>
 
                   <div className="field-group">
-                    <label className="field-label" htmlFor="signup-birth-date">생년월일</label>
+                    <label className="login-input-label" htmlFor="signup-birth-date">생년월일</label>
                     <input
                       id="signup-birth-date"
-                      className="field-input"
+                      className="login-line-input"
                       type="text"
                       inputMode="numeric"
                       placeholder="19900101"
@@ -443,10 +442,10 @@ export default function SignupPage() {
                   </div>
 
                   <div className="field-group">
-                    <label className="field-label" htmlFor="signup-email">이메일 (선택)</label>
+                    <label className="login-input-label" htmlFor="signup-email">이메일 (선택)</label>
                     <input
                       id="signup-email"
-                      className="field-input"
+                      className="login-line-input"
                       type="email"
                       autoComplete="email"
                       placeholder="example@email.com"
@@ -454,7 +453,6 @@ export default function SignupPage() {
                       onChange={(event) => setEmail(event.target.value)}
                       disabled={submitting}
                     />
-                    <FieldNote>예약 안내나 추가 연락이 필요할 때 사용할 수 있습니다.</FieldNote>
                   </div>
                 </section>
 

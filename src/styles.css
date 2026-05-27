@@ -5587,3 +5587,76 @@
     grid-template-columns:1fr;
   }
 }
+
+/* Header/account alignment and signup first card as login input stack */
+.account-shell .app-header,
+.login-page-shell .app-header{
+  position:sticky;
+  background:#fffffff7;
+  border-bottom:1px solid #e7eef5;
+  box-shadow:0 10px 30px rgba(16,24,39,.04);
+}
+
+.account-shell .app-header__inner,
+.login-page-shell .app-header__inner{
+  min-height:86px;
+  justify-content:space-between;
+}
+
+.account-shell .app-header__brand,
+.login-page-shell .app-header__brand{
+  justify-content:flex-start;
+}
+
+.account-shell .app-header__wordmark,
+.login-page-shell .app-header__wordmark{
+  display:block;
+}
+
+.account-shell .signup-page-container,
+.login-page-container{
+  width:min(100%,420px);
+}
+
+.signup-login-input-card{
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+  box-shadow:none;
+}
+
+.signup-login-input-card .field-group{
+  display:grid;
+  gap:8px;
+  padding:12px 16px;
+}
+
+.signup-login-input-card .field-group + .field-group{
+  border-top:1px solid #e7eef4;
+}
+
+.signup-login-input-card .login-line-input{
+  font-size:20px;
+  line-height:1.2;
+}
+
+@media(max-width:760px){
+  .account-shell .app-header__inner,
+  .login-page-shell .app-header__inner{
+    min-height:72px;
+  }
+
+  .account-shell .signup-page-container,
+  .login-page-container{
+    width:calc(100% - 32px);
+  }
+
+  .signup-login-input-card .field-group{
+    padding:11px 15px;
+  }
+
+  .signup-login-input-card .login-line-input{
+    font-size:19px;
+  }
+}
