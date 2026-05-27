@@ -6761,3 +6761,26 @@
     grid-template-columns:1fr !important;
   }
 }
+
+/* Detail reservation address merged into reservation info card */
+.color-preview-shell .detail-reservation-grid .detail-address-row{
+  display:grid !important;
+  gap:7px !important;
+  align-content:center !important;
+}
+
+.color-preview-shell .detail-reservation-grid .detail-address-row .field-input{
+  min-height:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  color:#111827 !important;
+  font-size:20px !important;
+  line-height:1.2 !important;
+  box-shadow:none !important;
+}
+
+.color-preview-shell .detail-reservation-grid .detail-address-row .field-input:focus{
+  outline:0 !important;
+}

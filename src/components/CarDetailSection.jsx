@@ -879,22 +879,21 @@ export default function CarDetailSection() {
                   <div><span>대여</span><strong>{formatDisplay(fixedSearchInfo.deliveryDateTime)}</strong></div>
                   <div><span>반납</span><strong>{formatDisplay(fixedSearchInfo.returnDateTime)}</strong></div>
                   <div><span>배차 위치</span><strong>{reservationLocationText}</strong><small>{parsedSearchState.pickupOption === 'delivery' ? '검색에서 선택한 위치' : '회사 방문 수령'}</small></div>
+                  {parsedSearchState.pickupOption === 'delivery' && (
+                    <div className="reservation-detail-input-wrap detail-address-row">
+                      <span className="field-label">상세주소</span>
+                      <input
+                        className="field-input"
+                        placeholder="상세주소를 입력해 주세요."
+                        value={deliveryAddressDetail}
+                        onChange={(e) => handleDeliveryAddressDetailChange(e.target.value)}
+                      />
+                      {deliveryAddressDetailError && (
+                        <p className="field-note" style={ERROR_NOTE_STYLE}>{deliveryAddressDetailError}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
-                {parsedSearchState.pickupOption === 'delivery' && (
-                  <div className="reservation-detail-input-wrap detail-address-card">
-                    <span className="field-label">상세주소</span>
-                    <input
-                      className="field-input"
-                      placeholder="상세주소를 입력해 주세요."
-                      value={deliveryAddressDetail}
-                      onChange={(e) => handleDeliveryAddressDetailChange(e.target.value)}
-                    />
-                    {deliveryAddressDetailError && (
-                      <p className="field-note" style={ERROR_NOTE_STYLE}>{deliveryAddressDetailError}</p>
-                    )}
-                    <p className="muted small-note">배차를 위해 동, 호수, 건물명 등 상세주소를 입력해 주세요.</p>
-                  </div>
-                )}
               </article>
 
               <article className={`detail-card panel driver-info-card detail-driver-card guest-bookings-form ${isDriverFormLocked ? 'is-locked' : 'is-editing'}`}>
@@ -929,6 +928,18 @@ export default function CarDetailSection() {
                       <p className="field-note" style={ERROR_NOTE_STYLE}>{reservationValidation.errors.customerBirth}</p>
                     )}
                   </div>
+                  {isAuthenticated && isDriverFormLocked && (
+                    <div>
+                      <span className="field-label detail-input-label">전화번호</span>
+                      <input
+                        className="field-input driver-info-form__input"
+                        placeholder="예: 010-1234-5678"
+                        inputMode="tel"
+                        value={reservationForm.customerPhone}
+                        disabled
+                      />
+                    </div>
+                  )}
                 </div>
                 {!authLoading && !isDriverFormLocked && (
                   <div className="signup-flow-card guest-lookup-card detail-phone-auth-card">
