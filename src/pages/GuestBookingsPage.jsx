@@ -72,7 +72,7 @@ export default function GuestBookingsPage() {
   const [otpCode, setOtpCode] = useState('')
   const [verificationId, setVerificationId] = useState('')
   const [verificationToken, setVerificationToken] = useState('')
-  const [otpMessage, setOtpMessage] = useState('휴대폰 인증을 완료하면 진행 중인 비회원 예약을 확인할 수 있습니다.')
+  const [otpMessage, setOtpMessage] = useState('')
   const [otpExpiresAt, setOtpExpiresAt] = useState(null)
   const [otpCooldownUntil, setOtpCooldownUntil] = useState(null)
   const [results, setResults] = useState([])
@@ -376,9 +376,6 @@ export default function GuestBookingsPage() {
                   <div className="guest-status-row"><span>인증번호 유효시간</span><strong>{verificationId && otpSecondsLeft > 0 ? formatSeconds(otpSecondsLeft) : '-'}</strong></div>
                 </div>
 
-                <div className="account-action-row">
-                  <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
-                </div>
               </>
             )}
 
@@ -407,7 +404,6 @@ export default function GuestBookingsPage() {
           <div className="signup-bottom-links">
             <Link to="/login">로그인</Link>
             <Link to="/signup">회원가입</Link>
-            <Link to="/">메인으로</Link>
           </div>
         </div>
       </section>

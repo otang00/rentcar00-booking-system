@@ -865,7 +865,7 @@ export default function CarDetailSection() {
                     )}
                   </div>
                   <div className="detail-hero-price">
-                    <span>총 예상 금액</span>
+                    <span>총 결제 금액</span>
                     <strong>{pricing.finalPrice}</strong>
                   </div>
                 </div>
@@ -1010,7 +1010,7 @@ export default function CarDetailSection() {
                   <h2>결제 정보</h2>
                 </div>
                 <div className="price-lines">
-                  <div className="total"><span>총 예상 금액</span><strong>{pricing.finalPrice}</strong></div>
+                  <div className="total"><span>총 결제 금액</span><strong>{pricing.finalPrice}</strong></div>
                 </div>
                 {shouldShowReservationErrors && reservationSubmitMessages.length > 0 && (
                   <div className="legal-note" style={{ marginTop: 0, background: '#fff4f4', color: '#9f1239' }}>
@@ -1092,7 +1092,7 @@ export default function CarDetailSection() {
                 </div>
 
                 <div className="reservation-result-card__price">
-                  <span>총 예상 금액</span>
+                  <span>총 결제 금액</span>
                   <strong>{pricing.finalPrice}</strong>
                 </div>
 

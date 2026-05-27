@@ -5802,3 +5802,142 @@
     padding-right:15px;
   }
 }
+
+/* Detail form sections aligned to current login-style form tone */
+.color-preview-shell .detail-reservation-card,
+.color-preview-shell .detail-driver-card,
+.color-preview-shell .detail-terms-card,
+.color-preview-shell .detail-payment-card{
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  padding:0;
+}
+
+.color-preview-shell .detail-reservation-card .detail-section-head,
+.color-preview-shell .detail-driver-card .detail-section-head,
+.color-preview-shell .detail-terms-card .detail-section-head,
+.color-preview-shell .detail-payment-card .detail-section-head{
+  margin:0 0 10px;
+}
+
+.color-preview-shell .detail-reservation-card .detail-section-head h2,
+.color-preview-shell .detail-driver-card .detail-section-head h2,
+.color-preview-shell .detail-terms-card .detail-section-head h2,
+.color-preview-shell .detail-payment-card .detail-section-head h2{
+  font-size:20px;
+}
+
+.color-preview-shell .detail-reservation-grid,
+.color-preview-shell .detail-driver-form,
+.color-preview-shell .detail-otp-card,
+.color-preview-shell .detail-terms-card .terms-list,
+.color-preview-shell .detail-payment-card .price-lines{
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+  box-shadow:none;
+}
+
+.color-preview-shell .detail-reservation-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:0;
+}
+
+.color-preview-shell .detail-reservation-grid > div,
+.color-preview-shell .detail-driver-form > div,
+.color-preview-shell .detail-otp-card > div,
+.color-preview-shell .detail-otp-card > p,
+.color-preview-shell .detail-terms-card .terms-list > label,
+.color-preview-shell .detail-terms-card .terms-list > div,
+.color-preview-shell .detail-payment-card .price-lines > div{
+  margin:0;
+  padding:12px 16px;
+  border-radius:0;
+  border:0;
+  background:#fff;
+  box-shadow:none;
+}
+
+.color-preview-shell .detail-reservation-grid > div + div,
+.color-preview-shell .detail-driver-form > div + div,
+.color-preview-shell .detail-otp-card > * + *,
+.color-preview-shell .detail-terms-card .terms-list > * + *,
+.color-preview-shell .detail-payment-card .price-lines > div + div{
+  border-top:1px solid #e7eef4;
+}
+
+.color-preview-shell .detail-address-card{
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  padding:12px 16px;
+  box-shadow:none;
+}
+
+.color-preview-shell .detail-driver-form .field-input,
+.color-preview-shell .detail-otp-card .field-input,
+.color-preview-shell .detail-address-card .field-input{
+  min-height:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  padding:0;
+  font-size:20px;
+  line-height:1.2;
+  box-shadow:none;
+}
+
+.color-preview-shell .detail-driver-form .field-input:focus,
+.color-preview-shell .detail-otp-card .field-input:focus,
+.color-preview-shell .detail-address-card .field-input:focus{
+  outline:0;
+}
+
+.color-preview-shell .detail-input-label,
+.color-preview-shell .detail-address-card .field-label,
+.color-preview-shell .detail-reservation-grid span,
+.color-preview-shell .detail-payment-card .total span{
+  color:#6f8194;
+  font-size:13px;
+  font-weight:900;
+}
+
+.color-preview-shell .detail-payment-card .total{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.color-preview-shell .detail-payment-card .total strong{
+  color:#101827;
+  font-size:22px;
+  font-weight:1000;
+}
+
+.color-preview-shell .detail-terms-card .legal-note{
+  display:none;
+}
+
+@media(max-width:760px){
+  .color-preview-shell .detail-reservation-grid > div,
+  .color-preview-shell .detail-driver-form > div,
+  .color-preview-shell .detail-otp-card > div,
+  .color-preview-shell .detail-otp-card > p,
+  .color-preview-shell .detail-terms-card .terms-list > label,
+  .color-preview-shell .detail-terms-card .terms-list > div,
+  .color-preview-shell .detail-payment-card .price-lines > div,
+  .color-preview-shell .detail-address-card{
+    padding:11px 15px;
+  }
+
+  .color-preview-shell .detail-driver-form .field-input,
+  .color-preview-shell .detail-otp-card .field-input,
+  .color-preview-shell .detail-address-card .field-input{
+    font-size:19px;
+  }
+}
