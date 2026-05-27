@@ -51,18 +51,13 @@ export default function MemberReservationsPage() {
   }, [session])
 
   return (
-    <PageShell>
-      <section className="section-bg">
-        <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
-          <article className="detail-card panel" style={{ display: 'grid', gap: 16 }}>
-            <div>
-              <h1 style={{ margin: 0 }}>예약내역</h1>
-              <p className="small-note" style={{ marginTop: 8 }}>
-                로그인한 계정에 연결된 예약만 보여줍니다.
-              </p>
-            </div>
+    <PageShell className="color-preview-shell color-preview-mockup-shell account-shell reservation-flow-shell">
+      <section className="section-bg account-page-shell">
+        <div className="container signup-page-container reservation-flow-container">
+          <article className="reservation-flow-card">
+            <div className="login-title-block signup-title-block"><h1>예약내역</h1><span>회원 예약조회</span></div>
 
-            <div className="panel-sub" style={{ display: 'grid', gap: 12 }}>
+            <div className="guest-status-box reservation-member-summary">
               <div className="reservation-result-row"><span>회원 휴대폰번호</span><strong>{profile?.phone || '-'}</strong></div>
               <div className="reservation-result-row"><span>회원 이름</span><strong>{profile?.name || '-'}</strong></div>
               <div className="reservation-result-row"><span>예약 수</span><strong>{fetching ? '불러오는 중' : `${bookings.length}건`}</strong></div>
@@ -71,11 +66,8 @@ export default function MemberReservationsPage() {
             {error ? <p className="field-note" style={{ color: '#be123c', margin: 0 }}>{error}</p> : null}
 
             {!fetching && bookings.length === 0 ? (
-              <div className="panel-sub" style={{ display: 'grid', gap: 8 }}>
-                <strong>연결된 예약이 없습니다.</strong>
-                <p className="field-note" style={{ margin: 0 }}>
-                  현재 계정에 연결된 예약이 아직 없습니다. 비회원으로 만든 예약은 추후 연결 기능에서 귀속할 수 있습니다.
-                </p>
+              <div className="guest-status-box reservation-member-summary">
+                <div className="guest-status-row"><span>예약 상태</span><strong>연결된 예약이 없습니다.</strong></div>
               </div>
             ) : null}
 
@@ -115,9 +107,7 @@ export default function MemberReservationsPage() {
               </div>
             ) : null}
 
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
-            </div>
+
           </article>
         </div>
       </section>

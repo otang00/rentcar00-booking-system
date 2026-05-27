@@ -48,16 +48,11 @@ export default function ReservationCompletePage() {
   }, [completionToken, paymentError])
 
   return (
-    <PageShell>
-      <section className="section-bg">
-        <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
-          <article className="detail-card panel" style={{ display: 'grid', gap: 16 }}>
-            <div>
-              <h1 style={{ margin: 0 }}>{reservation ? '예약 확정' : paymentError ? '결제 실패' : '예약 확정'}</h1>
-              <p className="small-note" style={{ marginTop: 8 }}>
-                {reservation ? '결제가 정상적으로 완료되어 예약이 확정되었습니다.' : loadError || '예약 정보를 찾지 못했습니다.'}
-              </p>
-            </div>
+    <PageShell className="color-preview-shell color-preview-mockup-shell account-shell reservation-flow-shell">
+      <section className="section-bg account-page-shell">
+        <div className="container signup-page-container reservation-flow-container">
+          <article className="reservation-flow-card">
+            <div className="login-title-block signup-title-block"><h1>{reservation ? '예약 확정' : paymentError ? '결제 실패' : '예약 확정'}</h1><span>{reservation ? '예약 완료' : loadError || '확인 필요'}</span></div>
 
             {reservation ? (
               <>
@@ -88,13 +83,15 @@ export default function ReservationCompletePage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <Link className="btn btn-dark btn-md" to="/">메인으로</Link>
+                <div className="signup-bottom-links">
+                  <Link to="/guest-bookings">비회원 예약조회</Link>
+                  <Link to="/login">로그인</Link>
                 </div>
               </>
             ) : (
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <Link className="btn btn-dark btn-md" to="/">메인으로</Link>
+              <div className="signup-bottom-links">
+                <Link to="/guest-bookings">비회원 예약조회</Link>
+                <Link to="/login">로그인</Link>
               </div>
             )}
           </article>

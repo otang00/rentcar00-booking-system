@@ -73,16 +73,11 @@ export default function MemberReservationDetailPage() {
   }
 
   return (
-    <PageShell>
-      <section className="section-bg">
-        <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
-          <article className="detail-card panel" style={{ display: 'grid', gap: 16 }}>
-            <div>
-              <h1 style={{ margin: 0 }}>예약상세</h1>
-              <p className="small-note" style={{ marginTop: 8 }}>
-                로그인한 계정에 연결된 예약만 확인할 수 있습니다.
-              </p>
-            </div>
+    <PageShell className="color-preview-shell color-preview-mockup-shell account-shell reservation-flow-shell">
+      <section className="section-bg account-page-shell">
+        <div className="container signup-page-container reservation-flow-container">
+          <article className="reservation-flow-card">
+            <div className="login-title-block signup-title-block"><h1>예약상세</h1><span>회원 예약조회</span></div>
 
             {fetching ? <p className="field-note" style={{ margin: 0 }}>예약 정보를 불러오는 중입니다.</p> : null}
             {error ? <p className="field-note" style={{ color: '#be123c', margin: 0 }}>{error}</p> : null}
@@ -124,7 +119,6 @@ export default function MemberReservationDetailPage() {
                 </button>
               ) : null}
               <Link className="btn btn-outline btn-md" to="/reservations">예약내역</Link>
-              <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
             </div>
           </article>
         </div>

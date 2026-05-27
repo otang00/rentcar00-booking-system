@@ -331,7 +331,6 @@ export default function GuestBookingsPage() {
                   <button type="button" className="btn btn-outline btn-md" onClick={() => clearLookupSession('인증을 종료했습니다. 다시 조회하려면 휴대폰 인증을 진행해 주세요.')}>
                     인증 종료
                   </button>
-                  <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
                 </div>
               </>
             ) : (
