@@ -84,7 +84,7 @@ export default function LoginPage() {
       <section className="section-bg login-page-section">
         <div className="container login-page-container">
           <article className="login-centered-shell">
-            <div className="login-brand-mark"><img src="/bbang-wordmark.png" alt="빵빵카" /></div>
+            <div className="login-title-block"><h1>로그인</h1><span>전화번호 사용</span></div>
 
             <form className="login-form-card" onSubmit={handleSubmit}>
               <div className="login-input-stack">

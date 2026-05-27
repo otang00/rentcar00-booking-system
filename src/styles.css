@@ -5326,3 +5326,68 @@
     margin-top:6px;
   }
 }
+
+/* Login compact title/input refinement */
+.login-title-block{
+  display:grid;
+  gap:8px;
+  justify-items:center;
+  margin-top:14px;
+  text-align:center;
+}
+
+.login-title-block h1{
+  margin:0;
+  color:#101827;
+  font-size:42px;
+  line-height:1.08;
+  letter-spacing:-.07em;
+  font-weight:1000;
+}
+
+.login-title-block span{
+  color:#168fd0;
+  font-size:17px;
+  font-weight:1000;
+}
+
+.login-input-group{
+  padding:12px 16px;
+}
+
+.login-input-label{
+  font-size:12px;
+}
+
+.login-line-input{
+  font-size:20px;
+  line-height:1.2;
+}
+
+.login-input-stack{
+  border-radius:16px;
+}
+
+.login-submit-button{
+  min-height:52px;
+  border-radius:15px;
+  font-size:20px;
+}
+
+@media(max-width:760px){
+  .login-title-block{
+    margin-top:8px;
+  }
+
+  .login-title-block h1{
+    font-size:38px;
+  }
+
+  .login-input-group{
+    padding:11px 15px;
+  }
+
+  .login-line-input{
+    font-size:19px;
+  }
+}
