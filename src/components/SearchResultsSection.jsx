@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import CarCard from './CarCard'
+import SearchConditionEditor from './SearchConditionEditor'
 import { buildSearchQuery, parseSearchQuery, validateSearchState } from '../utils/searchQuery'
 import { fetchSearchCars } from '../services/cars'
 import { getMockCompany } from '../services/company'
@@ -82,6 +83,7 @@ export default function SearchResultsSection() {
   const [totalCount, setTotalCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [fetchError, setFetchError] = useState('')
+  const [isEditorOpen, setIsEditorOpen] = useState(false)
 
   useEffect(() => {
     let isCancelled = false
@@ -132,11 +134,17 @@ export default function SearchResultsSection() {
   }
 
   const handleReset = () => {
-    navigate('/')
+    setIsEditorOpen(true)
+  }
+
+  const handleApplySearchCondition = (nextState) => {
+    setIsEditorOpen(false)
+    navigate(`/search?${buildSearchQuery({ ...nextState, order: searchState.order || 'lower' })}`)
   }
 
   return (
     <section className="landing-results-section search-results-page section-bg" id="search-results">
+      <SearchConditionEditor open={isEditorOpen} initialState={searchState} onClose={() => setIsEditorOpen(false)} onApply={handleApplySearchCondition} />
       <div className="container main-stack search-results-stack">
         <SearchConditionSummary searchState={searchState} totalCount={totalCount} onReset={handleReset} />
 
