@@ -5964,3 +5964,121 @@
 .login-page-shell .landing-contact-card:hover{
   background:#eef6fb;
 }
+
+/* Detail checkout final rebuild: login-width form boxes */
+.color-preview-shell .detail-main > .detail-reservation-card,
+.color-preview-shell .detail-main > .detail-driver-card,
+.color-preview-shell .detail-main > .detail-terms-card,
+.color-preview-shell .detail-main > .detail-payment-card{
+  width:min(100%,420px);
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.color-preview-shell .detail-main > .detail-payment-card .btn-block{
+  width:100%;
+}
+
+.color-preview-shell .detail-driver-card .detail-driver-form,
+.color-preview-shell .detail-driver-card .detail-otp-card,
+.color-preview-shell .detail-terms-card .terms-list,
+.color-preview-shell .detail-payment-card .price-lines{
+  display:grid !important;
+  gap:0 !important;
+  border:1px solid #d7e4ec !important;
+  border-radius:18px !important;
+  background:#fff !important;
+  overflow:hidden !important;
+  box-shadow:none !important;
+  padding:0 !important;
+}
+
+.color-preview-shell .detail-driver-card .detail-driver-form > div,
+.color-preview-shell .detail-driver-card .detail-otp-card > div,
+.color-preview-shell .detail-driver-card .detail-otp-card > p,
+.color-preview-shell .detail-terms-card .terms-list > label,
+.color-preview-shell .detail-terms-card .terms-list > div,
+.color-preview-shell .detail-payment-card .price-lines > div{
+  min-height:48px !important;
+  display:grid !important;
+  gap:7px !important;
+  align-content:center !important;
+  padding:12px 16px !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:#fff !important;
+}
+
+.color-preview-shell .detail-driver-card .detail-driver-form > div + div,
+.color-preview-shell .detail-driver-card .detail-otp-card > * + *,
+.color-preview-shell .detail-terms-card .terms-list > * + *,
+.color-preview-shell .detail-payment-card .price-lines > div + div{
+  border-top:1px solid #e7eef4 !important;
+}
+
+.color-preview-shell .detail-driver-card .detail-otp-grid{
+  grid-template-columns:1fr !important;
+}
+
+.color-preview-shell .detail-driver-card .detail-otp-grid .btn{
+  width:100%;
+}
+
+.color-preview-shell .detail-driver-card .field-note{
+  min-height:auto !important;
+  color:#6f8194;
+  font-size:13px;
+  font-weight:850;
+}
+
+.color-preview-shell .detail-terms-card .terms-list label,
+.color-preview-shell .detail-terms-card .terms-check-row{
+  min-height:48px !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:9px !important;
+  color:#243447;
+  font-size:14px;
+  font-weight:850;
+}
+
+.color-preview-shell .detail-terms-card .field-note{
+  width:100%;
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  padding:12px 16px;
+  margin-top:10px;
+  font-size:13px;
+  font-weight:850;
+}
+
+.color-preview-shell .detail-payment-card .price-lines{
+  margin:0 0 12px !important;
+}
+
+.color-preview-shell .detail-payment-card .price-lines .total{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:14px !important;
+}
+
+@media(max-width:760px){
+  .color-preview-shell .detail-main > .detail-reservation-card,
+  .color-preview-shell .detail-main > .detail-driver-card,
+  .color-preview-shell .detail-main > .detail-terms-card,
+  .color-preview-shell .detail-main > .detail-payment-card{
+    width:100%;
+  }
+
+  .color-preview-shell .detail-driver-card .detail-driver-form > div,
+  .color-preview-shell .detail-driver-card .detail-otp-card > div,
+  .color-preview-shell .detail-driver-card .detail-otp-card > p,
+  .color-preview-shell .detail-terms-card .terms-list > label,
+  .color-preview-shell .detail-terms-card .terms-list > div,
+  .color-preview-shell .detail-payment-card .price-lines > div{
+    padding:11px 15px !important;
+  }
+}
