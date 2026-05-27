@@ -406,13 +406,12 @@ export default function SignupPage() {
             <div className="auth-hero-panel">
               <span className="auth-hero-kicker">새 예약 계정 만들기</span>
               <h1>회원가입</h1>
-              <p>휴대폰 인증, 기본정보, 주소, 약관 동의를 순서대로 완료하면 예약 계정이 생성됩니다.</p>
             </div>
 
             <form className="stack-form stack-form-centered account-form-grid" onSubmit={handleSubmit}>
               <div className="signup-section-stack">
                 <section className="auth-main-card signup-flow-card">
-                  <SectionTitle title="기본정보" description="회원가입에 필요한 기본 정보를 입력합니다." />
+                  <SectionTitle title="기본정보" />
 
                   <div className="field-group">
                     <label className="field-label" htmlFor="signup-name">이름</label>
@@ -463,7 +462,7 @@ export default function SignupPage() {
                 </section>
 
                 <section className="auth-main-card signup-flow-card">
-                  <SectionTitle title="비밀번호" description="휴대폰 번호 로그인에 사용할 비밀번호를 설정합니다." />
+                  <SectionTitle title="비밀번호" />
 
                   <div className="field-group">
                     <label className="field-label" htmlFor="signup-password">비밀번호</label>
@@ -535,7 +534,7 @@ export default function SignupPage() {
                 </section>
 
                 <section className="auth-main-card signup-flow-card is-accent">
-                  <SectionTitle title="연락처 인증" description="회원가입 전에 휴대폰 인증을 완료해야 합니다." />
+                  <SectionTitle title="연락처 인증" />
                   <FieldNote>이미 가입된 휴대폰 번호라면 인증번호 발송 없이 로그인 안내가 먼저 표시됩니다.</FieldNote>
 
                   <div className="field-group">
@@ -598,7 +597,7 @@ export default function SignupPage() {
                 </section>
 
                 <section className="auth-main-card signup-flow-card">
-                  <SectionTitle title="주소" description="우편번호 찾기로 기본주소를 채우고 상세주소를 입력해 주세요." />
+                  <SectionTitle title="주소" />
 
                   <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 16 }}>
                     <div className="field-group">
@@ -657,7 +656,7 @@ export default function SignupPage() {
                 </section>
 
                 <section className="auth-main-card signup-flow-card">
-                  <SectionTitle title="약관 동의" description="필수 약관 전체 동의 후 회원가입할 수 있습니다." />
+                  <SectionTitle title="약관 동의" />
 
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
                     <input

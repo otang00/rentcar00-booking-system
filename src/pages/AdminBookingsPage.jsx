@@ -227,7 +227,6 @@ export default function AdminBookingsPage() {
               <div className="auth-hero-panel admin-hero-panel">
                 <span className="auth-hero-kicker">운영 관리자</span>
                 <h1>예약관리</h1>
-                <p>홈페이지 예약 원장, 동기화 상태, 고객 예약 상세를 한 화면에서 확인합니다.</p>
               </div>
 
               {hasAdminHint ? <AdminNav /> : null}

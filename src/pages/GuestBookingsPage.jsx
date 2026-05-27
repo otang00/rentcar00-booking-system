@@ -315,7 +315,6 @@ export default function GuestBookingsPage() {
             <div className="auth-hero-panel">
               <span className="auth-hero-kicker">비회원 예약 확인</span>
               <h1>비회원 예약조회</h1>
-              <p>예약 시 입력한 휴대폰 번호를 인증하면 진행 중인 예약과 취소 가능 여부를 확인합니다.</p>
             </div>
 
             {hasActiveLookupSession ? (
