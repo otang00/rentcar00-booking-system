@@ -4293,14 +4293,14 @@
 
 .search-car-list{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:1fr;
   gap:12px;
 }
 
 .search-car-card{
   display:grid;
-  grid-template-columns:120px minmax(0,1fr);
-  min-height:104px;
+  grid-template-columns:180px minmax(0,1fr);
+  min-height:112px;
   border-radius:20px;
   overflow:hidden;
   background:#fff;
@@ -4322,7 +4322,7 @@
 .search-car-thumb img{
   width:100%;
   height:100%;
-  max-height:84px;
+  max-height:92px;
   object-fit:contain;
 }
 
@@ -4331,7 +4331,7 @@
   flex-direction:column;
   gap:6px;
   min-width:0;
-  padding:10px 13px 9px 0;
+  padding:12px 18px 11px 0;
 }
 
 .search-car-title-row h3{
@@ -4393,9 +4393,6 @@
     grid-template-columns:1fr 1fr;
   }
 
-  .search-car-list{
-    grid-template-columns:1fr;
-  }
 }
 
 @media(max-width:520px){
@@ -4424,6 +4421,14 @@
   .search-car-card{
     grid-template-columns:104px minmax(0,1fr);
     min-height:102px;
+  }
+
+  .search-car-body{
+    padding:10px 13px 9px 0;
+  }
+
+  .search-car-thumb img{
+    max-height:84px;
   }
 
   .search-car-title-row h3{
