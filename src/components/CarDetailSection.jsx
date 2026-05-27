@@ -931,9 +931,9 @@ export default function CarDetailSection() {
                   </div>
                 </div>
                 {!authLoading && !isDriverFormLocked && (
-                  <div className="detail-otp-card" style={{ display: 'grid', gap: 8, marginTop: 16 }}>
+                  <div className="guest-lookup-card detail-phone-auth-card">
                     <div>
-                      <span className="field-label detail-input-label">전화번호</span>
+                      <label className="field-label">전화번호</label>
                       <input
                         className="field-input driver-info-form__input detail-otp-phone-input"
                         placeholder="예: 010-1234-5678"
@@ -946,12 +946,12 @@ export default function CarDetailSection() {
                         <p className="field-note" style={ERROR_NOTE_STYLE}>{reservationValidation.errors.customerPhone}</p>
                       )}
                     </div>
-                    <div className="detail-otp-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.6fr) auto auto', gap: 8, alignItems: 'center' }}>
+                    <div className="detail-phone-auth-grid">
                       <input
                         className="field-input"
                         type="text"
                         inputMode="numeric"
-                        placeholder="인증번호 6자리 입력"
+                        placeholder="인증번호 6자리"
                         value={reservationOtpCode}
                         onChange={(event) => setReservationOtpCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
                         disabled={isReservationOtpVerifying || !reservationVerificationId || hasActiveReservationVerification}
@@ -961,28 +961,26 @@ export default function CarDetailSection() {
                         className="btn btn-outline btn-md"
                         onClick={handleReservationOtpRequest}
                         disabled={isReservationOtpRequesting || isReservationOtpVerifying || reservationOtpCooldownLeft > 0}
-                        style={{ whiteSpace: 'nowrap' }}
                       >
                         {isReservationOtpRequesting ? '발송 중...' : reservationOtpCooldownLeft > 0 ? `재전송 ${reservationOtpCooldownLeft}s` : '인증번호 발송'}
                       </button>
                       <button
                         type="button"
-                        className="btn btn-outline btn-md"
+                        className="btn btn-dark btn-md"
                         onClick={handleReservationOtpVerify}
                         disabled={isReservationOtpVerifying || !reservationVerificationId || reservationOtpCode.length !== 6 || hasActiveReservationVerification}
-                        style={{ whiteSpace: 'nowrap' }}
                       >
                         {hasActiveReservationVerification ? '인증완료' : isReservationOtpVerifying ? '확인 중...' : '확인'}
                       </button>
                     </div>
-                    <p className="field-note" style={{ margin: 0, color: hasActiveReservationVerification ? '#166534' : '#6b7280' }}>
-                      {hasActiveReservationVerification
-                        ? '휴대폰 인증이 완료되었습니다.'
-                        : reservationVerificationId
-                          ? `남은 시간 ${String(Math.floor(reservationOtpSecondsLeft / 60)).padStart(2, '0')}:${String(reservationOtpSecondsLeft % 60).padStart(2, '0')}`
-                          : '인증번호를 먼저 요청해 주세요.'}
-                    </p>
-                    <p className="field-note" style={{ margin: 0, color: hasActiveReservationVerification ? '#166534' : '#be123c' }}>{reservationOtpMessage}</p>
+                    {reservationVerificationId || hasActiveReservationVerification ? (
+                      <p className="field-note" style={{ margin: 0, color: hasActiveReservationVerification ? '#166534' : '#6b7280' }}>
+                        {hasActiveReservationVerification
+                          ? '휴대폰 인증이 완료되었습니다.'
+                          : `남은 시간 ${String(Math.floor(reservationOtpSecondsLeft / 60)).padStart(2, '0')}:${String(reservationOtpSecondsLeft % 60).padStart(2, '0')}`}
+                      </p>
+                    ) : null}
+                    {reservationOtpMessage ? <p className="field-note" style={{ margin: 0, color: hasActiveReservationVerification ? '#166534' : '#be123c' }}>{reservationOtpMessage}</p> : null}
                   </div>
                 )}
               </article>
@@ -991,8 +989,8 @@ export default function CarDetailSection() {
                 <div className="detail-section-head">
                   <h2>이용 약관 동의</h2>
                 </div>
-                <div className="detail-terms-box">
-                  <label className="detail-terms-row detail-terms-row-all">
+                <div className="signup-terms-box detail-terms-box">
+                  <label className="signup-terms-row signup-terms-row-all detail-terms-row detail-terms-row-all">
                     <span className="detail-terms-check">
                       <input type="checkbox" checked={termsState.allAgreed} onChange={(e) => handleToggleAllTerms(e.target.checked)} />
                       <span>전체 동의</span>
@@ -1004,7 +1002,7 @@ export default function CarDetailSection() {
                     <TermsCheckRow checked={termsState.privacyAgreed} onChange={(checked) => handleToggleSingleTerm('privacyAgreed', checked)} label="개인정보 수집 및 이용 동의" onOpen={() => setActiveTermsModal('privacy')} />
                   </div>
                   {!termsValidation.isValid && (
-                    <p className="detail-terms-note" style={ERROR_NOTE_STYLE}>{Object.values(termsValidation.errors)[0]}</p>
+                    <p className="signup-terms-note detail-terms-note" style={ERROR_NOTE_STYLE}>{Object.values(termsValidation.errors)[0]}</p>
                   )}
                 </div>
                 <div className="legal-note">
