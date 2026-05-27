@@ -58,7 +58,7 @@ function ReservationCard({ booking, onCancel, isCancelling }) {
 
       {booking.canCancel ? (
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 16 }}>
-          <button className="btn btn-outline btn-md" onClick={() => onCancel(booking.reservationNumber)} disabled={isCancelling}>
+          <button type="button" className="btn btn-outline btn-md" onClick={() => onCancel(booking.reservationNumber)} disabled={isCancelling}>
             {isCancelling ? '처리 중' : '예약 취소'}
           </button>
         </div>
@@ -325,10 +325,10 @@ export default function GuestBookingsPage() {
                 </div>
 
                 <div className="account-action-row">
-                  <button className="btn btn-dark btn-md" onClick={() => refreshLookupSession()} disabled={isLookupSubmitting}>
+                  <button type="button" className="btn btn-dark btn-md" onClick={() => refreshLookupSession()} disabled={isLookupSubmitting}>
                     {isLookupSubmitting ? '불러오는 중...' : '예약 새로고침'}
                   </button>
-                  <button className="btn btn-outline btn-md" onClick={() => clearLookupSession('인증을 종료했습니다. 다시 조회하려면 휴대폰 인증을 진행해 주세요.')}>
+                  <button type="button" className="btn btn-outline btn-md" onClick={() => clearLookupSession('인증을 종료했습니다. 다시 조회하려면 휴대폰 인증을 진행해 주세요.')}>
                     인증 종료
                   </button>
                   <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
@@ -360,12 +360,12 @@ export default function GuestBookingsPage() {
                       inputMode="numeric"
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      disabled={!verificationId || isOtpVerifying || isLookupSubmitting}
+                      disabled={isOtpVerifying || isLookupSubmitting}
                     />
-                    <button className="btn btn-outline btn-md" onClick={handleOtpRequest} disabled={!canRequestOtp || otpCooldownLeft > 0 || isOtpVerifying || isLookupSubmitting}>
+                    <button type="button" className="btn btn-outline btn-md" onClick={handleOtpRequest} disabled={!canRequestOtp || otpCooldownLeft > 0 || isOtpVerifying || isLookupSubmitting}>
                       {isOtpRequesting ? '발송 중...' : otpCooldownLeft > 0 ? `재전송 ${otpCooldownLeft}s` : '인증번호 발송'}
                     </button>
-                    <button className="btn btn-dark btn-md" onClick={handleOtpVerify} disabled={!canVerifyOtp || isLookupSubmitting}>
+                    <button type="button" className="btn btn-dark btn-md" onClick={handleOtpVerify} disabled={!canVerifyOtp || isLookupSubmitting}>
                       {isOtpVerifying || isLookupSubmitting ? '확인 중...' : '확인'}
                     </button>
                   </div>
