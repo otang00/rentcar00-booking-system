@@ -5941,3 +5941,26 @@
     font-size:19px;
   }
 }
+
+/* Account background unification: use guest bookings background everywhere */
+.login-page-shell,
+.account-shell,
+.login-page-shell .login-page-section,
+.account-shell .account-page-shell,
+.account-shell .login-page-section,
+.account-shell .landing-contact-section,
+.account-shell .landing-contact-strip,
+.login-page-shell .landing-contact-section,
+.login-page-shell .landing-contact-strip{
+  background:#f4f8fb;
+}
+
+.account-shell .landing-contact-card,
+.login-page-shell .landing-contact-card{
+  background:#f4f8fb;
+}
+
+.account-shell .landing-contact-card:hover,
+.login-page-shell .landing-contact-card:hover{
+  background:#eef6fb;
+}
