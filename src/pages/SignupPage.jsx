@@ -403,14 +403,10 @@ export default function SignupPage() {
   return (
     <PageShell className="color-preview-shell color-preview-mockup-shell account-shell">
       <section className="section-bg account-page-shell">
-        <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
-          <article className="detail-card panel account-page-card">
-            <div className="auth-hero-panel">
-              <span className="auth-hero-kicker">새 예약 계정 만들기</span>
-              <h1>회원가입</h1>
-            </div>
+        <div className="container signup-page-container">
+          <div className="login-title-block signup-title-block"><h1>회원가입</h1><span>전화번호 사용</span></div>
 
-            <form className="stack-form stack-form-centered account-form-grid" onSubmit={handleSubmit}>
+          <form className="signup-page-form" onSubmit={handleSubmit}>
               <div className="signup-section-stack">
                 <section className="auth-main-card signup-flow-card">
                   <SectionTitle title="기본정보" />
@@ -443,7 +439,6 @@ export default function SignupPage() {
                       disabled={submitting}
                       required
                     />
-                    <FieldNote>숫자 8자리로 입력해 주세요.</FieldNote>
                     {birthDate && !birthValidation.isValid ? <FieldNote color="#9f1239">{birthValidation.message}</FieldNote> : null}
                   </div>
 
@@ -537,8 +532,6 @@ export default function SignupPage() {
 
                 <section className="auth-main-card signup-flow-card is-accent">
                   <SectionTitle title="연락처 인증" />
-                  <FieldNote>이미 가입된 휴대폰 번호라면 인증번호 발송 없이 로그인 안내가 먼저 표시됩니다.</FieldNote>
-
                   <div className="field-group">
                     <label className="field-label" htmlFor="signup-phone">휴대폰 번호</label>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
@@ -636,8 +629,7 @@ export default function SignupPage() {
                         readOnly
                         required
                       />
-                      <FieldNote>기본주소는 우편번호 팝업에서 선택됩니다.</FieldNote>
-                    </div>
+                      </div>
 
                     <div className="field-group">
                       <label className="field-label" htmlFor="signup-address-detail">상세주소</label>
@@ -693,16 +685,13 @@ export default function SignupPage() {
                 {submitting ? '회원가입 중...' : '회원가입'}
               </button>
 
-              <FieldNote>
-                휴대폰 인증 완료 후 가입되며, 가입 뒤에는 휴대폰 번호와 비밀번호로 바로 로그인할 수 있습니다.
-              </FieldNote>
             </form>
 
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <Link className="btn btn-outline btn-md" to={`/login?redirectTo=${encodeURIComponent(redirectTo)}`}>로그인</Link>
-              <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
-            </div>
-          </article>
+          <div className="signup-bottom-links">
+            <Link to={`/login?redirectTo=${encodeURIComponent(redirectTo)}`}>로그인</Link>
+            <Link to="/guest-bookings">비회원 예약조회</Link>
+            <Link to="/">메인으로</Link>
+          </div>
         </div>
       </section>
 

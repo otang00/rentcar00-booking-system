@@ -5431,3 +5431,107 @@
 .account-shell .landing-contact-grid{
   margin-top:0;
 }
+
+/* Signup page aligned to login layout */
+.account-shell .signup-page-container{
+  width:min(100%,560px);
+  margin:0 auto;
+  padding:30px 0 54px;
+}
+
+.signup-title-block{
+  margin:10px 0 24px;
+}
+
+.signup-page-form{
+  display:grid;
+  gap:14px;
+}
+
+.signup-page-form .signup-section-stack{
+  display:grid;
+  gap:14px;
+}
+
+.signup-page-form .signup-flow-card{
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:none;
+  padding:16px;
+}
+
+.signup-page-form .signup-flow-card.is-accent{
+  background:#fbfdff;
+  border-color:#cfe0eb;
+}
+
+.signup-page-form .signup-flow-card h2{
+  font-size:20px;
+  color:#101827;
+}
+
+.signup-page-form .field-input,
+.signup-page-form .field-select{
+  min-height:46px;
+  border-radius:13px;
+  font-size:16px;
+}
+
+.signup-page-form .btn-md{
+  min-height:46px;
+  border-radius:13px;
+}
+
+.signup-page-form .btn-dark{
+  min-height:52px;
+  border-radius:15px;
+  background:#168fd0;
+  border-color:#168fd0;
+  font-size:19px;
+  font-weight:1000;
+}
+
+.signup-page-form .panel-sub{
+  border-radius:16px;
+  background:#fbfdff;
+}
+
+.signup-bottom-links{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:0;
+  margin-top:18px;
+  color:#6f8194;
+  font-size:14px;
+  font-weight:800;
+}
+
+.signup-bottom-links a{
+  padding:0 12px;
+  line-height:1;
+}
+
+.signup-bottom-links a + a{
+  border-left:1px solid #d7e4ec;
+}
+
+@media(max-width:760px){
+  .account-shell .signup-page-container{
+    width:calc(100% - 32px);
+    padding:22px 0 44px;
+  }
+
+  .signup-page-form .signup-flow-card{
+    padding:14px;
+  }
+
+  .signup-bottom-links{
+    font-size:13px;
+  }
+
+  .signup-bottom-links a{
+    padding:0 8px;
+  }
+}
