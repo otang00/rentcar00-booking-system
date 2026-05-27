@@ -1738,22 +1738,6 @@
   background:#f5f7fb;
 }
 
-.color-preview-shell .app-header{
-  background:rgba(255,255,255,.96);
-  border-bottom-color:#dbe3ef;
-}
-
-.color-preview-shell .app-header__button{
-  background:#101827;
-  border-color:#101827;
-  color:#fff;
-}
-
-.color-preview-shell .app-header__button.is-soft{
-  background:#eaf6fc;
-  border-color:#eaf6fc;
-  color:#0f78b2;
-}
 
 .color-preview-shell .landing-page{
   background:#f5f7fb;
@@ -1876,17 +1860,7 @@
   --color-soft-text:#0f78b2;
 }
 
-.color-preview-shell .app-header{
-  background:rgba(255,255,255,.98);
-  border-bottom:1px solid #dbe3ef;
-  box-shadow:0 10px 26px rgba(16,24,39,.05);
-}
 
-.color-preview-shell .app-header__brand{
-  filter:none;
-}
-
-.color-preview-shell .app-header__button,
 .color-preview-shell .search-panel-footer>.btn,
 .color-preview-shell .btn-dark,
 .color-preview-shell .outline.block,
@@ -1899,7 +1873,6 @@
   box-shadow:0 10px 22px rgba(22,143,208,.18);
 }
 
-.color-preview-shell .app-header__button:hover,
 .color-preview-shell .search-panel-footer>.btn:hover,
 .color-preview-shell .btn-dark:hover,
 .color-preview-shell .outline.block:hover{
@@ -1907,7 +1880,6 @@
   border-color:#0f78b2;
 }
 
-.color-preview-shell .app-header__button.is-soft,
 .color-preview-shell .btn-soft,
 .color-preview-shell .btn-tab,
 .color-preview-shell .sort-buttons.simple .btn,
@@ -2057,7 +2029,6 @@
   color:#0f78b2 !important;
 }
 
-.color-preview-shell .app-header__wordmark,
 .color-preview-shell .footer-cafe24-logo{
   content:url('/bbang-wordmark-navy.png');
 }
@@ -2068,7 +2039,6 @@
   letter-spacing:-.018em;
 }
 
-.color-preview-shell .app-header,
 .color-preview-shell .landing-page,
 .color-preview-shell .footer,
 .color-preview-shell input,
@@ -2101,7 +2071,6 @@
 .color-preview-shell .field-label,
 .color-preview-shell .schedule-card-label,
 .color-preview-shell .btn,
-.color-preview-shell .app-header__button,
 .color-preview-shell .btn-select strong,
 .color-preview-shell .mini-tags span,
 .color-preview-shell .meta-row span{
@@ -5320,7 +5289,7 @@
   margin-top:0;
 }
 
-/* Signup page aligned to login layout */
+/* Signup/account page layout */
 .account-shell .signup-page-container{
   width:min(100%,560px);
   margin:0 auto;
@@ -5331,58 +5300,15 @@
   margin:10px 0 24px;
 }
 
-.signup-page-form{
-  display:grid;
-  gap:14px;
-}
-
+.signup-page-form,
 .signup-page-form .signup-section-stack{
   display:grid;
   gap:14px;
 }
 
-.signup-page-form .signup-flow-card{
-  border:1px solid #d7e4ec;
-  border-radius:18px;
-  background:#fff;
-  box-shadow:none;
-  padding:16px;
-}
-
-.signup-page-form .signup-flow-card.is-accent{
-  background:#fbfdff;
-  border-color:#cfe0eb;
-}
-
 .signup-page-form .signup-flow-card h2{
   font-size:20px;
   color:#101827;
-}
-
-.signup-page-form .field-input,
-.signup-page-form .field-select{
-  min-height:46px;
-  border-radius:13px;
-  font-size:16px;
-}
-
-.signup-page-form .btn-md{
-  min-height:46px;
-  border-radius:13px;
-}
-
-.signup-page-form .btn-dark{
-  min-height:52px;
-  border-radius:15px;
-  background:#168fd0;
-  border-color:#168fd0;
-  font-size:19px;
-  font-weight:1000;
-}
-
-.signup-page-form .panel-sub{
-  border-radius:16px;
-  background:#fbfdff;
 }
 
 .signup-bottom-links{
@@ -5485,21 +5411,6 @@
   box-shadow:0 10px 30px rgba(16,24,39,.04);
 }
 
-.account-shell .app-header__inner,
-.login-page-shell .app-header__inner{
-  min-height:86px;
-  justify-content:space-between;
-}
-
-.account-shell .app-header__brand,
-.login-page-shell .app-header__brand{
-  justify-content:flex-start;
-}
-
-.account-shell .app-header__wordmark,
-.login-page-shell .app-header__wordmark{
-  display:block;
-}
 
 .account-shell .signup-page-container,
 .login-page-container{
@@ -5628,6 +5539,15 @@
 .signup-page-form .btn-md{
   min-height:42px;
   border-radius:13px;
+}
+
+.signup-page-form .btn-dark{
+  min-height:52px;
+  border-radius:15px;
+  background:#168fd0;
+  border-color:#168fd0;
+  font-size:19px;
+  font-weight:700;
 }
 
 .signup-page-form .panel-sub.account-sub-card{
