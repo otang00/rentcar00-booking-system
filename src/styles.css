@@ -5548,3 +5548,104 @@
     font-size:19px;
   }
 }
+
+/* Signup lower sections: remove card feel, use login-style input form */
+.signup-page-form .signup-flow-card{
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  padding:0;
+  gap:0;
+}
+
+.signup-page-form .signup-flow-card.is-accent{
+  background:transparent;
+  border:0;
+}
+
+.signup-page-form .signup-flow-card .auth-section-title{
+  display:none;
+}
+
+.signup-page-form .signup-flow-card > .field-group,
+.signup-page-form .signup-flow-card > div.field-group,
+.signup-page-form .signup-flow-card > .panel-sub,
+.signup-page-form .signup-flow-card > label,
+.signup-page-form .signup-flow-card > div:not(.auth-section-title):not(.field-group){
+  border-left:1px solid #d7e4ec;
+  border-right:1px solid #d7e4ec;
+  background:#fff;
+  padding:12px 16px;
+  margin:0;
+}
+
+.signup-page-form .signup-flow-card > :not(.auth-section-title):first-child,
+.signup-page-form .signup-flow-card > .auth-section-title + *{
+  border-top:1px solid #d7e4ec;
+  border-top-left-radius:18px;
+  border-top-right-radius:18px;
+}
+
+.signup-page-form .signup-flow-card > :not(.auth-section-title):last-child{
+  border-bottom:1px solid #d7e4ec;
+  border-bottom-left-radius:18px;
+  border-bottom-right-radius:18px;
+}
+
+.signup-page-form .signup-flow-card > .field-group + .field-group,
+.signup-page-form .signup-flow-card > div + div,
+.signup-page-form .signup-flow-card > label + div,
+.signup-page-form .signup-flow-card > div + label{
+  border-top:1px solid #e7eef4;
+}
+
+.signup-page-form .field-label{
+  color:#6f8194;
+  font-size:13px;
+  font-weight:900;
+}
+
+.signup-page-form .field-input,
+.signup-page-form .field-select{
+  min-height:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  padding:0;
+  font-size:20px;
+  line-height:1.2;
+  box-shadow:none;
+}
+
+.signup-page-form .field-input:focus,
+.signup-page-form .field-select:focus{
+  outline:0;
+  border-color:transparent;
+}
+
+.signup-page-form .btn-outline,
+.signup-page-form .btn-md{
+  min-height:42px;
+  border-radius:13px;
+}
+
+.signup-page-form .panel-sub.account-sub-card{
+  border-radius:0;
+  box-shadow:none;
+}
+
+@media(max-width:760px){
+  .signup-page-form .signup-flow-card > .field-group,
+  .signup-page-form .signup-flow-card > div.field-group,
+  .signup-page-form .signup-flow-card > .panel-sub,
+  .signup-page-form .signup-flow-card > label,
+  .signup-page-form .signup-flow-card > div:not(.auth-section-title):not(.field-group){
+    padding:11px 15px;
+  }
+
+  .signup-page-form .field-input,
+  .signup-page-form .field-select{
+    font-size:19px;
+  }
+}
