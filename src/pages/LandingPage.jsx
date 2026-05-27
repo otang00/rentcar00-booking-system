@@ -3,10 +3,9 @@ import { useLocation, useParams } from 'react-router-dom'
 import { Footer, Header } from '../components/Layout'
 import CarDetailSection from '../components/CarDetailSection'
 import ContactInfoStrip from '../components/ContactInfoStrip'
-import HeroShowcase from '../components/HeroShowcase'
-import ReservationEntrySection from '../components/ReservationEntrySection'
 import SearchResultsSection from '../components/SearchResultsSection'
-import { landingContactItems, landingHero } from '../data/landing'
+import { landingContactItems } from '../data/landing'
+import { ColorPreviewHero } from '../components/ColorPreviewHero'
 
 export default function LandingPage() {
   const location = useLocation()
@@ -18,12 +17,11 @@ export default function LandingPage() {
   const isDetailMode = Boolean(carId)
 
   return (
-    <div className="page-shell landing-shell">
+    <div className={`page-shell landing-shell ${!isDetailMode ? 'color-preview-shell color-preview-mockup-shell' : ''}`}>
       <Header brandName="빵빵카 주식회사" showGuestBookingAction />
 
       <main className="landing-page">
-        <HeroShowcase {...landingHero} />
-        {isDetailMode ? <CarDetailSection /> : <ReservationEntrySection />}
+        {isDetailMode ? <CarDetailSection /> : <ColorPreviewHero />}
         {!isDetailMode && hasSearchQuery && <SearchResultsSection />}
         <ContactInfoStrip items={landingContactItems} />
       </main>
