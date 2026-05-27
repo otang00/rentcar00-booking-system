@@ -6,12 +6,14 @@
 - 기존 상세 모드(`/cars/:carId`)는 `CarDetailSection` 그대로 유지했다.
 - 기존 검색 결과(`SearchResultsSection`)는 그대로 유지했다.
 - `/color-preview` 라우트는 테스트/비교용으로 유지했다.
+- 검색 완료 후 `#search-results` 영역으로 자동 스크롤되게 보정했다.
 - 운영 production 배포는 하지 않고 preview 확인 대상으로 준비했다.
 
 ## 변경 파일
 
 - `src/components/ColorPreviewHero.jsx`
   - `ColorPreviewHero`와 관련 모달/날짜 선택 로직을 재사용 컴포넌트로 분리
+  - 검색 완료 후 검색 결과 영역으로 자동 스크롤 처리
 - `src/pages/ColorPreviewPage.jsx`
   - 분리된 `ColorPreviewHero`를 import해서 기존 `/color-preview` 유지
 - `src/pages/LandingPage.jsx`

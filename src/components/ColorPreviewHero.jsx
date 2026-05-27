@@ -77,6 +77,18 @@ function formatModalDateLabel(dateKey) {
   return `${parsed.getFullYear()}.${String(parsed.getMonth() + 1).padStart(2, '0')}.${String(parsed.getDate()).padStart(2, '0')}(${week})`
 }
 
+function scrollToSearchResults() {
+  if (typeof window === 'undefined') return
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      const target = document.getElementById('search-results')
+      if (!target) return
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  })
+}
+
 
 function DateRangeModal({
   open,
@@ -350,6 +362,7 @@ export function ColorPreviewHero() {
     setPendingSearchState(null)
     setIsAgeModalOpen(false)
     navigate(`/?${buildSearchQuery(finalState)}`)
+    scrollToSearchResults()
   }
 
   const handleDateModalTouchEnd = (event) => {
@@ -384,6 +397,7 @@ export function ColorPreviewHero() {
     }
     const nextQuery = buildSearchQuery({ ...searchState, pickupOption: 'delivery' })
     navigate(`/?${nextQuery}`)
+    scrollToSearchResults()
   }
 
   return (
