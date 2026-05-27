@@ -7011,3 +7011,22 @@
 .reservation-complete-card .signup-bottom-links a{
   font-weight:400 !important;
 }
+
+/* Reservation complete screen only: medium weight after softening */
+.reservation-complete-card .login-title-block h1,
+.reservation-complete-card .reservation-result-card__title,
+.reservation-complete-card .reservation-result-card__price strong{
+  font-weight:700 !important;
+}
+
+.reservation-complete-card .reservation-result-card__status,
+.reservation-complete-card .reservation-result-row strong{
+  font-weight:600 !important;
+}
+
+.reservation-complete-card .reservation-result-card__eyebrow,
+.reservation-complete-card .reservation-result-card__price span,
+.reservation-complete-card .reservation-result-row span,
+.reservation-complete-card .signup-bottom-links a{
+  font-weight:500 !important;
+}
