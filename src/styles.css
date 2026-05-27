@@ -5706,3 +5706,99 @@
     padding:11px 15px;
   }
 }
+
+/* Rebuilt signup terms and guest status boxes */
+.signup-page-form .signup-terms-box{
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+}
+
+.signup-terms-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-height:46px;
+  padding:0 16px;
+  color:#243447;
+  font-size:14px;
+  font-weight:850;
+}
+
+.signup-terms-row + .signup-terms-row,
+.signup-terms-list + .signup-terms-note{
+  border-top:1px solid #e7eef4;
+}
+
+.signup-terms-row-all{
+  font-weight:950;
+}
+
+.signup-page-form .signup-terms-list{
+  display:grid;
+  gap:0;
+  border-top:1px solid #e7eef4;
+}
+
+.signup-page-form .signup-terms-list label,
+.signup-page-form .signup-terms-list .terms-row{
+  min-height:46px;
+  padding:0 16px;
+  margin:0;
+}
+
+.signup-terms-note{
+  margin:0;
+  padding:12px 16px;
+  font-size:13px;
+  font-weight:850;
+  line-height:1.45;
+  background:#fbfdff;
+}
+
+.guest-status-box{
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+}
+
+.guest-status-row{
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:0 16px;
+}
+
+.guest-status-row + .guest-status-row{
+  border-top:1px solid #e7eef4;
+}
+
+.guest-status-row span{
+  color:#6f8194;
+  font-size:13px;
+  font-weight:900;
+}
+
+.guest-status-row strong{
+  color:#101827;
+  font-size:16px;
+  font-weight:950;
+}
+
+@media(max-width:760px){
+  .signup-terms-row,
+  .signup-page-form .signup-terms-list label,
+  .signup-page-form .signup-terms-list .terms-row{
+    padding:0 15px;
+  }
+
+  .signup-terms-note,
+  .guest-status-row{
+    padding-left:15px;
+    padding-right:15px;
+  }
+}

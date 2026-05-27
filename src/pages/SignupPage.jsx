@@ -647,32 +647,30 @@ export default function SignupPage() {
                   </div>
                 </section>
 
-                <section className="auth-main-card signup-flow-card">
-                  <SectionTitle title="약관 동의" />
-
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
+                <section className="signup-terms-box">
+                  <label className="signup-terms-row signup-terms-row-all">
                     <input
                       type="checkbox"
                       checked={agreeAll}
                       onChange={(event) => handleToggleAllTerms(event.target.checked)}
                       disabled={submitting}
                     />
-                    전체 동의
+                    <span>전체 동의</span>
                   </label>
 
                   <div className="signup-terms-list">
                     <TermsRow checked={agreeTerms} onChange={setAgreeTerms} label="서비스 이용약관 동의" required onOpen={() => setActiveTermsModal('terms')} disabled={submitting} />
                     <TermsRow checked={agreePrivacy} onChange={setAgreePrivacy} label="개인정보 수집 및 이용 동의" required onOpen={() => setActiveTermsModal('privacy')} disabled={submitting} />
                     <TermsRow checked={agreeRental} onChange={setAgreeRental} label="렌터카 예약 및 대여 조건 동의" required onOpen={() => setActiveTermsModal('rental')} disabled={submitting} />
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <label className="signup-terms-row">
                       <input type="checkbox" checked={agreeMarketing} onChange={(event) => setAgreeMarketing(event.target.checked)} disabled={submitting} />
-                      [선택] 마케팅 정보 수신 동의
+                      <span>[선택] 마케팅 정보 수신 동의</span>
                     </label>
                   </div>
 
-                  <FieldNote color={requiredTermsAgreed ? '#166534' : '#6b7280'}>
+                  <p className="signup-terms-note" style={{ color: requiredTermsAgreed ? '#166534' : '#6b7280' }}>
                     {requiredTermsAgreed ? '필수 약관 동의가 완료되었습니다.' : '필수 약관에 모두 동의해 주세요.'}
-                  </FieldNote>
+                  </p>
                 </section>
               </div>
 

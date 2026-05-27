@@ -371,9 +371,9 @@ export default function GuestBookingsPage() {
                   </div>
                 </div>
 
-                <div className="signup-flow-card guest-status-card" style={{ display: 'grid', gap: 8 }}>
-                  <div className="reservation-result-row"><span>입력 번호</span><strong>{formatPhoneNumber(normalizedPhone) || '-'}</strong></div>
-                  <div className="reservation-result-row"><span>인증번호 유효시간</span><strong>{verificationId && otpSecondsLeft > 0 ? formatSeconds(otpSecondsLeft) : '-'}</strong></div>
+                <div className="guest-status-box">
+                  <div className="guest-status-row"><span>입력 번호</span><strong>{formatPhoneNumber(normalizedPhone) || '-'}</strong></div>
+                  <div className="guest-status-row"><span>인증번호 유효시간</span><strong>{verificationId && otpSecondsLeft > 0 ? formatSeconds(otpSecondsLeft) : '-'}</strong></div>
                 </div>
 
                 <div className="account-action-row">
