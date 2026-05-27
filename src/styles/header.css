@@ -1,0 +1,118 @@
+/* CSS stabilization 2026-05-28: common header + account/reservation typography lock */
+.page-shell .app-header,
+.landing-shell .app-header,
+.color-preview-shell .app-header,
+.login-page-shell .app-header,
+.account-shell .app-header,
+.search-page-shell .app-header,
+.reservation-flow-shell .app-header{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:rgba(255,255,255,.98);
+  border-bottom:1px solid #dbe3ef;
+  box-shadow:0 10px 26px rgba(16,24,39,.05);
+}
+
+.page-shell .app-header__inner,
+.landing-shell .app-header__inner,
+.color-preview-shell .app-header__inner,
+.login-page-shell .app-header__inner,
+.account-shell .app-header__inner,
+.search-page-shell .app-header__inner,
+.reservation-flow-shell .app-header__inner{
+  width:min(var(--container-width),calc(100% - 40px));
+  min-height:84px;
+  height:auto;
+  margin:0 auto;
+  padding:12px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:nowrap;
+}
+
+.page-shell .app-header__brand,
+.landing-shell .app-header__brand,
+.color-preview-shell .app-header__brand,
+.login-page-shell .app-header__brand,
+.account-shell .app-header__brand,
+.search-page-shell .app-header__brand,
+.reservation-flow-shell .app-header__brand{
+  display:inline-flex;
+  align-items:center;
+  min-width:0;
+  flex:1 1 auto;
+  overflow:hidden;
+  filter:none;
+}
+
+.page-shell .app-header__wordmark,
+.landing-shell .app-header__wordmark,
+.color-preview-shell .app-header__wordmark,
+.login-page-shell .app-header__wordmark,
+.account-shell .app-header__wordmark,
+.search-page-shell .app-header__wordmark,
+.reservation-flow-shell .app-header__wordmark{
+  content:url('/bbang-wordmark-navy.png');
+  display:block;
+  width:auto;
+  height:42px;
+  max-width:min(280px,100%);
+  object-fit:contain;
+}
+
+.page-shell .app-header__nav,
+.landing-shell .app-header__nav,
+.color-preview-shell .app-header__nav,
+.login-page-shell .app-header__nav,
+.account-shell .app-header__nav,
+.search-page-shell .app-header__nav,
+.reservation-flow-shell .app-header__nav,
+.page-shell .app-header__menu,
+.landing-shell .app-header__menu,
+.color-preview-shell .app-header__menu,
+.login-page-shell .app-header__menu,
+.account-shell .app-header__menu,
+.search-page-shell .app-header__menu,
+.reservation-flow-shell .app-header__menu{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  min-width:0;
+  flex-wrap:nowrap;
+}
+
+.page-shell .app-header__button,
+.landing-shell .app-header__button,
+.color-preview-shell .app-header__button,
+.login-page-shell .app-header__button,
+.account-shell .app-header__button,
+.search-page-shell .app-header__button,
+.reservation-flow-shell .app-header__button{
+  min-height:36px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid #168fd0;
+  background:#168fd0;
+  color:#fff;
+  box-shadow:none;
+  font-size:13px;
+  font-weight:700;
+  line-height:1;
+  white-space:nowrap;
+}
+
+.page-shell .app-header__button.is-soft,
+.landing-shell .app-header__button.is-soft,
+.color-preview-shell .app-header__button.is-soft,
+.login-page-shell .app-header__button.is-soft,
+.account-shell .app-header__button.is-soft,
+.search-page-shell .app-header__button.is-soft,
+.reservation-flow-shell .app-header__button.is-soft{
+  border-color:#d7eef9;
+  background:#eaf6fc;
+  color:#0f78b2;
+}
