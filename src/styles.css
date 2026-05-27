@@ -6873,3 +6873,40 @@
     padding:14px;
   }
 }
+
+
+.detail-terms-row-all .detail-terms-check{
+  min-width:24px;
+  min-height:24px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.detail-terms-row-all .detail-terms-check input{
+  width:20px;
+  height:20px;
+}
+
+.detail-card .btn-lg.btn-block,
+.reservation-flow-card .btn-lg.btn-block{
+  min-height:56px;
+  font-size:17px;
+  border-radius:15px;
+}
+
+.list-head-row{
+  align-items:flex-start;
+}
+
+.list-head-row .sort-bar,
+.sort-bar{
+  margin-left:auto;
+  justify-content:flex-end;
+  align-items:flex-start;
+  gap:10px;
+}
+
+.sort-buttons{
+  justify-content:flex-end;
+}
