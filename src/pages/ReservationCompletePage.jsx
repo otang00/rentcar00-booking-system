@@ -3,6 +3,29 @@ import { PageShell } from '../components/Layout'
 import { useEffect, useState } from 'react'
 import { fetchCompletedGuestBooking } from '../services/guestBookingApi'
 
+
+const DEMO_RESERVATION = {
+  reservationNumber: 'TEST-20260528-001',
+  statusTone: 'confirmed',
+  statusLabel: '예약확정',
+  pricingSnapshot: {
+    carName: '테스트 차량',
+  },
+  pricing: {
+    finalPrice: '100,000원',
+  },
+  display: {
+    pickupAt: '06.07(일) 10:00',
+    returnAt: '06.08(월) 10:00',
+  },
+  schedule: {
+    displayPickupLabel: '지점 방문',
+  },
+  customerName: '테스트예약',
+  customerPhone: '01026107114',
+  customerBirth: '19900101',
+}
+
 function formatDisplay(dateText) {
   const [datePart = '', timePart = ''] = String(dateText || '').split(' ')
   const [year, month, day] = datePart.split('-').map(Number)
@@ -16,11 +39,20 @@ export default function ReservationCompletePage() {
   const [searchParams] = useSearchParams()
   const completionToken = searchParams.get('token') || ''
   const paymentError = searchParams.get('paymentError') || ''
+  const isDemo = searchParams.get('demo') === '1'
   const [reservation, setReservation] = useState(null)
   const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
     let isCancelled = false
+
+    if (isDemo) {
+      setReservation(DEMO_RESERVATION)
+      setLoadError('')
+      return () => {
+        isCancelled = true
+      }
+    }
 
     if (!completionToken) {
       setReservation(null)
@@ -45,14 +77,14 @@ export default function ReservationCompletePage() {
     return () => {
       isCancelled = true
     }
-  }, [completionToken, paymentError])
+  }, [completionToken, isDemo, paymentError])
 
   return (
     <PageShell className="color-preview-shell color-preview-mockup-shell account-shell reservation-flow-shell">
       <section className="section-bg account-page-shell">
         <div className="container signup-page-container reservation-flow-container">
           <article className="reservation-flow-card">
-            <div className="login-title-block signup-title-block"><h1>{reservation ? '예약 확정' : paymentError ? '결제 실패' : '예약 확정'}</h1><span>{reservation ? '예약 완료' : loadError || '확인 필요'}</span></div>
+            <div className="login-title-block signup-title-block"><h1>{reservation ? '예약 확정' : paymentError ? '결제 실패' : '예약 확정'}</h1><span>{isDemo ? '화면 확인용 샘플' : reservation ? '예약 완료' : loadError || '확인 필요'}</span></div>
 
             {reservation ? (
               <>
