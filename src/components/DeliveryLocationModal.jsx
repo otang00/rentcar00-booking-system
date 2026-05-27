@@ -59,6 +59,7 @@ export default function DeliveryLocationModal({
   selectedDongId,
   onClose,
   onSelect,
+  closeOnSelect = true,
 }) {
   const [selectedProvinceId, setSelectedProvinceId] = useState(null)
   const [selectedCityId, setSelectedCityId] = useState(null)
@@ -128,7 +129,7 @@ export default function DeliveryLocationModal({
       dongId: draftSelection.dong.id,
       deliveryAddress: draftSelection.dong.fullLabel,
     })
-    onClose()
+    if (closeOnSelect) onClose()
   }
 
   function renderMobileChoices() {

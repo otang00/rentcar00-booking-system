@@ -129,7 +129,7 @@ export default function SearchConditionEditor({ open, initialState, onClose, onA
 
   return (
     <>
-      <DeliveryLocationModal open={step === 'location'} company={company} selectedDongId={draftState.dongId} onClose={onClose} onSelect={handleLocationSelect} />
+      <DeliveryLocationModal open={step === 'location'} company={company} selectedDongId={draftState.dongId} onClose={onClose} onSelect={handleLocationSelect} closeOnSelect={false} />
       <DateRangeModal
         open={step === 'date'}
         monthCursor={monthCursor}
