@@ -82,25 +82,27 @@ export default function LoginPage() {
 
   return (
     <PageShell>
-      <section className="section-bg">
+      <section className="section-bg account-page-shell">
         <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
-          <article className="detail-card panel" style={{ display: 'grid', gap: 16 }}>
-            <div>
-              <h1 style={{ margin: 0 }}>로그인</h1>
+          <article className="detail-card panel account-page-card">
+            <div className="account-page-head">
+              <div>
+                <h1>로그인</h1>
               <p className="small-note" style={{ marginTop: 8 }}>
                 휴대폰 번호와 비밀번호로 로그인합니다. 로그인 후에는 차량 검색 페이지로 이동합니다.
               </p>
-              <p className="field-note" style={{ marginTop: 8 }}>
-                계정이 없으면 아래 회원가입 버튼으로 바로 가입할 수 있습니다.
-              </p>
+                <p className="field-note" style={{ marginTop: 8 }}>
+                  계정이 없으면 아래 회원가입 버튼으로 바로 가입할 수 있습니다.
+                </p>
+              </div>
             </div>
 
-            <div className="panel-sub" style={{ display: 'grid', gap: 12 }}>
+            <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 12 }}>
               <div className="reservation-result-row"><span>상태</span><strong>{loading ? '세션 확인 중' : isAuthenticated ? '로그인됨' : '비로그인'}</strong></div>
               <div className="reservation-result-row"><span>현재 사용자</span><strong>{profile?.phone || user?.phone || user?.email || '-'}</strong></div>
             </div>
 
-            <form className="stack-form stack-form-centered" onSubmit={handleSubmit}>
+            <form className="stack-form stack-form-centered account-form-grid" onSubmit={handleSubmit}>
               <div className="field-group">
                 <label className="field-label" htmlFor="login-phone">휴대폰 번호</label>
                 <input
