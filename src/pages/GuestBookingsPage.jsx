@@ -312,16 +312,14 @@ export default function GuestBookingsPage() {
   return (
     <PageShell className="color-preview-shell color-preview-mockup-shell account-shell">
       <section className="section-bg account-page-shell">
-        <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
-          <article className="detail-card panel account-page-card">
-            <div className="auth-hero-panel">
-              <span className="auth-hero-kicker">비회원 예약 확인</span>
-              <h1>비회원 예약조회</h1>
-            </div>
+        <div className="container signup-page-container guest-bookings-page-container">
+          <div className="login-title-block signup-title-block"><h1>비회원 예약조회</h1><span>전화번호 사용</span></div>
+
+          <div className="signup-page-form guest-bookings-form">
 
             {hasActiveLookupSession ? (
               <>
-                <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 12 }}>
+                <div className="signup-flow-card guest-status-card" style={{ display: 'grid', gap: 12 }}>
                   <div className="reservation-result-row"><span>인증 휴대폰</span><strong>{formatPhoneNumber(verifiedPhone)}</strong></div>
                   <div className="reservation-result-row"><span>인증 유효시간</span><strong>{formatSeconds(activeSessionSecondsLeft)}</strong></div>
                 </div>
@@ -338,7 +336,7 @@ export default function GuestBookingsPage() {
               </>
             ) : (
               <>
-                <div className="auth-main-card guest-lookup-card">
+                <div className="signup-flow-card guest-lookup-card">
                   <div>
                     <label className="field-label">휴대폰 번호</label>
                     <input
@@ -373,7 +371,7 @@ export default function GuestBookingsPage() {
                   </div>
                 </div>
 
-                <div className="auth-side-card" style={{ display: 'grid', gap: 8 }}>
+                <div className="signup-flow-card guest-status-card" style={{ display: 'grid', gap: 8 }}>
                   <div className="reservation-result-row"><span>입력 번호</span><strong>{formatPhoneNumber(normalizedPhone) || '-'}</strong></div>
                   <div className="reservation-result-row"><span>인증번호 유효시간</span><strong>{verificationId && otpSecondsLeft > 0 ? formatSeconds(otpSecondsLeft) : '-'}</strong></div>
                 </div>
@@ -393,7 +391,7 @@ export default function GuestBookingsPage() {
             ) : null}
 
             {hasActiveLookupSession && results.length > 0 ? (
-              <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 16 }}>
+              <div className="signup-flow-card guest-results-card" style={{ display: 'grid', gap: 16 }}>
                 {results.map((booking) => (
                   <ReservationCard
                     key={booking.id || booking.reservationNumber}
@@ -404,7 +402,13 @@ export default function GuestBookingsPage() {
                 ))}
               </div>
             ) : null}
-          </article>
+          </div>
+
+          <div className="signup-bottom-links">
+            <Link to="/login">로그인</Link>
+            <Link to="/signup">회원가입</Link>
+            <Link to="/">메인으로</Link>
+          </div>
         </div>
       </section>
       <ContactInfoStrip items={landingContactItems} />

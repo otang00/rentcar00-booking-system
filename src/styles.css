@@ -5535,3 +5535,55 @@
     padding:0 8px;
   }
 }
+
+/* Guest bookings page aligned to login/signup tone */
+.guest-bookings-form{
+  gap:14px;
+}
+
+.guest-bookings-form .guest-lookup-card,
+.guest-bookings-form .guest-status-card,
+.guest-bookings-form .guest-results-card{
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  padding:16px;
+  box-shadow:none;
+}
+
+.guest-bookings-form .guest-lookup-card{
+  display:grid;
+  gap:12px;
+}
+
+.guest-bookings-form .field-input{
+  min-height:46px;
+  border-radius:13px;
+  font-size:16px;
+}
+
+.guest-bookings-form .btn-md{
+  min-height:46px;
+  border-radius:13px;
+}
+
+.guest-bookings-form .btn-dark{
+  background:#168fd0;
+  border-color:#168fd0;
+}
+
+.guest-bookings-form .account-action-row{
+  margin-top:0;
+}
+
+.guest-bookings-form .small-note,
+.guest-bookings-form .field-note,
+.guest-bookings-form .legal-note{
+  margin:0;
+}
+
+@media(max-width:760px){
+  .guest-bookings-form .guest-lookup-card > div:nth-child(2){
+    grid-template-columns:1fr;
+  }
+}
