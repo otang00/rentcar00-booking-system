@@ -14,7 +14,7 @@ function buildDetailSearch(search, detailToken) {
 export default function CarCard({ car }) {
   const location = useLocation()
   const detailSearch = buildDetailSearch(location.search, car.detailToken)
-  const specs = [car.ageLabel, car.fuelType, car.seats].filter(Boolean)
+  const specs = [car.yearLabel, car.ageLabel, car.fuelType, car.seats].filter(Boolean)
 
   return (
     <Link
@@ -27,13 +27,11 @@ export default function CarCard({ car }) {
       <div className="car-body search-car-body">
         <div className="search-car-title-row">
           <h3>{car.name}</h3>
-          <div className="inline-meta search-car-year">{car.yearLabel}</div>
         </div>
         <div className="search-car-specs">
           {specs.map((item) => <span key={item}>{item}</span>)}
         </div>
         <div className="prices refined-price search-car-price">
-          <span>총 예상가</span>
           <strong>{car.dayPrice}</strong>
         </div>
       </div>

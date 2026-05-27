@@ -4300,7 +4300,7 @@
 .search-car-card{
   display:grid;
   grid-template-columns:120px minmax(0,1fr);
-  min-height:118px;
+  min-height:104px;
   border-radius:20px;
   overflow:hidden;
   background:#fff;
@@ -4322,16 +4322,16 @@
 .search-car-thumb img{
   width:100%;
   height:100%;
-  max-height:92px;
+  max-height:84px;
   object-fit:contain;
 }
 
 .search-car-body{
   display:flex;
   flex-direction:column;
-  gap:7px;
+  gap:6px;
   min-width:0;
-  padding:12px 13px 10px 0;
+  padding:10px 13px 9px 0;
 }
 
 .search-car-title-row h3{
@@ -4343,13 +4343,6 @@
   letter-spacing:-.045em;
 }
 
-.search-car-year{
-  margin-top:3px;
-  color:#526173;
-  font-size:12.5px;
-  font-weight:800;
-}
-
 .search-car-price{
   flex:0 0 auto;
   align-items:flex-end;
@@ -4357,18 +4350,10 @@
   margin-top:auto;
 }
 
-.search-car-price span{
-  display:block;
-  color:#168fd0;
-  font-size:10.5px;
-  font-weight:1000;
-  margin-bottom:2px;
-}
-
 .search-car-price strong{
   display:block;
   color:#101827;
-  font-size:21px;
+  font-size:24px;
   line-height:1;
   font-weight:1000;
   letter-spacing:-.055em;
@@ -4438,7 +4423,7 @@
 
   .search-car-card{
     grid-template-columns:104px minmax(0,1fr);
-    min-height:112px;
+    min-height:102px;
   }
 
   .search-car-title-row h3{
@@ -4446,6 +4431,6 @@
   }
 
   .search-car-price strong{
-    font-size:20px;
+    font-size:23px;
   }
 }
