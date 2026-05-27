@@ -893,9 +893,12 @@ export default function CarDetailSection() {
                 )}
               </article>
 
-              <article className={`detail-card panel driver-info-card ${isDriverFormLocked ? 'is-locked' : 'is-editing'}`}>
-                <h2>{isAuthenticated ? '회원 정보' : '예약자 정보'}</h2>
-                <div className={`stack-form stack-form-centered driver-info-form ${isDriverFormLocked ? 'is-locked' : ''}`}>
+              <article className={`detail-card panel driver-info-card detail-driver-card ${isDriverFormLocked ? 'is-locked' : 'is-editing'}`}>
+                <div className="detail-section-head">
+                  <span>{isAuthenticated ? '회원 확인' : '예약자 확인'}</span>
+                  <h2>{isAuthenticated ? '회원 정보' : '예약자 정보'}</h2>
+                </div>
+                <div className={`stack-form stack-form-centered driver-info-form detail-driver-form ${isDriverFormLocked ? 'is-locked' : ''}`}>
                   <div>
                     <input
                       className="field-input driver-info-form__input"
@@ -936,8 +939,8 @@ export default function CarDetailSection() {
                   </div>
                 </div>
                 {!authLoading && !isDriverFormLocked && (
-                  <div style={{ display: 'grid', gap: 8, marginTop: 16 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.6fr) auto auto', gap: 8, alignItems: 'center' }}>
+                  <div className="detail-otp-card" style={{ display: 'grid', gap: 8, marginTop: 16 }}>
+                    <div className="detail-otp-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.6fr) auto auto', gap: 8, alignItems: 'center' }}>
                       <input
                         className="field-input"
                         type="text"
@@ -978,8 +981,11 @@ export default function CarDetailSection() {
                 )}
               </article>
 
-              <article className="detail-card panel">
-                <h2>이용 약관 동의</h2>
+              <article className="detail-card panel detail-terms-card">
+                <div className="detail-section-head">
+                  <span>약관 확인</span>
+                  <h2>이용 약관 동의</h2>
+                </div>
                 <div className="terms-list">
                   <label><input type="checkbox" checked={termsState.allAgreed} onChange={(e) => handleToggleAllTerms(e.target.checked)} /> 전체 동의</label>
                   <TermsCheckRow checked={termsState.serviceAgreed} onChange={(checked) => handleToggleSingleTerm('serviceAgreed', checked)} label="서비스 이용약관" onOpen={() => setActiveTermsModal('service')} />
@@ -994,8 +1000,11 @@ export default function CarDetailSection() {
                 </div>
               </article>
 
-              <article className="detail-card panel payment-summary-card" ref={paymentSummaryRef}>
-                <h2>결제 정보</h2>
+              <article className="detail-card panel payment-summary-card detail-payment-card" ref={paymentSummaryRef}>
+                <div className="detail-section-head">
+                  <span>최종 확인</span>
+                  <h2>결제 정보</h2>
+                </div>
                 <div className="price-lines">
                   <div className="total"><span>총 예상 금액</span><strong>{pricing.finalPrice}</strong></div>
                 </div>

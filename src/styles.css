@@ -4632,3 +4632,87 @@
     grid-template-columns:1fr;
   }
 }
+
+/* Detail renewal phase 3: form/terms/payment */
+.color-preview-shell .detail-driver-card,
+.color-preview-shell .detail-terms-card,
+.color-preview-shell .detail-payment-card{
+  border-radius:24px;
+  padding:20px;
+}
+
+.color-preview-shell .detail-driver-form{
+  gap:12px;
+}
+
+.color-preview-shell .detail-driver-form .field-input{
+  min-height:50px;
+  border-radius:14px;
+  background:#fbfdff;
+}
+
+.color-preview-shell .detail-otp-card{
+  border:1px solid #dbe3ef;
+  border-radius:18px;
+  background:#fbfdff;
+  padding:14px;
+}
+
+.color-preview-shell .detail-otp-grid .btn{
+  min-width:88px;
+}
+
+.color-preview-shell .detail-terms-card .terms-list{
+  gap:12px;
+}
+
+.color-preview-shell .detail-terms-card .terms-list>label,
+.color-preview-shell .detail-terms-card .terms-check-row{
+  padding:10px 12px;
+  border:1px solid #dbe3ef;
+  border-radius:14px;
+  background:#fbfdff;
+}
+
+.color-preview-shell .detail-payment-card .price-lines{
+  margin:8px 0 18px;
+}
+
+.color-preview-shell .detail-payment-card .price-lines .total{
+  padding:16px 18px;
+  border:1px solid #dbe3ef;
+  border-radius:18px;
+  background:#fbfdff;
+}
+
+.color-preview-shell .detail-payment-card .price-lines .total strong{
+  font-size:32px;
+  letter-spacing:-.05em;
+}
+
+.color-preview-shell .detail-payment-card .btn-dark{
+  min-height:56px;
+  border-radius:16px;
+  font-size:18px;
+  font-weight:1000;
+}
+
+@media(max-width:760px){
+  .color-preview-shell .detail-driver-card,
+  .color-preview-shell .detail-terms-card,
+  .color-preview-shell .detail-payment-card{
+    padding:16px;
+  }
+
+  .color-preview-shell .detail-otp-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .color-preview-shell .detail-otp-grid input{
+    grid-column:1 / -1;
+  }
+
+  .color-preview-shell .detail-payment-card .price-lines .total strong{
+    font-size:28px;
+  }
+}
