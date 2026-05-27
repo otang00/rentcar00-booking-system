@@ -14,6 +14,7 @@ import {
   getEarliestReturnDateTime,
   getLatestPickupDateTime,
   getLatestReturnDateTime,
+  getLatestSearchReturnDateTime,
   getPickupTimeOptions,
   getReturnTimeOptions,
   parseDateTimeString,
@@ -109,8 +110,10 @@ function DateRangeModal({
   const rightMonth = addMonths(leftMonth, 1)
   const monthEntries = [leftMonth, rightMonth]
   const weekdays = ['일', '월', '화', '수', '목', '금', '토']
+  const isWaitingReturn = pickupDate && !returnDate
+  const activeMaxDateKey = isWaitingReturn ? maxReturnDateKey : maxPickupDateKey
   const minMonth = startOfMonth(parseDateTimeString(`${minPickupDateKey} 00:00`) || leftMonth)
-  const maxMonth = startOfMonth(parseDateTimeString(`${maxPickupDateKey} 00:00`) || leftMonth)
+  const maxMonth = startOfMonth(parseDateTimeString(`${activeMaxDateKey} 00:00`) || leftMonth)
   const isPrevDisabled = leftMonth <= minMonth
   const isNextDisabled = leftMonth >= maxMonth
 
@@ -147,7 +150,9 @@ function DateRangeModal({
                     if (!cell) return <span key={`${monthKey}-blank-${index}`} className="is-empty" aria-hidden="true" />
                     const dateKey = formatDateKey(cell)
                     const isWaitingReturn = pickupDate && !returnDate
-                    const isDisabled = dateKey < minPickupDateKey || dateKey > maxPickupDateKey || (isWaitingReturn && (dateKey < minReturnDateKey || dateKey > maxReturnDateKey))
+                    const effectiveMinDateKey = isWaitingReturn ? minReturnDateKey : minPickupDateKey
+                    const effectiveMaxDateKey = isWaitingReturn ? maxReturnDateKey : maxPickupDateKey
+                    const isDisabled = dateKey < effectiveMinDateKey || dateKey > effectiveMaxDateKey
                     const isPickup = pickupDate === dateKey
                     const isReturn = returnDate === dateKey
                     const isInRange = pickupDate && returnDate && dateKey > pickupDate && dateKey < returnDate
@@ -248,8 +253,9 @@ function ColorPreviewHero() {
   const deliverySchedule = useMemo(() => splitDateTimeString(searchState.deliveryDateTime), [searchState.deliveryDateTime])
   const returnSchedule = useMemo(() => splitDateTimeString(searchState.returnDateTime), [searchState.returnDateTime])
   const earliestPickupDate = useMemo(() => getEarliestPickupDateTime(), [])
-  const earliestPickupDateKey = useMemo(() => formatDateKey(new Date()), [])
+  const earliestPickupDateKey = useMemo(() => formatDateKey(earliestPickupDate), [earliestPickupDate])
   const latestPickupDateKey = useMemo(() => formatDateKey(getLatestPickupDateTime()), [])
+  const latestSearchReturnDate = useMemo(() => getLatestSearchReturnDateTime(), [])
   const modalPickupDateTime = useMemo(() => buildDateTimeValue(draftPickupDate || deliverySchedule.date, draftPickupTime || '09:00'), [draftPickupDate, deliverySchedule.date, draftPickupTime])
   const modalMinReturnDateKey = useMemo(() => {
     const pickupAt = parseDateTimeString(modalPickupDateTime)
@@ -257,8 +263,12 @@ function ColorPreviewHero() {
   }, [modalPickupDateTime])
   const modalMaxReturnDateKey = useMemo(() => {
     const pickupAt = parseDateTimeString(modalPickupDateTime)
-    return pickupAt ? formatDateKey(getLatestReturnDateTime(pickupAt)) : ''
-  }, [modalPickupDateTime])
+    if (!pickupAt) return ''
+
+    const latestRentalReturnAt = getLatestReturnDateTime(pickupAt)
+    const effectiveLatestReturnAt = latestRentalReturnAt < latestSearchReturnDate ? latestRentalReturnAt : latestSearchReturnDate
+    return formatDateKey(effectiveLatestReturnAt)
+  }, [modalPickupDateTime, latestSearchReturnDate])
   const modalPickupTimeOptions = useMemo(() => getPickupTimeOptions(draftPickupDate || deliverySchedule.date), [draftPickupDate, deliverySchedule.date])
   const modalReturnTimeOptions = useMemo(() => getReturnTimeOptions(draftReturnDate || returnSchedule.date, modalPickupDateTime), [draftReturnDate, returnSchedule.date, modalPickupDateTime])
 
@@ -357,7 +367,8 @@ function ColorPreviewHero() {
     if (Math.abs(deltaX) < 48) return
 
     const minMonth = startOfMonth(parseDateTimeString(`${earliestPickupDateKey} 00:00`) || monthCursor)
-    const maxMonth = startOfMonth(parseDateTimeString(`${latestPickupDateKey} 00:00`) || monthCursor)
+    const activeMaxDateKey = draftPickupDate && !draftReturnDate ? modalMaxReturnDateKey : latestPickupDateKey
+    const maxMonth = startOfMonth(parseDateTimeString(`${activeMaxDateKey} 00:00`) || monthCursor)
 
     if (deltaX < 0 && monthCursor < maxMonth) {
       setMonthCursor((current) => addMonths(current, 1))
