@@ -4295,6 +4295,8 @@
   display:grid;
   grid-template-columns:1fr;
   gap:12px;
+  width:70%;
+  margin:0 auto;
 }
 
 .search-car-card{
@@ -4391,6 +4393,11 @@
 
   .search-summary-grid{
     grid-template-columns:1fr 1fr;
+  }
+
+  .search-car-list{
+    width:100%;
+    margin:0;
   }
 
 }
