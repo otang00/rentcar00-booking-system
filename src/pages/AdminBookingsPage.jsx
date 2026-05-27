@@ -208,10 +208,10 @@ export default function AdminBookingsPage() {
 
   return (
     <PageShell>
-      <section className="section-bg">
+      <section className="section-bg account-page-shell admin-bookings-shell">
         <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
           {!loading && isAuthenticated && !hasAdminHint ? (
-            <article className="detail-card panel" style={{ display: 'grid', gap: 16 }}>
+            <article className="detail-card panel account-page-card admin-page-card">
               <div>
                 <h1 style={{ margin: 0 }}>접근 제한</h1>
                 <p className="small-note" style={{ marginTop: 8 }}>관리자 계정만 접근할 수 있습니다.</p>
@@ -223,10 +223,10 @@ export default function AdminBookingsPage() {
           ) : null}
 
           {!loading && isAuthenticated && !hasAdminHint ? null : (
-            <article className="detail-card panel" style={{ display: 'grid', gap: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <article className="detail-card panel account-page-card admin-page-card">
+              <div className="account-page-head">
                 <div>
-                  <h1 style={{ margin: 0 }}>예약관리</h1>
+                  <h1>예약관리</h1>
                   <p className="small-note" style={{ marginTop: 8 }}>
                     홈페이지 예약 원장을 확인하고 취소/환불 상태를 관리합니다.
                   </p>
@@ -236,7 +236,7 @@ export default function AdminBookingsPage() {
               {hasAdminHint ? <AdminNav /> : null}
 
               {hasAdminHint ? (
-                <div className="panel-sub" style={{ display: 'grid', gap: 8 }}>
+                <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 8 }}>
                   <div className="reservation-result-row"><span>관리자 계정</span><strong>{adminLabel || '-'}</strong></div>
                   <div className="reservation-result-row"><span>표시 건수</span><strong>{fetching ? '불러오는 중' : `${total}건`}</strong></div>
                 </div>
@@ -268,7 +268,7 @@ export default function AdminBookingsPage() {
                 ))}
               </div>
 
-              <div className="panel-sub" style={{ display: 'grid', gap: 10 }}>
+              <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 10 }}>
                 <div className="form-grid">
                   <select className="field-select" value={qField} onChange={(e) => updateParams({ qField: e.target.value })}>
                     {QUERY_FIELD_OPTIONS.map((option) => (
@@ -289,14 +289,14 @@ export default function AdminBookingsPage() {
               {error ? <p className="field-note" style={{ color: '#be123c', margin: 0 }}>{error}</p> : null}
 
               {!fetching && !error && items.length === 0 ? (
-                <div className="panel-sub" style={{ display: 'grid', gap: 8 }}>
+                <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 8 }}>
                   <strong>표시할 예약이 없습니다.</strong>
                   <p className="field-note" style={{ margin: 0 }}>현재 조건에 맞는 예약이 없습니다.</p>
                 </div>
               ) : null}
 
               {items.length > 0 ? (
-                <div className="panel-sub" style={{ display: 'grid', gap: 16 }}>
+                <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 16 }}>
                   {items.map((item) => {
                     const booking = item.booking
                     return (
@@ -338,7 +338,7 @@ export default function AdminBookingsPage() {
                 </div>
               ) : null}
 
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div className="account-action-row">
                 <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
               </div>
             </article>
