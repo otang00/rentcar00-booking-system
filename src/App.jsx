@@ -8,6 +8,7 @@ import LegalPage from './pages/LegalPage'
 import ReservationCompletePage from './pages/ReservationCompletePage'
 import LoginPage from './pages/LoginPage'
 import PostcodeTestPage from './pages/PostcodeTestPage'
+import ScrollToTop from './components/ScrollToTop'
 const MemberReservationsPage = lazy(() => import('./pages/MemberReservationsPage'))
 const MemberReservationDetailPage = lazy(() => import('./pages/MemberReservationDetailPage'))
 const GuestBookingsPage = lazy(() => import('./pages/GuestBookingsPage'))
@@ -30,7 +31,9 @@ function LazyRoute({ children }) {
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/landing" element={<Navigate to="/" replace />} />
       <Route path="/landing-v2" element={<LandingV2Page />} />
@@ -55,6 +58,7 @@ export default function App() {
       <Route path="/terms" element={<LegalPage kind="terms" />} />
       <Route path="/privacy" element={<LegalPage kind="privacy" />} />
       <Route path="/special-terms" element={<LegalPage kind="special" />} />
-    </Routes>
+      </Routes>
+    </>
   )
 }
