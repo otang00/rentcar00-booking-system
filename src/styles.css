@@ -5649,3 +5649,60 @@
     font-size:19px;
   }
 }
+
+/* Signup address/terms grouping fixes */
+.signup-page-form .signup-address-stack{
+  display:grid;
+  gap:0 !important;
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+  padding:0 !important;
+}
+
+.signup-page-form .signup-address-stack .field-group{
+  padding:12px 16px;
+  margin:0;
+  background:#fff;
+}
+
+.signup-page-form .signup-address-stack .field-group + .field-group{
+  border-top:1px solid #e7eef4;
+}
+
+.signup-page-form .signup-address-stack .field-note{
+  margin-top:6px;
+}
+
+.signup-page-form .signup-terms-list{
+  display:grid;
+  gap:10px;
+}
+
+.signup-page-form .signup-flow-card > .signup-terms-list{
+  border-left:1px solid #d7e4ec;
+  border-right:1px solid #d7e4ec;
+  background:#fff;
+  padding:12px 16px;
+  margin:0;
+}
+
+.signup-page-form .signup-flow-card > .signup-terms-list + .field-note{
+  border-left:1px solid #d7e4ec;
+  border-right:1px solid #d7e4ec;
+  border-bottom:1px solid #d7e4ec;
+  border-bottom-left-radius:18px;
+  border-bottom-right-radius:18px;
+  background:#fff;
+  padding:12px 16px;
+  margin:0;
+}
+
+@media(max-width:760px){
+  .signup-page-form .signup-address-stack .field-group,
+  .signup-page-form .signup-flow-card > .signup-terms-list,
+  .signup-page-form .signup-flow-card > .signup-terms-list + .field-note{
+    padding:11px 15px;
+  }
+}

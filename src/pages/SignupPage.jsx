@@ -592,7 +592,7 @@ export default function SignupPage() {
                 <section className="auth-main-card signup-flow-card">
                   <SectionTitle title="주소" />
 
-                  <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 16 }}>
+                  <div className="signup-address-stack">
                     <div className="field-group">
                       <label className="field-label" htmlFor="signup-postal-code">우편번호</label>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
@@ -660,7 +660,7 @@ export default function SignupPage() {
                     전체 동의
                   </label>
 
-                  <div style={{ display: 'grid', gap: 10 }}>
+                  <div className="signup-terms-list">
                     <TermsRow checked={agreeTerms} onChange={setAgreeTerms} label="서비스 이용약관 동의" required onOpen={() => setActiveTermsModal('terms')} disabled={submitting} />
                     <TermsRow checked={agreePrivacy} onChange={setAgreePrivacy} label="개인정보 수집 및 이용 동의" required onOpen={() => setActiveTermsModal('privacy')} disabled={submitting} />
                     <TermsRow checked={agreeRental} onChange={setAgreeRental} label="렌터카 예약 및 대여 조건 동의" required onOpen={() => setActiveTermsModal('rental')} disabled={submitting} />
