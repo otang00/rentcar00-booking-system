@@ -78,7 +78,7 @@ export default function SearchResultsSection() {
   const navigate = useNavigate()
   const searchState = useMemo(() => parseSearchQuery(location.search), [location.search])
   const validation = useMemo(() => validateSearchState(searchState), [searchState])
-  const [company, setCompany] = useState(() => getMockCompany())
+  const [, setCompany] = useState(() => getMockCompany())
   const [cars, setCars] = useState([])
   const [totalCount, setTotalCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
@@ -148,16 +148,10 @@ export default function SearchResultsSection() {
       <div className="container main-stack search-results-stack">
         <SearchConditionSummary searchState={searchState} totalCount={totalCount} onReset={handleReset} />
 
-        <div className="list-head-row search-list-head">
-          <div>
-            <span>{company.name}</span>
-            <strong>조건에 맞는 차량</strong>
-          </div>
-          <div className="sort-buttons simple">
-            <button className={`btn btn-tab btn-md ${searchState.order === 'lower' ? 'is-active' : ''}`} onClick={() => handleOrderChange('lower')}>낮은 가격순</button>
-            <button className={`btn btn-tab btn-md ${searchState.order === 'higher' ? 'is-active' : ''}`} onClick={() => handleOrderChange('higher')}>높은 가격순</button>
-            <button className={`btn btn-tab btn-md ${searchState.order === 'newer' ? 'is-active' : ''}`} onClick={() => handleOrderChange('newer')}>신차순</button>
-          </div>
+        <div className="search-sort-row">
+          <button className={`btn btn-tab btn-md ${searchState.order === 'lower' ? 'is-active' : ''}`} onClick={() => handleOrderChange('lower')}>낮은 가격순</button>
+          <button className={`btn btn-tab btn-md ${searchState.order === 'higher' ? 'is-active' : ''}`} onClick={() => handleOrderChange('higher')}>높은 가격순</button>
+          <button className={`btn btn-tab btn-md ${searchState.order === 'newer' ? 'is-active' : ''}`} onClick={() => handleOrderChange('newer')}>신차순</button>
         </div>
 
         {!validation.isValid && <ErrorState message={validationErrorMessage} />}

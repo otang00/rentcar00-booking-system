@@ -25,22 +25,16 @@ export default function CarCard({ car }) {
         <img src={car.image} alt={car.name} />
       </div>
       <div className="car-body search-car-body">
-        <div className="search-car-main">
-          <div>
-            <h3>{car.name}</h3>
-            <div className="inline-meta search-car-year">{car.yearLabel}</div>
-          </div>
-          <div className="prices refined-price search-car-price">
-            <span>총 예상가</span>
-            <strong>{car.dayPrice}</strong>
-          </div>
+        <div className="search-car-title-row">
+          <h3>{car.name}</h3>
+          <div className="inline-meta search-car-year">{car.yearLabel}</div>
         </div>
         <div className="search-car-specs">
           {specs.map((item) => <span key={item}>{item}</span>)}
         </div>
-        <div className="search-car-action">
-          <span>상세 보기</span>
-          <em>예약 가능 여부 확인</em>
+        <div className="prices refined-price search-car-price">
+          <span>총 예상가</span>
+          <strong>{car.dayPrice}</strong>
         </div>
       </div>
     </Link>
