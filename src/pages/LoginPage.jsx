@@ -131,12 +131,9 @@ export default function LoginPage() {
             </form>
 
             <div className="login-bottom-links">
-              {showForgotPasswordLink ? (
-                <Link to={`/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`}>비밀번호 찾기</Link>
-              ) : (
-                <span />
-              )}
               <Link to={`/signup?redirectTo=${encodeURIComponent(redirectTo)}`}>회원가입</Link>
+              <Link to={`/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`}>비밀번호 재설정</Link>
+              <Link to="/guest-bookings">비회원 예약조회</Link>
             </div>
           </article>
         </div>

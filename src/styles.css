@@ -5391,3 +5391,31 @@
     font-size:19px;
   }
 }
+
+/* Login bottom links refinement */
+.login-bottom-links{
+  justify-content:center;
+  align-items:center;
+  gap:0;
+  color:#6f8194;
+  font-size:14px;
+  font-weight:800;
+}
+
+.login-bottom-links a{
+  padding:0 12px;
+  line-height:1;
+}
+
+.login-bottom-links a + a{
+  border-left:1px solid #d7e4ec;
+}
+
+@media(max-width:360px){
+  .login-bottom-links{
+    font-size:13px;
+  }
+  .login-bottom-links a{
+    padding:0 8px;
+  }
+}
