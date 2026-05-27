@@ -6082,3 +6082,377 @@
     padding:11px 15px !important;
   }
 }
+
+/* Detail checkout final polish */
+.color-preview-shell .detail-main{
+  gap:22px;
+}
+
+.color-preview-shell .detail-main > .detail-reservation-card,
+.color-preview-shell .detail-main > .detail-driver-card,
+.color-preview-shell .detail-main > .detail-terms-card,
+.color-preview-shell .detail-main > .detail-payment-card{
+  width:min(100%,420px);
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.color-preview-shell .detail-reservation-grid,
+.color-preview-shell .detail-driver-form,
+.color-preview-shell .detail-otp-card,
+.color-preview-shell .detail-payment-card .price-lines,
+.color-preview-shell .detail-terms-box,
+.color-preview-shell .detail-address-card{
+  border:1px solid #d7e4ec !important;
+  border-radius:18px !important;
+  background:#fff !important;
+  overflow:hidden !important;
+  box-shadow:none !important;
+}
+
+.color-preview-shell .detail-terms-box{
+  display:grid;
+  gap:0;
+}
+
+.color-preview-shell .detail-terms-row,
+.color-preview-shell .detail-terms-note{
+  min-height:48px;
+  padding:12px 16px;
+  margin:0;
+  background:#fff;
+}
+
+.color-preview-shell .detail-terms-row + .detail-terms-row,
+.color-preview-shell .detail-terms-box .terms-list,
+.color-preview-shell .detail-terms-note{
+  border-top:1px solid #e7eef4;
+}
+
+.color-preview-shell .detail-terms-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.color-preview-shell .detail-terms-row-all{
+  font-weight:950;
+}
+
+.color-preview-shell .detail-terms-check{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+  flex:1;
+  color:#243447;
+  font-size:14px;
+  font-weight:850;
+}
+
+.color-preview-shell .detail-terms-check span{
+  line-height:1.4;
+}
+
+.color-preview-shell .detail-terms-box .terms-list{
+  display:grid !important;
+  gap:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+}
+
+.color-preview-shell .detail-terms-box .terms-list > * + *{
+  border-top:1px solid #e7eef4 !important;
+}
+
+.color-preview-shell .detail-terms-note{
+  font-size:13px;
+  font-weight:850;
+  line-height:1.45;
+  background:#fbfdff;
+}
+
+.color-preview-shell .detail-driver-card .detail-otp-card > div,
+.color-preview-shell .detail-driver-card .detail-otp-card > p,
+.color-preview-shell .detail-driver-card .detail-driver-form > div,
+.color-preview-shell .detail-reservation-grid > div,
+.color-preview-shell .detail-payment-card .price-lines > div{
+  padding:12px 16px !important;
+}
+
+.color-preview-shell .detail-driver-card .detail-otp-card > * + *,
+.color-preview-shell .detail-driver-card .detail-driver-form > div + div,
+.color-preview-shell .detail-reservation-grid > div + div,
+.color-preview-shell .detail-payment-card .price-lines > div + div{
+  border-top:1px solid #e7eef4 !important;
+}
+
+.color-preview-shell .detail-driver-card .detail-otp-grid{
+  display:grid !important;
+  grid-template-columns:1fr auto auto !important;
+  gap:8px !important;
+  align-items:center !important;
+}
+
+@media(max-width:760px){
+  .color-preview-shell .detail-main{
+    gap:18px;
+  }
+
+  .color-preview-shell .detail-main > .detail-reservation-card,
+  .color-preview-shell .detail-main > .detail-driver-card,
+  .color-preview-shell .detail-main > .detail-terms-card,
+  .color-preview-shell .detail-main > .detail-payment-card{
+    width:100%;
+  }
+
+  .color-preview-shell .detail-terms-row,
+  .color-preview-shell .detail-terms-note,
+  .color-preview-shell .detail-driver-card .detail-otp-card > div,
+  .color-preview-shell .detail-driver-card .detail-otp-card > p,
+  .color-preview-shell .detail-driver-card .detail-driver-form > div,
+  .color-preview-shell .detail-reservation-grid > div,
+  .color-preview-shell .detail-payment-card .price-lines > div{
+    padding:11px 15px !important;
+  }
+
+  .color-preview-shell .detail-driver-card .detail-otp-grid{
+    grid-template-columns:1fr !important;
+  }
+}
+
+/* Final unified page background: signup/account tone */
+.color-preview-shell .search-page,
+.color-preview-shell .cars-layout,
+.color-preview-shell .detail-page,
+.color-preview-shell .detail-layout,
+.color-preview-shell .detail-main,
+.color-preview-shell .search-results-page,
+.color-preview-shell .search-results-shell{
+  background:#f4f8fb !important;
+}
+
+/* Detail checkout reset to signup form style */
+.color-preview-shell .detail-main{
+  gap:24px !important;
+}
+
+.color-preview-shell .detail-reservation-card,
+.color-preview-shell .detail-driver-card,
+.color-preview-shell .detail-terms-card,
+.color-preview-shell .detail-payment-card{
+  width:min(100%,420px) !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+
+.color-preview-shell .detail-reservation-card .detail-section-head,
+.color-preview-shell .detail-driver-card .detail-section-head,
+.color-preview-shell .detail-terms-card .detail-section-head,
+.color-preview-shell .detail-payment-card .detail-section-head{
+  margin:0 0 10px !important;
+}
+
+.color-preview-shell .detail-reservation-card .detail-section-head h2,
+.color-preview-shell .detail-driver-card .detail-section-head h2,
+.color-preview-shell .detail-terms-card .detail-section-head h2,
+.color-preview-shell .detail-payment-card .detail-section-head h2{
+  margin:0 !important;
+  color:#101827 !important;
+  font-size:20px !important;
+  line-height:1.18 !important;
+  letter-spacing:-.055em !important;
+  font-weight:1000 !important;
+}
+
+.color-preview-shell .detail-reservation-grid,
+.color-preview-shell .detail-address-card,
+.color-preview-shell .detail-driver-form,
+.color-preview-shell .detail-otp-card,
+.color-preview-shell .detail-terms-box,
+.color-preview-shell .detail-payment-card .price-lines{
+  width:100% !important;
+  display:grid !important;
+  gap:0 !important;
+  border:1px solid #d7e4ec !important;
+  border-radius:18px !important;
+  background:#fff !important;
+  overflow:hidden !important;
+  padding:0 !important;
+  margin:0 !important;
+  box-shadow:none !important;
+}
+
+.color-preview-shell .detail-reservation-grid > div,
+.color-preview-shell .detail-address-card,
+.color-preview-shell .detail-driver-form > div,
+.color-preview-shell .detail-otp-card > div,
+.color-preview-shell .detail-otp-card > p,
+.color-preview-shell .detail-terms-row,
+.color-preview-shell .detail-terms-note,
+.color-preview-shell .detail-payment-card .price-lines > div{
+  min-height:48px !important;
+  padding:12px 16px !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:#fff !important;
+  box-shadow:none !important;
+}
+
+.color-preview-shell .detail-reservation-grid > div + div,
+.color-preview-shell .detail-driver-form > div + div,
+.color-preview-shell .detail-otp-card > * + *,
+.color-preview-shell .detail-terms-box > * + *,
+.color-preview-shell .detail-terms-box .terms-list > * + *,
+.color-preview-shell .detail-payment-card .price-lines > div + div{
+  border-top:1px solid #e7eef4 !important;
+}
+
+.color-preview-shell .detail-terms-box .terms-list{
+  display:grid !important;
+  gap:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  margin:0 !important;
+  box-shadow:none !important;
+}
+
+.color-preview-shell .detail-terms-row{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+}
+
+.color-preview-shell .detail-terms-check{
+  display:flex !important;
+  align-items:center !important;
+  gap:9px !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+  color:#243447 !important;
+  font-size:14px !important;
+  font-weight:850 !important;
+}
+
+.color-preview-shell .detail-terms-row .btn{
+  flex:0 0 auto !important;
+}
+
+.color-preview-shell .detail-terms-note{
+  background:#fbfdff !important;
+  font-size:13px !important;
+  font-weight:850 !important;
+  line-height:1.45 !important;
+}
+
+.color-preview-shell .detail-input-label,
+.color-preview-shell .detail-address-card .field-label,
+.color-preview-shell .detail-reservation-grid span,
+.color-preview-shell .detail-payment-card .total span{
+  color:#6f8194 !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+}
+
+.color-preview-shell .detail-driver-form .field-input,
+.color-preview-shell .detail-otp-card .field-input,
+.color-preview-shell .detail-address-card .field-input{
+  min-height:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  color:#111827 !important;
+  font-size:20px !important;
+  line-height:1.2 !important;
+  box-shadow:none !important;
+}
+
+.color-preview-shell .detail-driver-form .field-input:focus,
+.color-preview-shell .detail-otp-card .field-input:focus,
+.color-preview-shell .detail-address-card .field-input:focus{
+  outline:0 !important;
+}
+
+.color-preview-shell .detail-otp-grid{
+  display:grid !important;
+  grid-template-columns:1fr auto auto !important;
+  gap:8px !important;
+  align-items:center !important;
+}
+
+.color-preview-shell .detail-payment-card .price-lines{
+  margin-bottom:12px !important;
+}
+
+.color-preview-shell .detail-payment-card .total{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:14px !important;
+}
+
+.color-preview-shell .detail-payment-card .total strong{
+  color:#101827 !important;
+  font-size:22px !important;
+  font-weight:1000 !important;
+}
+
+.color-preview-shell .detail-payment-card .btn-block{
+  width:100% !important;
+  min-height:58px !important;
+  border-radius:18px !important;
+  background:#168fd0 !important;
+  border-color:#168fd0 !important;
+  font-size:22px !important;
+  font-weight:1000 !important;
+}
+
+.color-preview-shell .detail-terms-card .legal-note{
+  display:none !important;
+}
+
+@media(max-width:760px){
+  .color-preview-shell .detail-reservation-card,
+  .color-preview-shell .detail-driver-card,
+  .color-preview-shell .detail-terms-card,
+  .color-preview-shell .detail-payment-card{
+    width:100% !important;
+  }
+
+  .color-preview-shell .detail-main{
+    gap:20px !important;
+  }
+
+  .color-preview-shell .detail-reservation-grid > div,
+  .color-preview-shell .detail-address-card,
+  .color-preview-shell .detail-driver-form > div,
+  .color-preview-shell .detail-otp-card > div,
+  .color-preview-shell .detail-otp-card > p,
+  .color-preview-shell .detail-terms-row,
+  .color-preview-shell .detail-terms-note,
+  .color-preview-shell .detail-payment-card .price-lines > div{
+    padding:11px 15px !important;
+  }
+
+  .color-preview-shell .detail-otp-grid{
+    grid-template-columns:1fr !important;
+  }
+
+  .color-preview-shell .detail-driver-form .field-input,
+  .color-preview-shell .detail-otp-card .field-input,
+  .color-preview-shell .detail-address-card .field-input{
+    font-size:19px !important;
+  }
+}

@@ -288,10 +288,10 @@ function LoadingState() {
 
 function TermsCheckRow({ checked, onChange, label, onOpen }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
-      <label style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+    <div className="detail-terms-row">
+      <label className="detail-terms-check">
         <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
-        <span style={{ color: '#17212b', lineHeight: 1.4 }}>{label}</span>
+        <span>{label}</span>
       </label>
       <button type="button" className="btn btn-outline btn-sm" onClick={onOpen}>보기</button>
     </div>
@@ -991,15 +991,22 @@ export default function CarDetailSection() {
                 <div className="detail-section-head">
                   <h2>이용 약관 동의</h2>
                 </div>
-                <div className="terms-list">
-                  <label><input type="checkbox" checked={termsState.allAgreed} onChange={(e) => handleToggleAllTerms(e.target.checked)} /> 전체 동의</label>
-                  <TermsCheckRow checked={termsState.serviceAgreed} onChange={(checked) => handleToggleSingleTerm('serviceAgreed', checked)} label="서비스 이용약관" onOpen={() => setActiveTermsModal('service')} />
-                  <TermsCheckRow checked={termsState.rentalPolicyAgreed} onChange={(checked) => handleToggleSingleTerm('rentalPolicyAgreed', checked)} label="렌터카 이용약관" onOpen={() => setActiveTermsModal('rental')} />
-                  <TermsCheckRow checked={termsState.privacyAgreed} onChange={(checked) => handleToggleSingleTerm('privacyAgreed', checked)} label="개인정보 수집 및 이용 동의" onOpen={() => setActiveTermsModal('privacy')} />
+                <div className="detail-terms-box">
+                  <label className="detail-terms-row detail-terms-row-all">
+                    <span className="detail-terms-check">
+                      <input type="checkbox" checked={termsState.allAgreed} onChange={(e) => handleToggleAllTerms(e.target.checked)} />
+                      <span>전체 동의</span>
+                    </span>
+                  </label>
+                  <div className="terms-list">
+                    <TermsCheckRow checked={termsState.serviceAgreed} onChange={(checked) => handleToggleSingleTerm('serviceAgreed', checked)} label="서비스 이용약관" onOpen={() => setActiveTermsModal('service')} />
+                    <TermsCheckRow checked={termsState.rentalPolicyAgreed} onChange={(checked) => handleToggleSingleTerm('rentalPolicyAgreed', checked)} label="렌터카 이용약관" onOpen={() => setActiveTermsModal('rental')} />
+                    <TermsCheckRow checked={termsState.privacyAgreed} onChange={(checked) => handleToggleSingleTerm('privacyAgreed', checked)} label="개인정보 수집 및 이용 동의" onOpen={() => setActiveTermsModal('privacy')} />
+                  </div>
+                  {!termsValidation.isValid && (
+                    <p className="detail-terms-note" style={ERROR_NOTE_STYLE}>{Object.values(termsValidation.errors)[0]}</p>
+                  )}
                 </div>
-                {!termsValidation.isValid && (
-                  <p className="field-note" style={ERROR_NOTE_STYLE}>{Object.values(termsValidation.errors)[0]}</p>
-                )}
                 <div className="legal-note">
                   빵빵카 주식회사는 본 렌터카 계약 서비스를 직접 제공합니다. 결제가 정상적으로 완료된 예약에 한해 예약이 확정되며, 운전자 자격 미충족, 본인 확인 실패, 면허 확인 실패, 결제 확인 실패, 차량 상태 이상, 회사 사정으로 인한 배차 불가 등 회사가 고지한 사유가 있으면 예약이 거절되거나 취소될 수 있습니다.
                 </div>
