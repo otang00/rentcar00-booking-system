@@ -28,6 +28,13 @@ function CalendarIcon() {
   )
 }
 
+function formatDisplay(dateText) {
+  const parsed = parseDateTimeString(dateText)
+  if (!parsed) return '-'
+  const week = ['일', '월', '화', '수', '목', '금', '토'][parsed.getDay()] || ''
+  return `${parsed.getFullYear()}.${String(parsed.getMonth() + 1).padStart(2, '0')}.${String(parsed.getDate()).padStart(2, '0')}(${week})`
+}
+
 export function ColorPreviewHero() {
   const navigate = useNavigate()
   const scheduleRef = useRef(null)
