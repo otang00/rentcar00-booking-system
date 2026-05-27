@@ -294,7 +294,7 @@ export default function SearchBox({ compact = false }) {
               </div>
             </div>
             <div className="search-panel-footer">
-              <p className="schedule-note">예약은 현재 시각 기준 3시간 후부터 가능 / 운영 시간은 09:00~21:00 / 대여 기간은 최대 30일 / 반납일은 오늘 기준 60일 이내만 가능합니다.</p>
+              <p className="schedule-note">예약은 현재 시각 기준 3시간 후부터 가능 / 운영 시간은 09:00~21:00 / 대여 기간은 최대 30일 / 반납일은 오늘 기준 30일 이내만 가능합니다.</p>
             </div>
           </article>
 

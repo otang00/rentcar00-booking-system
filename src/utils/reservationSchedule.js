@@ -3,7 +3,7 @@ export const OPERATING_END_HOUR = 21
 export const RESERVATION_LEAD_HOURS = 3
 export const MIN_RENTAL_DAYS = 1
 export const MAX_RENTAL_DAYS = 30
-export const MAX_SEARCH_RETURN_DAYS = 60
+export const MAX_SEARCH_RETURN_DAYS = 30
 
 function pad(value) {
   return String(value).padStart(2, '0')

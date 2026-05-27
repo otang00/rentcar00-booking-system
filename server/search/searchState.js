@@ -1,6 +1,6 @@
 'use strict'
 
-const MAX_SEARCH_RETURN_DAYS = 60
+const MAX_SEARCH_RETURN_DAYS = 30
 
 const DEFAULT_SEARCH_STATE = {
   deliveryDateTime: '2026-04-02 10:00',
