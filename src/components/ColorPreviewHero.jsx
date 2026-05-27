@@ -77,19 +77,6 @@ function formatModalDateLabel(dateKey) {
   return `${parsed.getFullYear()}.${String(parsed.getMonth() + 1).padStart(2, '0')}.${String(parsed.getDate()).padStart(2, '0')}(${week})`
 }
 
-function scrollToSearchResults() {
-  if (typeof window === 'undefined') return
-
-  window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(() => {
-      const target = document.getElementById('search-results')
-      if (!target) return
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
-  })
-}
-
-
 function DateRangeModal({
   open,
   monthCursor,
@@ -258,6 +245,7 @@ export function ColorPreviewHero() {
   const [draftReturnDate, setDraftReturnDate] = useState('')
   const [draftPickupTime, setDraftPickupTime] = useState('09:00')
   const [draftReturnTime, setDraftReturnTime] = useState('09:00')
+  const [isScheduleConfirmed, setIsScheduleConfirmed] = useState(false)
 
   const deliverySchedule = useMemo(() => splitDateTimeString(searchState.deliveryDateTime), [searchState.deliveryDateTime])
   const returnSchedule = useMemo(() => splitDateTimeString(searchState.returnDateTime), [searchState.returnDateTime])
@@ -310,6 +298,7 @@ export function ColorPreviewHero() {
 
   const handleLocationSelect = ({ dongId, deliveryAddress }) => {
     updateSearchState({ dongId, deliveryAddress })
+    setIsScheduleConfirmed(false)
     setIsLocationOpen(false)
     window.requestAnimationFrame(() => {
       scheduleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -347,6 +336,7 @@ export function ColorPreviewHero() {
     })
     setSearchState(nextState)
     setPendingSearchState(nextState)
+    setIsScheduleConfirmed(true)
     setDraftDriverAge(nextState.driverAge || 26)
     setIsDateModalOpen(false)
     setIsAgeModalOpen(true)
@@ -361,8 +351,7 @@ export function ColorPreviewHero() {
     setSearchState(finalState)
     setPendingSearchState(null)
     setIsAgeModalOpen(false)
-    navigate(`/?${buildSearchQuery(finalState)}`)
-    scrollToSearchResults()
+    navigate(`/search?${buildSearchQuery(finalState)}`)
   }
 
   const handleDateModalTouchEnd = (event) => {
@@ -396,8 +385,7 @@ export function ColorPreviewHero() {
       return
     }
     const nextQuery = buildSearchQuery({ ...searchState, pickupOption: 'delivery' })
-    navigate(`/?${nextQuery}`)
-    scrollToSearchResults()
+    navigate(`/search?${nextQuery}`)
   }
 
   return (
@@ -417,7 +405,7 @@ export function ColorPreviewHero() {
 
         <div className="color-preview-action-column">
           <aside className="color-preview-search-card" aria-label="예약 가능 차량 검색">
-            <button type="button" className="color-preview-cta color-preview-cta-top" onClick={goSearch}>예약 가능 차량 검색</button>
+            <button type="button" className={`color-preview-cta color-preview-cta-top ${searchState.dongId && isScheduleConfirmed ? 'is-flow-active' : ''}`} onClick={goSearch}>예약 가능 차량 검색</button>
             <label className={`color-preview-field ${!searchState.dongId ? 'is-flow-active' : ''}`}>
               <span>딜리버리 위치</span>
               <button type="button" className="color-preview-select-row" onClick={() => setIsLocationOpen(true)}>
@@ -425,7 +413,7 @@ export function ColorPreviewHero() {
               </button>
               {searchError && <p className="color-preview-error-note">{searchError}</p>}
             </label>
-            <div className={`color-preview-field color-preview-schedule-field ${searchState.dongId ? 'is-flow-active' : ''}`} ref={scheduleRef}>
+            <div className={`color-preview-field color-preview-schedule-field ${searchState.dongId && !isScheduleConfirmed ? 'is-flow-active' : ''}`} ref={scheduleRef}>
               <span>대여 / 반납</span>
               <button type="button" className="color-preview-date-trigger" onClick={openDateModal}>
                 <div className="color-preview-date-grid color-preview-date-picker-grid">

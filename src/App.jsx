@@ -18,6 +18,7 @@ const AdminBookingsPage = lazy(() => import('./pages/AdminBookingsPage'))
 const AdminPricingHubPage = lazy(() => import('./pages/AdminPricingHubPage'))
 const AdminDeliveryRegionsPage = lazy(() => import('./pages/AdminDeliveryRegionsPage'))
 const ColorPreviewPage = lazy(() => import('./pages/ColorPreviewPage'))
+const SearchPage = lazy(() => import('./pages/SearchPage'))
 
 function RouteLoadingFallback() {
   return <div style={{ padding: 24, color: '#6b7280' }}>페이지를 불러오는 중입니다...</div>
@@ -35,6 +36,7 @@ export default function App() {
       <Route path="/landing-v2" element={<LandingV2Page />} />
       <Route path="/color-preview" element={<LazyRoute><ColorPreviewPage /></LazyRoute>} />
       <Route path="/new-main" element={<LazyRoute><ColorPreviewPage /></LazyRoute>} />
+      <Route path="/search" element={<LazyRoute><SearchPage /></LazyRoute>} />
       <Route path="/cars" element={<CarsPage />} />
       <Route path="/cars/:carId" element={<LandingPage />} />
       <Route path="/reservations" element={<LazyRoute><MemberReservationsPage /></LazyRoute>} />
