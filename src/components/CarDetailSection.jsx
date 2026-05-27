@@ -873,7 +873,6 @@ export default function CarDetailSection() {
 
               <article className="detail-card panel detail-reservation-card">
                 <div className="detail-section-head">
-                  <span>예약 조건</span>
                   <h2>예약 정보</h2>
                 </div>
                 <div className="info-grid three info-stat-grid reservation-info-grid detail-reservation-grid">
@@ -900,7 +899,6 @@ export default function CarDetailSection() {
 
               <article className={`detail-card panel driver-info-card detail-driver-card ${isDriverFormLocked ? 'is-locked' : 'is-editing'}`}>
                 <div className="detail-section-head">
-                  <span>{isAuthenticated ? '회원 확인' : '예약자 확인'}</span>
                   <h2>{isAuthenticated ? '회원 정보' : '예약자 정보'}</h2>
                 </div>
                 <div className={`stack-form stack-form-centered driver-info-form detail-driver-form ${isDriverFormLocked ? 'is-locked' : ''}`}>
@@ -929,22 +927,22 @@ export default function CarDetailSection() {
                       <p className="field-note" style={ERROR_NOTE_STYLE}>{reservationValidation.errors.customerBirth}</p>
                     )}
                   </div>
-                  <div>
-                    <input
-                      className="field-input driver-info-form__input"
-                      placeholder="예: 010-1234-5678"
-                      inputMode="tel"
-                      value={reservationForm.customerPhone}
-                      onChange={(e) => updateReservationForm('customerPhone', e.target.value)}
-                      disabled={isDriverFormLocked}
-                    />
-                    {(shouldShowReservationErrors || reservationForm.customerPhone) && reservationValidation.errors.customerPhone && (
-                      <p className="field-note" style={ERROR_NOTE_STYLE}>{reservationValidation.errors.customerPhone}</p>
-                    )}
-                  </div>
                 </div>
                 {!authLoading && !isDriverFormLocked && (
                   <div className="detail-otp-card" style={{ display: 'grid', gap: 8, marginTop: 16 }}>
+                    <div>
+                      <input
+                        className="field-input driver-info-form__input detail-otp-phone-input"
+                        placeholder="예: 010-1234-5678"
+                        inputMode="tel"
+                        value={reservationForm.customerPhone}
+                        onChange={(e) => updateReservationForm('customerPhone', e.target.value)}
+                        disabled={isDriverFormLocked}
+                      />
+                      {(shouldShowReservationErrors || reservationForm.customerPhone) && reservationValidation.errors.customerPhone && (
+                        <p className="field-note" style={ERROR_NOTE_STYLE}>{reservationValidation.errors.customerPhone}</p>
+                      )}
+                    </div>
                     <div className="detail-otp-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.6fr) auto auto', gap: 8, alignItems: 'center' }}>
                       <input
                         className="field-input"
@@ -988,7 +986,6 @@ export default function CarDetailSection() {
 
               <article className="detail-card panel detail-terms-card">
                 <div className="detail-section-head">
-                  <span>약관 확인</span>
                   <h2>이용 약관 동의</h2>
                 </div>
                 <div className="terms-list">
@@ -1007,7 +1004,6 @@ export default function CarDetailSection() {
 
               <article className="detail-card panel payment-summary-card detail-payment-card" ref={paymentSummaryRef}>
                 <div className="detail-section-head">
-                  <span>최종 확인</span>
                   <h2>결제 정보</h2>
                 </div>
                 <div className="price-lines">
@@ -1029,8 +1025,10 @@ export default function CarDetailSection() {
                 <button className="btn btn-dark btn-lg btn-block" onClick={handleReservationSubmit}>결제하기</button>
               </article>
 
-              <article className="detail-card panel">
-                <h2>보험/유의사항</h2>
+              <article className="detail-card panel detail-insurance-card">
+                <div className="detail-section-head">
+                  <h2>보험/유의사항</h2>
+                </div>
                 <div className="info-grid two info-stat-grid insurance-summary-grid">
                   {INSURANCE_SUMMARY_ITEMS.map((item) => (
                     <div key={item.label}><span>{item.label}</span><strong>{item.value}</strong></div>
