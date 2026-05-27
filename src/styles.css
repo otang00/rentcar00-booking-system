@@ -5033,3 +5033,23 @@
     grid-template-columns:1fr;
   }
 }
+
+/* Real account/admin redesign pass */
+.auth-hero-panel{
+  border-radius:28px;
+  padding:28px;
+  background:linear-gradient(135deg,#101827 0%,#20364a 56%,#168fd0 100%);
+  color:#fff;
+  display:grid;
+  gap:10px;
+  box-shadow:0 20px 45px rgba(16,24,39,.16);
+}
+.auth-hero-kicker{display:inline-flex;width:max-content;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.24);padding:7px 10px;font-size:13px;font-weight:1000}
+.auth-hero-panel h1{margin:0;font-size:40px;line-height:1.1;letter-spacing:-.075em;font-weight:1000}
+.auth-hero-panel p{margin:0;max-width:680px;color:#edf7ff;font-size:17px;line-height:1.6;font-weight:750}
+.auth-content-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:16px;align-items:start}
+.auth-main-card,.auth-side-card,.signup-flow-card,.guest-lookup-card,.admin-filter-card{border:1px solid #dbe3ef;border-radius:24px;background:#fff;padding:20px;box-shadow:0 12px 28px rgba(16,24,39,.05);display:grid;gap:16px}
+.auth-side-card{background:#fbfdff;position:sticky;top:114px}
+.auth-section-title{display:grid;gap:4px}.auth-section-title h2,.signup-flow-card h2{margin:0;color:#101827;font-size:23px;letter-spacing:-.055em;font-weight:1000}.auth-section-title p,.signup-flow-card .small-note{margin:0;color:#52677c;font-weight:750;line-height:1.5}
+.auth-side-actions{margin-top:6px}.signup-section-stack{display:grid;gap:16px}.signup-flow-card.is-accent{background:#fbfdff;border-color:#cbd5e1}.guest-lookup-card{background:#fbfdff}.admin-hero-panel{background:linear-gradient(135deg,#101827 0%,#334155 65%,#64748b 100%)}.admin-list-stack{display:grid;gap:16px}.admin-bookings-shell .account-page-card{max-width:1120px}.admin-bookings-shell .reservation-result-card{border-radius:22px}
+@media(max-width:860px){.auth-content-grid{grid-template-columns:1fr}.auth-side-card{position:static}.auth-hero-panel{padding:22px;border-radius:24px}.auth-hero-panel h1{font-size:34px}.auth-hero-panel p{font-size:16px}.auth-main-card,.auth-side-card,.signup-flow-card,.guest-lookup-card,.admin-filter-card{padding:16px;border-radius:20px}}

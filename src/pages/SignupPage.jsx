@@ -403,21 +403,15 @@ export default function SignupPage() {
       <section className="section-bg account-page-shell">
         <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
           <article className="detail-card panel account-page-card">
-            <div className="account-page-head">
-              <div>
-                <h1>회원가입</h1>
-              <p className="small-note" style={{ marginTop: 8 }}>
-                가입 전 휴대폰 인증을 먼저 완료하고, 이후 휴대폰 번호와 비밀번호로 로그인합니다.
-              </p>
-                <p className="small-note" style={{ marginTop: 4 }}>
-                  진행 중인 비회원 예약이 있으면 회원 예약내역으로 자동 이전되며, 이미 종료된 예약은 이전 대상에서 제외됩니다.
-                </p>
-              </div>
+            <div className="auth-hero-panel">
+              <span className="auth-hero-kicker">새 예약 계정 만들기</span>
+              <h1>회원가입</h1>
+              <p>휴대폰 인증, 기본정보, 주소, 약관 동의를 순서대로 완료하면 예약 계정이 생성됩니다.</p>
             </div>
 
             <form className="stack-form stack-form-centered account-form-grid" onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gap: 20 }}>
-                <section style={{ display: 'grid', gap: 16 }}>
+              <div className="signup-section-stack">
+                <section className="auth-main-card signup-flow-card">
                   <SectionTitle title="기본정보" description="회원가입에 필요한 기본 정보를 입력합니다." />
 
                   <div className="field-group">
@@ -468,7 +462,7 @@ export default function SignupPage() {
                   </div>
                 </section>
 
-                <section style={{ display: 'grid', gap: 16 }}>
+                <section className="auth-main-card signup-flow-card">
                   <SectionTitle title="비밀번호" description="휴대폰 번호 로그인에 사용할 비밀번호를 설정합니다." />
 
                   <div className="field-group">
@@ -540,7 +534,7 @@ export default function SignupPage() {
                   </div>
                 </section>
 
-                <section className="account-auth-box">
+                <section className="auth-main-card signup-flow-card is-accent">
                   <SectionTitle title="연락처 인증" description="회원가입 전에 휴대폰 인증을 완료해야 합니다." />
                   <FieldNote>이미 가입된 휴대폰 번호라면 인증번호 발송 없이 로그인 안내가 먼저 표시됩니다.</FieldNote>
 
@@ -603,7 +597,7 @@ export default function SignupPage() {
                   </div>
                 </section>
 
-                <section style={{ display: 'grid', gap: 16 }}>
+                <section className="auth-main-card signup-flow-card">
                   <SectionTitle title="주소" description="우편번호 찾기로 기본주소를 채우고 상세주소를 입력해 주세요." />
 
                   <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 16 }}>
@@ -662,7 +656,7 @@ export default function SignupPage() {
                   </div>
                 </section>
 
-                <section style={{ display: 'grid', gap: 16 }}>
+                <section className="auth-main-card signup-flow-card">
                   <SectionTitle title="약관 동의" description="필수 약관 전체 동의 후 회원가입할 수 있습니다." />
 
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>

@@ -85,24 +85,20 @@ export default function LoginPage() {
       <section className="section-bg account-page-shell">
         <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
           <article className="detail-card panel account-page-card">
-            <div className="account-page-head">
-              <div>
-                <h1>로그인</h1>
-              <p className="small-note" style={{ marginTop: 8 }}>
-                휴대폰 번호와 비밀번호로 로그인합니다. 로그인 후에는 차량 검색 페이지로 이동합니다.
-              </p>
-                <p className="field-note" style={{ marginTop: 8 }}>
-                  계정이 없으면 아래 회원가입 버튼으로 바로 가입할 수 있습니다.
-                </p>
-              </div>
+            <div className="auth-hero-panel">
+              <span className="auth-hero-kicker">빵빵카 예약 계정</span>
+              <h1>로그인</h1>
+              <p>휴대폰 번호와 비밀번호로 예약내역, 결제, 관리자 메뉴까지 이어서 확인합니다.</p>
             </div>
 
-            <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 12 }}>
-              <div className="reservation-result-row"><span>상태</span><strong>{loading ? '세션 확인 중' : isAuthenticated ? '로그인됨' : '비로그인'}</strong></div>
-              <div className="reservation-result-row"><span>현재 사용자</span><strong>{profile?.phone || user?.phone || user?.email || '-'}</strong></div>
-            </div>
+            <div className="auth-content-grid">
+              <div className="auth-main-card">
+                <div className="auth-section-title">
+                  <h2>계정 정보 입력</h2>
+                  <p>예약에 사용한 휴대폰 번호로 로그인합니다.</p>
+                </div>
 
-            <form className="stack-form stack-form-centered account-form-grid" onSubmit={handleSubmit}>
+                <form className="stack-form stack-form-centered account-form-grid" onSubmit={handleSubmit}>
               <div className="field-group">
                 <label className="field-label" htmlFor="login-phone">휴대폰 번호</label>
                 <input
@@ -152,14 +148,24 @@ export default function LoginPage() {
                 </div>
               ) : null}
 
-              <button className="btn btn-dark btn-md btn-block" type="submit" disabled={submitting || loading || !isSupabaseClientReady}>
-                {submitting ? '로그인 중...' : '로그인'}
-              </button>
-            </form>
+                  <button className="btn btn-dark btn-md btn-block" type="submit" disabled={submitting || loading || !isSupabaseClientReady}>
+                    {submitting ? '로그인 중...' : '로그인'}
+                  </button>
+                </form>
+              </div>
 
-            <div style={{ width: 'min(100%, 420px)', margin: '0 auto', display: 'grid', gap: 8 }}>
-              <Link className="btn btn-outline btn-md btn-block" to={`/signup?redirectTo=${encodeURIComponent(redirectTo)}`}>회원가입</Link>
-              <Link className="btn btn-outline btn-md btn-block" to="/">메인으로</Link>
+              <aside className="auth-side-card">
+                <div className="auth-section-title">
+                  <h2>현재 상태</h2>
+                  <p>로그인 세션과 계정 이동을 확인합니다.</p>
+                </div>
+                <div className="reservation-result-row"><span>상태</span><strong>{loading ? '세션 확인 중' : isAuthenticated ? '로그인됨' : '비로그인'}</strong></div>
+                <div className="reservation-result-row"><span>현재 사용자</span><strong>{profile?.phone || user?.phone || user?.email || '-'}</strong></div>
+                <div className="account-action-row auth-side-actions">
+                  <Link className="btn btn-outline btn-md" to={`/signup?redirectTo=${encodeURIComponent(redirectTo)}`}>회원가입</Link>
+                  <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
+                </div>
+              </aside>
             </div>
           </article>
         </div>

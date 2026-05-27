@@ -312,13 +312,10 @@ export default function GuestBookingsPage() {
       <section className="section-bg account-page-shell">
         <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
           <article className="detail-card panel account-page-card">
-            <div className="account-page-head">
-              <div>
-                <h1>비회원 예약조회</h1>
-                <p className="small-note" style={{ marginTop: 8 }}>
-                  휴대폰 인증을 완료하면 진행 중인 비회원 예약을 확인하고 취소할 수 있습니다.
-                </p>
-              </div>
+            <div className="auth-hero-panel">
+              <span className="auth-hero-kicker">비회원 예약 확인</span>
+              <h1>비회원 예약조회</h1>
+              <p>예약 시 입력한 휴대폰 번호를 인증하면 진행 중인 예약과 취소 가능 여부를 확인합니다.</p>
             </div>
 
             {hasActiveLookupSession ? (
@@ -340,7 +337,7 @@ export default function GuestBookingsPage() {
               </>
             ) : (
               <>
-                <div className="stack-form stack-form-centered account-auth-box">
+                <div className="auth-main-card guest-lookup-card">
                   <div>
                     <label className="field-label">휴대폰 번호</label>
                     <input
@@ -375,7 +372,7 @@ export default function GuestBookingsPage() {
                   </div>
                 </div>
 
-                <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 8 }}>
+                <div className="auth-side-card" style={{ display: 'grid', gap: 8 }}>
                   <div className="reservation-result-row"><span>입력 번호</span><strong>{formatPhoneNumber(normalizedPhone) || '-'}</strong></div>
                   <div className="reservation-result-row"><span>인증번호 유효시간</span><strong>{verificationId && otpSecondsLeft > 0 ? formatSeconds(otpSecondsLeft) : '-'}</strong></div>
                 </div>

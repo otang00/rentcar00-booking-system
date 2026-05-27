@@ -224,13 +224,10 @@ export default function AdminBookingsPage() {
 
           {!loading && isAuthenticated && !hasAdminHint ? null : (
             <article className="detail-card panel account-page-card admin-page-card">
-              <div className="account-page-head">
-                <div>
-                  <h1>예약관리</h1>
-                  <p className="small-note" style={{ marginTop: 8 }}>
-                    홈페이지 예약 원장을 확인하고 취소/환불 상태를 관리합니다.
-                  </p>
-                </div>
+              <div className="auth-hero-panel admin-hero-panel">
+                <span className="auth-hero-kicker">운영 관리자</span>
+                <h1>예약관리</h1>
+                <p>홈페이지 예약 원장, 동기화 상태, 고객 예약 상세를 한 화면에서 확인합니다.</p>
               </div>
 
               {hasAdminHint ? <AdminNav /> : null}
@@ -268,7 +265,7 @@ export default function AdminBookingsPage() {
                 ))}
               </div>
 
-              <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 10 }}>
+              <div className="auth-main-card admin-filter-card" style={{ display: 'grid', gap: 10 }}>
                 <div className="form-grid">
                   <select className="field-select" value={qField} onChange={(e) => updateParams({ qField: e.target.value })}>
                     {QUERY_FIELD_OPTIONS.map((option) => (
@@ -296,7 +293,7 @@ export default function AdminBookingsPage() {
               ) : null}
 
               {items.length > 0 ? (
-                <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 16 }}>
+                <div className="admin-list-stack" style={{ display: 'grid', gap: 16 }}>
                   {items.map((item) => {
                     const booking = item.booking
                     return (
