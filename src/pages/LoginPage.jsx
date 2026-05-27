@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { PageShell } from '../components/Layout'
+import ContactInfoStrip from '../components/ContactInfoStrip'
+import { landingContactItems } from '../data/landing'
 import { useAuth } from '../hooks/useAuth'
 import { supabase, supabaseClientMissingEnv } from '../lib/supabaseClient'
 import { buildAuthEmailAlias, formatPhoneNumber, normalizePhoneNumber } from '../utils/phone'
@@ -138,6 +140,7 @@ export default function LoginPage() {
           </article>
         </div>
       </section>
+      <ContactInfoStrip items={landingContactItems} />
     </PageShell>
   )
 }

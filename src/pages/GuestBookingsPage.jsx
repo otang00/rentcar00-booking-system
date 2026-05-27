@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PageShell } from '../components/Layout'
+import ContactInfoStrip from '../components/ContactInfoStrip'
+import { landingContactItems } from '../data/landing'
 import { cancelGuestBooking, lookupGuestBooking } from '../services/guestBookingApi'
 import { formatPhoneNumber, normalizePhoneNumber } from '../utils/phone'
 import { validateMobilePhoneNumber } from '../utils/identityValidation'
@@ -308,7 +310,7 @@ export default function GuestBookingsPage() {
   }
 
   return (
-    <PageShell>
+    <PageShell className="color-preview-shell color-preview-mockup-shell account-shell">
       <section className="section-bg account-page-shell">
         <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
           <article className="detail-card panel account-page-card">
@@ -405,6 +407,7 @@ export default function GuestBookingsPage() {
           </article>
         </div>
       </section>
+      <ContactInfoStrip items={landingContactItems} />
     </PageShell>
   )
 }

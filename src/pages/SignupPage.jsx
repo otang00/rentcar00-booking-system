@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { PageShell } from '../components/Layout'
+import ContactInfoStrip from '../components/ContactInfoStrip'
+import { landingContactItems } from '../data/landing'
 import { useAuth } from '../hooks/useAuth'
 import { parseApiResponse } from '../utils/apiResponse'
 import { formatPhoneNumber, normalizePhoneNumber } from '../utils/phone'
@@ -399,7 +401,7 @@ export default function SignupPage() {
   }
 
   return (
-    <PageShell>
+    <PageShell className="color-preview-shell color-preview-mockup-shell account-shell">
       <section className="section-bg account-page-shell">
         <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
           <article className="detail-card panel account-page-card">

@@ -5419,3 +5419,15 @@
     padding:0 8px;
   }
 }
+
+/* Account pages follow renewed landing structure */
+.account-shell .login-page-section,
+.account-shell .account-page-shell{
+  background:#f4f8fb;
+}
+
+.account-shell .landing-contact-strip,
+.account-shell .landing-contact-section,
+.account-shell .landing-contact-grid{
+  margin-top:0;
+}
