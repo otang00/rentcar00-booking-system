@@ -97,3 +97,99 @@
     font-size:29px;
   }
 }
+
+/* Reservation complete/member lookup screens aligned to account style */
+.reservation-flow-shell,
+.reservation-flow-shell .account-page-shell{
+  background:#f4f8fb;
+}
+
+.reservation-flow-container{
+  width:min(100%,420px);
+  padding:30px 0 54px;
+}
+
+.reservation-flow-card{
+  display:grid;
+  gap:16px;
+}
+
+.reservation-flow-card .reservation-result-card{
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:none;
+  padding:16px;
+}
+
+.reservation-flow-card .reservation-result-list{
+  border:1px solid #e7eef4;
+  border-radius:16px;
+  overflow:hidden;
+  background:#fff;
+}
+
+.reservation-flow-card .reservation-result-row{
+  min-height:48px;
+  padding:0 16px;
+  border:0;
+  background:#fff;
+}
+
+.reservation-flow-card .reservation-result-row + .reservation-result-row{
+  border-top:1px solid #e7eef4;
+}
+
+.reservation-flow-card .reservation-result-row span,
+.reservation-flow-card .guest-status-row span{
+  color:#6f8194;
+  font-size:13px;
+  font-weight:900;
+}
+
+.reservation-flow-card .reservation-result-row strong,
+.reservation-flow-card .guest-status-row strong{
+  color:#101827;
+  font-weight:950;
+}
+
+.reservation-flow-card .reservation-result-card__price span{
+  color:#6f8194;
+  font-size:13px;
+  font-weight:900;
+}
+
+.reservation-flow-card .reservation-result-card__price strong{
+  color:#101827;
+  font-size:24px;
+  font-weight:1000;
+}
+
+.reservation-flow-card .btn-md{
+  min-height:46px;
+  border-radius:13px;
+  font-weight:950;
+}
+
+.reservation-flow-card .btn-dark{
+  background:#168fd0;
+  border-color:#168fd0;
+}
+
+@media(max-width:760px){
+  .reservation-flow-container{
+    width:calc(100% - 32px);
+    padding:22px 0 44px;
+  }
+
+  .reservation-flow-card .reservation-result-card{
+    padding:14px;
+  }
+}
+
+.reservation-flow-card .btn-lg.btn-block{
+  min-height:56px;
+  font-size:17px;
+  border-radius:15px;
+}
+
