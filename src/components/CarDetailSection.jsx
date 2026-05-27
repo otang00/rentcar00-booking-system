@@ -897,7 +897,7 @@ export default function CarDetailSection() {
                 )}
               </article>
 
-              <article className={`detail-card panel driver-info-card detail-driver-card ${isDriverFormLocked ? 'is-locked' : 'is-editing'}`}>
+              <article className={`detail-card panel driver-info-card detail-driver-card guest-bookings-form ${isDriverFormLocked ? 'is-locked' : 'is-editing'}`}>
                 <div className="detail-section-head">
                   <h2>{isAuthenticated ? '회원 정보' : '예약자 정보'}</h2>
                 </div>
@@ -931,7 +931,7 @@ export default function CarDetailSection() {
                   </div>
                 </div>
                 {!authLoading && !isDriverFormLocked && (
-                  <div className="guest-lookup-card detail-phone-auth-card">
+                  <div className="signup-flow-card guest-lookup-card detail-phone-auth-card">
                     <div>
                       <label className="field-label">전화번호</label>
                       <input
@@ -946,7 +946,7 @@ export default function CarDetailSection() {
                         <p className="field-note" style={ERROR_NOTE_STYLE}>{reservationValidation.errors.customerPhone}</p>
                       )}
                     </div>
-                    <div className="detail-phone-auth-grid">
+                    <div className="detail-phone-auth-grid" style={{ display: 'grid', gap: 8, gridTemplateColumns: '1fr auto auto' }}>
                       <input
                         className="field-input"
                         type="text"
@@ -985,11 +985,11 @@ export default function CarDetailSection() {
                 )}
               </article>
 
-              <article className="detail-card panel detail-terms-card">
+              <article className="detail-card panel detail-terms-card signup-page-form">
                 <div className="detail-section-head">
                   <h2>이용 약관 동의</h2>
                 </div>
-                <div className="signup-terms-box detail-terms-box">
+                <section className="signup-terms-box detail-terms-box">
                   <label className="signup-terms-row signup-terms-row-all detail-terms-row detail-terms-row-all">
                     <span className="detail-terms-check">
                       <input type="checkbox" checked={termsState.allAgreed} onChange={(e) => handleToggleAllTerms(e.target.checked)} />
@@ -1004,7 +1004,7 @@ export default function CarDetailSection() {
                   {!termsValidation.isValid && (
                     <p className="signup-terms-note detail-terms-note" style={ERROR_NOTE_STYLE}>{Object.values(termsValidation.errors)[0]}</p>
                   )}
-                </div>
+                </section>
                 <div className="legal-note">
                   빵빵카 주식회사는 본 렌터카 계약 서비스를 직접 제공합니다. 결제가 정상적으로 완료된 예약에 한해 예약이 확정되며, 운전자 자격 미충족, 본인 확인 실패, 면허 확인 실패, 결제 확인 실패, 차량 상태 이상, 회사 사정으로 인한 배차 불가 등 회사가 고지한 사유가 있으면 예약이 거절되거나 취소될 수 있습니다.
                 </div>
