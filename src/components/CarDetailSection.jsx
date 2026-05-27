@@ -903,6 +903,7 @@ export default function CarDetailSection() {
                 </div>
                 <div className={`stack-form stack-form-centered driver-info-form detail-driver-form ${isDriverFormLocked ? 'is-locked' : ''}`}>
                   <div>
+                    <span className="field-label detail-input-label">이름</span>
                     <input
                       className="field-input driver-info-form__input"
                       placeholder="예: 홍길동"
@@ -915,6 +916,7 @@ export default function CarDetailSection() {
                     )}
                   </div>
                   <div>
+                    <span className="field-label detail-input-label">생년월일</span>
                     <input
                       className="field-input driver-info-form__input"
                       placeholder="예: 19900101"
@@ -931,6 +933,7 @@ export default function CarDetailSection() {
                 {!authLoading && !isDriverFormLocked && (
                   <div className="detail-otp-card" style={{ display: 'grid', gap: 8, marginTop: 16 }}>
                     <div>
+                      <span className="field-label detail-input-label">전화번호</span>
                       <input
                         className="field-input driver-info-form__input detail-otp-phone-input"
                         placeholder="예: 010-1234-5678"
