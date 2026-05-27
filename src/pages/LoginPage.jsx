@@ -29,7 +29,7 @@ function getErrorMessage(error) {
 export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { loading, isAuthenticated, isSupabaseClientReady, user, profile } = useAuth()
+  const { loading, isAuthenticated, isSupabaseClientReady } = useAuth()
   const redirectTo = useMemo(() => resolveRedirectTo(location.search), [location.search])
   const [phone, setPhone] = useState(() => resolvePhone(location.search))
   const [password, setPassword] = useState('')
@@ -60,7 +60,6 @@ export default function LoginPage() {
 
     if (!authEmailAlias) {
       setErrorMessage('휴대폰 번호 형식을 확인해 주세요.')
-      setShowForgotPasswordLink(false)
       setSubmitting(false)
       return
     }
@@ -81,81 +80,63 @@ export default function LoginPage() {
   }
 
   return (
-    <PageShell className="color-preview-shell color-preview-mockup-shell account-shell">
-      <section className="section-bg account-page-shell">
-        <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
-          <article className="detail-card panel account-page-card">
-            <div className="auth-hero-panel login-tone-hero">
-              <span className="auth-hero-kicker">빵빵카</span>
-              <h1>로그인</h1>
-            </div>
+    <PageShell className="color-preview-shell color-preview-mockup-shell login-page-shell">
+      <section className="section-bg login-page-section">
+        <div className="container login-page-container">
+          <article className="login-centered-shell">
+            <div className="login-brand-mark">빵빵카</div>
 
-            <div className="auth-content-grid">
-              <div className="auth-main-card">
-                <div className="auth-section-title">
-                  <h2>계정 정보 입력</h2>
+            <form className="login-form-card" onSubmit={handleSubmit}>
+              <div className="login-input-stack">
+                <div className="login-input-group">
+                  <label className="login-input-label" htmlFor="login-phone">전화번호</label>
+                  <input
+                    id="login-phone"
+                    className="login-line-input"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    placeholder="전화번호"
+                    value={phone}
+                    onChange={(event) => setPhone(formatPhoneNumber(event.target.value))}
+                    disabled={submitting || !isSupabaseClientReady}
+                    required
+                  />
                 </div>
 
-                <form className="stack-form stack-form-centered account-form-grid" onSubmit={handleSubmit}>
-              <div className="field-group">
-                <label className="field-label" htmlFor="login-phone">휴대폰 번호</label>
-                <input
-                  id="login-phone"
-                  className="field-input"
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="tel"
-                  placeholder="010-0000-0000"
-                  value={phone}
-                  onChange={(event) => setPhone(formatPhoneNumber(event.target.value))}
-                  disabled={submitting || !isSupabaseClientReady}
-                  required
-                />
-              </div>
-              <div className="field-group">
-                <label className="field-label" htmlFor="login-password">비밀번호</label>
-                <input
-                  id="login-password"
-                  className="field-input"
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="비밀번호 입력"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  disabled={submitting || !isSupabaseClientReady}
-                  required
-                />
+                <div className="login-input-group">
+                  <label className="login-input-label" htmlFor="login-password">비밀번호</label>
+                  <input
+                    id="login-password"
+                    className="login-line-input"
+                    type="password"
+                    autoComplete="current-password"
+                    placeholder="비밀번호"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    disabled={submitting || !isSupabaseClientReady}
+                    required
+                  />
+                </div>
               </div>
 
               {!isSupabaseClientReady ? (
-                <p className="field-note" style={{ color: '#be123c' }}>
-                  Supabase 프론트 설정이 준비되지 않았습니다. 누락: {supabaseClientMissingEnv.join(', ') || 'unknown'}
-                </p>
+                <p className="login-error-text">Supabase 설정이 준비되지 않았습니다. 누락: {supabaseClientMissingEnv.join(', ') || 'unknown'}</p>
               ) : null}
-              {errorMessage ? <p className="field-note" style={{ color: '#be123c' }}>{errorMessage}</p> : null}
+              {errorMessage ? <p className="login-error-text">{errorMessage}</p> : null}
+
+              <button className="login-submit-button" type="submit" disabled={submitting || loading || !isSupabaseClientReady}>
+                {submitting ? '로그인 중...' : '로그인'}
+              </button>
+            </form>
+
+            <div className="login-bottom-links">
               {showForgotPasswordLink ? (
-                <div style={{ display: 'grid', gap: 6, justifyItems: 'start' }}>
-                  <span className="field-note">비밀번호를 잊으셨나요?</span>
-                  <Link
-                    className="field-note"
-                    style={{ color: '#111827', fontWeight: 600, textDecoration: 'underline' }}
-                    to={`/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`}
-                  >
-                    비밀번호 재설정
-                  </Link>
-                </div>
-              ) : null}
-
-                  <button className="btn btn-dark btn-md btn-block" type="submit" disabled={submitting || loading || !isSupabaseClientReady}>
-                    {submitting ? '로그인 중...' : '로그인'}
-                  </button>
-                </form>
-              </div>
-
-              <aside className="auth-side-card login-action-card">
-                <Link className="btn btn-outline btn-md" to={`/signup?redirectTo=${encodeURIComponent(redirectTo)}`}>회원가입</Link>
-                <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
-              </aside>
+                <Link to={`/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`}>비밀번호 찾기</Link>
+              ) : (
+                <span />
+              )}
+              <Link to={`/signup?redirectTo=${encodeURIComponent(redirectTo)}`}>회원가입</Link>
             </div>
           </article>
         </div>

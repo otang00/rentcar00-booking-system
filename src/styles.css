@@ -5107,3 +5107,158 @@
 .account-shell .login-action-card .btn{
   width:100%;
 }
+
+/* Login page inspired layout */
+.login-page-shell .app-header__nav,
+.login-page-shell .footer{
+  display:none;
+}
+
+.login-page-shell .app-header{
+  background:transparent;
+  border-bottom:0;
+  box-shadow:none;
+  position:static;
+}
+
+.login-page-shell .app-header__inner{
+  min-height:72px;
+  justify-content:center;
+}
+
+.login-page-shell .app-header__brand{
+  justify-content:center;
+}
+
+.login-page-shell .app-header__wordmark{
+  display:none;
+}
+
+.login-page-section{
+  min-height:calc(100vh - 72px);
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:28px 0 56px;
+}
+
+.login-page-container{
+  width:min(100%,420px);
+}
+
+.login-centered-shell{
+  display:grid;
+  gap:26px;
+  justify-items:center;
+}
+
+.login-brand-mark{
+  color:#168fd0;
+  font-size:54px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.08em;
+  text-align:center;
+  margin-top:28px;
+}
+
+.login-form-card{
+  width:100%;
+  display:grid;
+  gap:16px;
+}
+
+.login-input-stack{
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+}
+
+.login-input-group{
+  display:grid;
+  gap:8px;
+  padding:16px 18px;
+}
+
+.login-input-group + .login-input-group{
+  border-top:1px solid #e7eef4;
+}
+
+.login-input-label{
+  color:#8a99a8;
+  font-size:13px;
+  font-weight:800;
+}
+
+.login-line-input{
+  width:100%;
+  border:0;
+  outline:none;
+  background:transparent;
+  padding:0;
+  color:#111827;
+  font-size:24px;
+  line-height:1.25;
+  font-weight:500;
+}
+
+.login-line-input::placeholder{
+  color:#b0bcc8;
+}
+
+.login-error-text{
+  margin:0;
+  color:#be123c;
+  font-size:13px;
+  line-height:1.5;
+}
+
+.login-submit-button{
+  width:100%;
+  min-height:58px;
+  border:0;
+  border-radius:18px;
+  background:#168fd0;
+  color:#fff;
+  font-size:22px;
+  font-weight:1000;
+  letter-spacing:-.04em;
+}
+
+.login-submit-button:disabled{
+  opacity:.55;
+}
+
+.login-bottom-links{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  gap:18px;
+  color:#7a8c9e;
+  font-size:15px;
+}
+
+@media(max-width:760px){
+  .login-page-shell .app-header__inner{
+    min-height:64px;
+  }
+
+  .login-page-section{
+    min-height:calc(100vh - 64px);
+    padding:20px 0 44px;
+  }
+
+  .login-page-container{
+    width:calc(100% - 32px);
+  }
+
+  .login-brand-mark{
+    margin-top:18px;
+    font-size:48px;
+  }
+
+  .login-line-input{
+    font-size:20px;
+  }
+}
