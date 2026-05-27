@@ -6979,3 +6979,35 @@
     font-size:29px;
   }
 }
+
+
+.reservation-complete-card .reservation-result-card__header{
+  position:relative;
+  align-items:flex-start;
+  padding-right:104px;
+}
+
+.reservation-complete-card .reservation-result-card__status{
+  position:absolute;
+  top:0;
+  right:0;
+  font-weight:500 !important;
+  text-align:center;
+}
+
+.reservation-complete-card .reservation-result-card__title,
+.reservation-complete-card .reservation-result-card__price strong,
+.reservation-complete-card .reservation-result-row strong{
+  font-weight:500 !important;
+}
+
+.reservation-complete-card .login-title-block h1{
+  font-weight:500 !important;
+}
+
+.reservation-complete-card .reservation-result-card__eyebrow,
+.reservation-complete-card .reservation-result-card__price span,
+.reservation-complete-card .reservation-result-row span,
+.reservation-complete-card .signup-bottom-links a{
+  font-weight:400 !important;
+}
