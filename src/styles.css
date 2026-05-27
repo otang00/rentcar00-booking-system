@@ -4446,3 +4446,114 @@
     font-size:23px;
   }
 }
+
+/* Detail renewal phase 1: top summary */
+.color-preview-shell .detail-hero-card{
+  display:grid;
+  grid-template-columns:260px minmax(0,1fr);
+  gap:20px;
+  align-items:center;
+  border-radius:26px;
+  padding:18px;
+  background:#fff;
+}
+
+.color-preview-shell .detail-hero-image{
+  min-height:190px;
+  border-radius:22px;
+  background:linear-gradient(180deg,#fff,#f5f9fc);
+}
+
+.color-preview-shell .detail-hero-image img{
+  max-height:170px;
+}
+
+.color-preview-shell .detail-hero-body{
+  display:flex;
+  min-width:0;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+}
+
+.color-preview-shell .detail-hero-eyebrow{
+  display:inline-flex;
+  margin-bottom:9px;
+  border-radius:999px;
+  background:#eaf6fc;
+  color:#0f78b2;
+  padding:7px 10px;
+  font-size:13px;
+  font-weight:1000;
+}
+
+.color-preview-shell .detail-hero-body h1{
+  margin:0;
+  color:#101827;
+  font-size:34px;
+  line-height:1.12;
+  font-weight:1000;
+  letter-spacing:-.065em;
+}
+
+.color-preview-shell .detail-hero-meta{
+  margin-top:12px;
+}
+
+.color-preview-shell .detail-hero-meta span{
+  padding:6px 10px;
+  font-size:13px;
+  font-weight:950;
+}
+
+.color-preview-shell .detail-hero-price{
+  flex:0 0 auto;
+  text-align:right;
+}
+
+.color-preview-shell .detail-hero-price span{
+  display:block;
+  color:#168fd0;
+  font-size:13px;
+  font-weight:1000;
+  margin-bottom:5px;
+}
+
+.color-preview-shell .detail-hero-price strong{
+  display:block;
+  color:#101827;
+  font-size:34px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.06em;
+}
+
+@media(max-width:760px){
+  .color-preview-shell .detail-hero-card{
+    grid-template-columns:1fr;
+    gap:14px;
+    padding:16px;
+  }
+
+  .color-preview-shell .detail-hero-image{
+    min-height:160px;
+  }
+
+  .color-preview-shell .detail-hero-image img{
+    max-height:138px;
+  }
+
+  .color-preview-shell .detail-hero-body{
+    align-items:stretch;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .color-preview-shell .detail-hero-body h1{
+    font-size:27px;
+  }
+
+  .color-preview-shell .detail-hero-price strong{
+    font-size:30px;
+  }
+}

@@ -849,14 +849,20 @@ export default function CarDetailSection() {
         {hasSearchContext && validation.isValid && !isLoading && !fetchError && car && pricing && insurance && (
           <div className="detail-columns">
             <section className="detail-main">
-              <article className="detail-card panel summary-card" ref={summaryCardRef}>
-                <div className="summary-image-wrap">
+              <article className="detail-card panel summary-card detail-hero-card" ref={summaryCardRef}>
+                <div className="summary-image-wrap detail-hero-image">
                   {car.image ? <img src={car.image} alt={car.name} /> : <div className="pickup-location-readonly-box">이미지 준비중</div>}
                 </div>
-                <div>
-                  <h1>{car.name}</h1>
-                  <div className="meta-row"><span>{car.yearLabel}</span><span>{car.fuelType}</span><span>{car.seats}</span></div>
-                  <p className="feature-line">{car.features.join(', ')}</p>
+                <div className="detail-hero-body">
+                  <div>
+                    <span className="detail-hero-eyebrow">예약 가능 차량</span>
+                    <h1>{car.name}</h1>
+                    <div className="meta-row detail-hero-meta"><span>{car.yearLabel}</span><span>{car.fuelType}</span><span>{car.seats}</span></div>
+                  </div>
+                  <div className="detail-hero-price">
+                    <span>총 예상 금액</span>
+                    <strong>{pricing.finalPrice}</strong>
+                  </div>
                 </div>
               </article>
 
