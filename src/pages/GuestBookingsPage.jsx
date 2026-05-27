@@ -309,24 +309,26 @@ export default function GuestBookingsPage() {
 
   return (
     <PageShell>
-      <section className="section-bg">
+      <section className="section-bg account-page-shell">
         <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
-          <article className="detail-card panel" style={{ display: 'grid', gap: 16 }}>
-            <div>
-              <h1 style={{ margin: 0 }}>비회원 예약조회</h1>
-              <p className="small-note" style={{ marginTop: 8 }}>
-                휴대폰 인증을 완료하면 진행 중인 비회원 예약을 확인하고 취소할 수 있습니다.
-              </p>
+          <article className="detail-card panel account-page-card">
+            <div className="account-page-head">
+              <div>
+                <h1>비회원 예약조회</h1>
+                <p className="small-note" style={{ marginTop: 8 }}>
+                  휴대폰 인증을 완료하면 진행 중인 비회원 예약을 확인하고 취소할 수 있습니다.
+                </p>
+              </div>
             </div>
 
             {hasActiveLookupSession ? (
               <>
-                <div className="panel-sub" style={{ display: 'grid', gap: 12 }}>
+                <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 12 }}>
                   <div className="reservation-result-row"><span>인증 휴대폰</span><strong>{formatPhoneNumber(verifiedPhone)}</strong></div>
                   <div className="reservation-result-row"><span>인증 유효시간</span><strong>{formatSeconds(activeSessionSecondsLeft)}</strong></div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <div className="account-action-row">
                   <button className="btn btn-dark btn-md" onClick={() => refreshLookupSession()} disabled={isLookupSubmitting}>
                     {isLookupSubmitting ? '불러오는 중...' : '예약 새로고침'}
                   </button>
@@ -338,11 +340,12 @@ export default function GuestBookingsPage() {
               </>
             ) : (
               <>
-                <div className="stack-form stack-form-centered">
+                <div className="stack-form stack-form-centered account-auth-box">
                   <div>
+                    <label className="field-label">휴대폰 번호</label>
                     <input
                       className="field-input"
-                      placeholder="휴대폰번호"
+                      placeholder="010-0000-0000"
                       inputMode="tel"
                       value={customerPhone}
                       onChange={(e) => {
@@ -372,12 +375,12 @@ export default function GuestBookingsPage() {
                   </div>
                 </div>
 
-                <div className="panel-sub" style={{ display: 'grid', gap: 8 }}>
+                <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 8 }}>
                   <div className="reservation-result-row"><span>입력 번호</span><strong>{formatPhoneNumber(normalizedPhone) || '-'}</strong></div>
                   <div className="reservation-result-row"><span>인증번호 유효시간</span><strong>{verificationId && otpSecondsLeft > 0 ? formatSeconds(otpSecondsLeft) : '-'}</strong></div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <div className="account-action-row">
                   <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
                 </div>
               </>
@@ -392,7 +395,7 @@ export default function GuestBookingsPage() {
             ) : null}
 
             {hasActiveLookupSession && results.length > 0 ? (
-              <div className="panel-sub" style={{ display: 'grid', gap: 16 }}>
+              <div className="panel-sub account-sub-card" style={{ display: 'grid', gap: 16 }}>
                 {results.map((booking) => (
                   <ReservationCard
                     key={booking.id || booking.reservationNumber}
