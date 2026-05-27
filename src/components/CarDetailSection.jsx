@@ -866,20 +866,18 @@ export default function CarDetailSection() {
                 </div>
               </article>
 
-              <article className="detail-card panel">
-                <h2>예약 정보</h2>
-                <div className="info-grid three info-stat-grid reservation-info-grid">
-                  <div><span>대여일시</span><strong>{formatDisplay(fixedSearchInfo.deliveryDateTime)}</strong></div>
-                  <div><span>반납일시</span><strong>{formatDisplay(fixedSearchInfo.returnDateTime)}</strong></div>
+              <article className="detail-card panel detail-reservation-card">
+                <div className="detail-section-head">
+                  <span>예약 조건</span>
+                  <h2>예약 정보</h2>
+                </div>
+                <div className="info-grid three info-stat-grid reservation-info-grid detail-reservation-grid">
+                  <div><span>대여</span><strong>{formatDisplay(fixedSearchInfo.deliveryDateTime)}</strong></div>
+                  <div><span>반납</span><strong>{formatDisplay(fixedSearchInfo.returnDateTime)}</strong></div>
                   <div><span>배차 위치</span><strong>{reservationLocationText}</strong><small>{parsedSearchState.pickupOption === 'delivery' ? '검색에서 선택한 위치' : '회사 방문 수령'}</small></div>
                 </div>
-                <div className="reservation-price-card panel-sub">
-                  <span className="reservation-price-label">총 예상 금액</span>
-                  <strong>{pricing.finalPrice}</strong>
-                  <p className="field-note">보험 포함 기준이며, 최종 결제 단계에서 확정됩니다.</p>
-                </div>
                 {parsedSearchState.pickupOption === 'delivery' && (
-                  <div className="reservation-detail-input-wrap">
+                  <div className="reservation-detail-input-wrap detail-address-card">
                     <span className="field-label">상세주소</span>
                     <input
                       className="field-input"

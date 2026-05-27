@@ -4557,3 +4557,78 @@
     font-size:30px;
   }
 }
+
+/* Detail renewal phase 2: reservation summary */
+.color-preview-shell .detail-reservation-card{
+  border-radius:24px;
+  padding:20px;
+}
+
+.color-preview-shell .detail-section-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+
+.color-preview-shell .detail-section-head span{
+  color:#168fd0;
+  font-size:13px;
+  font-weight:1000;
+}
+
+.color-preview-shell .detail-section-head h2{
+  margin:0;
+}
+
+.color-preview-shell .detail-reservation-grid{
+  gap:10px;
+}
+
+.color-preview-shell .detail-reservation-grid>div{
+  border-radius:18px;
+  padding:15px;
+}
+
+.color-preview-shell .detail-reservation-grid span{
+  color:#526173;
+  font-size:13px;
+  font-weight:900;
+}
+
+.color-preview-shell .detail-reservation-grid strong{
+  margin-top:6px;
+  font-size:18px;
+  line-height:1.25;
+  letter-spacing:-.035em;
+}
+
+.color-preview-shell .detail-address-card{
+  margin-top:12px;
+  border:1px solid #dbe3ef;
+  border-radius:18px;
+  background:#fbfdff;
+  padding:15px;
+}
+
+.color-preview-shell .detail-address-card .field-input{
+  min-height:48px;
+  border-radius:14px;
+}
+
+@media(max-width:760px){
+  .color-preview-shell .detail-reservation-card{
+    padding:16px;
+  }
+
+  .color-preview-shell .detail-section-head{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:4px;
+  }
+
+  .color-preview-shell .detail-reservation-grid{
+    grid-template-columns:1fr;
+  }
+}
