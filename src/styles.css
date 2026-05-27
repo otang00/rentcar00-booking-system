@@ -4716,3 +4716,32 @@
     font-size:28px;
   }
 }
+
+/* Detail hero full options */
+.color-preview-shell .detail-hero-options{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:14px;
+  max-width:720px;
+}
+
+.color-preview-shell .detail-hero-options span{
+  border-radius:999px;
+  background:#f1f7fb;
+  color:#31495e;
+  padding:5px 8px;
+  font-size:12px;
+  line-height:1;
+  font-weight:900;
+}
+
+@media(max-width:760px){
+  .color-preview-shell .detail-hero-options{
+    margin-top:12px;
+  }
+
+  .color-preview-shell .detail-hero-options span{
+    font-size:11.5px;
+  }
+}

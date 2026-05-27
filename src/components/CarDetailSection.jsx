@@ -858,6 +858,11 @@ export default function CarDetailSection() {
                     <span className="detail-hero-eyebrow">예약 가능 차량</span>
                     <h1>{car.name}</h1>
                     <div className="meta-row detail-hero-meta"><span>{car.yearLabel}</span><span>{car.fuelType}</span><span>{car.seats}</span></div>
+                    {car.features.length > 0 && (
+                      <div className="detail-hero-options" aria-label="차량 옵션">
+                        {car.features.map((feature) => <span key={feature}>{feature}</span>)}
+                      </div>
+                    )}
                   </div>
                   <div className="detail-hero-price">
                     <span>총 예상 금액</span>
