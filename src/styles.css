@@ -5053,3 +5053,57 @@
 .auth-section-title{display:grid;gap:4px}.auth-section-title h2,.signup-flow-card h2{margin:0;color:#101827;font-size:23px;letter-spacing:-.055em;font-weight:1000}.auth-section-title p,.signup-flow-card .small-note{margin:0;color:#52677c;font-weight:750;line-height:1.5}
 .auth-side-actions{margin-top:6px}.signup-section-stack{display:grid;gap:16px}.signup-flow-card.is-accent{background:#fbfdff;border-color:#cbd5e1}.guest-lookup-card{background:#fbfdff}.admin-hero-panel{background:linear-gradient(135deg,#101827 0%,#334155 65%,#64748b 100%)}.admin-list-stack{display:grid;gap:16px}.admin-bookings-shell .account-page-card{max-width:1120px}.admin-bookings-shell .reservation-result-card{border-radius:22px}
 @media(max-width:860px){.auth-content-grid{grid-template-columns:1fr}.auth-side-card{position:static}.auth-hero-panel{padding:22px;border-radius:24px}.auth-hero-panel h1{font-size:34px}.auth-hero-panel p{font-size:16px}.auth-main-card,.auth-side-card,.signup-flow-card,.guest-lookup-card,.admin-filter-card{padding:16px;border-radius:20px}}
+
+/* Login page tone correction: match renewed home/search/detail */
+.account-shell .account-page-shell{
+  background:#f4f8fb;
+}
+.account-shell .account-page-card{
+  background:#ffffff;
+  border:1px solid #dbe7ef;
+  border-radius:26px;
+  box-shadow:0 16px 36px rgba(23,33,43,.06);
+}
+.account-shell .login-tone-hero{
+  background:linear-gradient(180deg,#eaf6fc 0%,#f8fcff 100%);
+  border:1px solid #d6e8f3;
+  color:#101827;
+  box-shadow:none;
+}
+.account-shell .auth-hero-kicker{
+  background:#dff2fb;
+  border:1px solid #c7e5f4;
+  color:#168fd0;
+}
+.account-shell .auth-hero-panel h1{
+  color:#101827;
+}
+.account-shell .auth-main-card,
+.account-shell .auth-side-card{
+  border-color:#dbe7ef;
+  background:#fbfdff;
+  box-shadow:none;
+}
+.account-shell .auth-section-title h2{
+  color:#101827;
+}
+.account-shell .btn-dark{
+  background:#168fd0;
+  border-color:#168fd0;
+  color:#fff;
+}
+.account-shell .btn-dark:hover{
+  background:#0f78b2;
+  border-color:#0f78b2;
+}
+.account-shell .btn-outline{
+  border-color:#cfe0eb;
+  background:#fff;
+  color:#20364a;
+}
+.account-shell .login-action-card{
+  align-content:start;
+}
+.account-shell .login-action-card .btn{
+  width:100%;
+}

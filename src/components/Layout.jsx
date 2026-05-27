@@ -118,9 +118,9 @@ export function Footer() {
   )
 }
 
-export function PageShell({ children }) {
+export function PageShell({ children, className = '' }) {
   return (
-    <div className="page-shell">
+    <div className={['page-shell', className].filter(Boolean).join(' ')}>
       <Header />
       {children}
       <Footer />

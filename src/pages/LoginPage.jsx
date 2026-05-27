@@ -81,12 +81,12 @@ export default function LoginPage() {
   }
 
   return (
-    <PageShell>
+    <PageShell className="color-preview-shell color-preview-mockup-shell account-shell">
       <section className="section-bg account-page-shell">
         <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
           <article className="detail-card panel account-page-card">
-            <div className="auth-hero-panel">
-              <span className="auth-hero-kicker">빵빵카 예약 계정</span>
+            <div className="auth-hero-panel login-tone-hero">
+              <span className="auth-hero-kicker">빵빵카</span>
               <h1>로그인</h1>
             </div>
 
@@ -152,16 +152,9 @@ export default function LoginPage() {
                 </form>
               </div>
 
-              <aside className="auth-side-card">
-                <div className="auth-section-title">
-                  <h2>현재 상태</h2>
-                </div>
-                <div className="reservation-result-row"><span>상태</span><strong>{loading ? '세션 확인 중' : isAuthenticated ? '로그인됨' : '비로그인'}</strong></div>
-                <div className="reservation-result-row"><span>현재 사용자</span><strong>{profile?.phone || user?.phone || user?.email || '-'}</strong></div>
-                <div className="account-action-row auth-side-actions">
-                  <Link className="btn btn-outline btn-md" to={`/signup?redirectTo=${encodeURIComponent(redirectTo)}`}>회원가입</Link>
-                  <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
-                </div>
+              <aside className="auth-side-card login-action-card">
+                <Link className="btn btn-outline btn-md" to={`/signup?redirectTo=${encodeURIComponent(redirectTo)}`}>회원가입</Link>
+                <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
               </aside>
             </div>
           </article>
