@@ -206,7 +206,7 @@ export function LandingHero() {
           <div className="landing-trust">
             <div><strong>실시간 예약 가능</strong><span>예약 가능한 차량만 확인</span></div>
             <div><strong>딜리버리 대응</strong><span>서울.수도권.경기도</span></div>
-            <div><strong>최종가 표시</strong><span>결제 전 금액 확인</span></div>
+            <div><strong>결제시 예약 확정</strong><span>카드 및 간편결제 지원</span></div>
           </div>
         </div>
 

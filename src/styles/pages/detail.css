@@ -325,7 +325,13 @@
 }
 
 .detail-payment-card .price-lines{
-  margin-bottom:12px;
+  margin-bottom:14px;
+}
+
+.detail-payment-card .price-lines>div.total{
+  min-height:74px;
+  padding-top:18px;
+  padding-bottom:18px;
 }
 
 .detail-payment-card .total{
@@ -345,11 +351,11 @@
 
 .detail-payment-card .btn-block{
   width:100%;
-  min-height:58px;
-  border-radius:18px;
+  min-height:70px;
+  border-radius:20px;
   background:var(--color-primary);
   border-color:var(--color-primary);
-  font-size:21px;
+  font-size:22px;
   font-weight:700;
   letter-spacing:-.04em;
 }
