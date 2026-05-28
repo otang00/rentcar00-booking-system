@@ -1,5 +1,10 @@
-/*
- * Foundation v2
- * 목적: 새 스타일 체계의 공통 토큰/원자 클래스 자리.
- * 원칙: 현재 화면 기준 유지. 실제 규칙은 phase별 이관 시 추가한다.
- */
+/* Foundation v2: base typography, color, spacing helpers */
+.text-strong{color:var(--color-text-strong);}
+.text-muted{color:var(--color-text-muted);}
+.text-primary{color:var(--color-primary);}
+.bg-page{background:var(--color-bg-page);}
+.bg-surface{background:var(--color-bg-surface);}
+.stack-md{display:grid;gap:var(--space-stack-md);}
+.stack-lg{display:grid;gap:var(--space-stack-lg);}
+.radius-card{border-radius:var(--radius-card);}
+.radius-button{border-radius:var(--radius-button);}

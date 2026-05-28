@@ -1,1 +1,65 @@
-/* Base tokens and globals will be moved here in later phases. */
+:root{
+  --font-family-base:"Segoe UI","Noto Sans KR",-apple-system,BlinkMacSystemFont,sans-serif;
+  --color-bg-page:#f4f8fb;
+  --color-bg-surface:#ffffff;
+  --color-bg-soft:#fbfdff;
+  --color-text-strong:#101827;
+  --color-text-main:#17212b;
+  --color-text-muted:#6f8194;
+  --color-text-subtle:#b0bcc8;
+  --color-border:#d7e4ec;
+  --color-border-soft:#e7eef4;
+  --color-border-strong:#dbe3ef;
+  --color-primary:#168fd0;
+  --color-primary-hover:#0f78b2;
+  --color-primary-soft:#eaf6fc;
+  --color-primary-soft-border:#d7eef9;
+  --color-danger:#be123c;
+  --color-success:#166534;
+  --color-shadow:rgba(16,24,39,.05);
+  --container-width:980px;
+  --space-page-y:52px;
+  --space-page-y-mobile:36px;
+  --space-page-bottom:72px;
+  --space-page-bottom-mobile:56px;
+  --space-card-row-y:12px;
+  --space-card-row-x:16px;
+  --space-card-row-y-mobile:11px;
+  --space-card-row-x-mobile:15px;
+  --space-stack-md:16px;
+  --space-stack-lg:26px;
+  --radius-card:18px;
+  --radius-button:15px;
+  --radius-button-sm:13px;
+  --shadow-card:0 10px 26px rgba(16,24,39,.05);
+}
+
+html{
+  box-sizing:border-box;
+}
+
+*,*::before,*::after{
+  box-sizing:inherit;
+}
+
+body{
+  margin:0;
+  background:var(--color-bg-page);
+  color:var(--color-text-main);
+  font-family:var(--font-family-base);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea{
+  font:inherit;
+  color:inherit;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}

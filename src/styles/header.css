@@ -9,9 +9,9 @@
   position:sticky;
   top:0;
   z-index:20;
-  background:rgba(255,255,255,.98);
-  border-bottom:1px solid #dbe3ef;
-  box-shadow:0 10px 26px rgba(16,24,39,.05);
+  background:color-mix(in srgb, var(--color-bg-surface) 98%, transparent);
+  border-bottom:1px solid var(--color-border-strong);
+  box-shadow:var(--shadow-card);
 }
 
 .page-shell .app-header__inner,
@@ -95,8 +95,8 @@
   min-height:36px;
   padding:0 12px;
   border-radius:999px;
-  border:1px solid #168fd0;
-  background:#168fd0;
+  border:1px solid var(--color-primary);
+  background:var(--color-primary);
   color:#fff;
   box-shadow:none;
   font-size:13px;
@@ -112,7 +112,7 @@
 .account-shell .app-header__button.is-soft,
 .search-page-shell .app-header__button.is-soft,
 .reservation-flow-shell .app-header__button.is-soft{
-  border-color:#d7eef9;
-  background:#eaf6fc;
-  color:#0f78b2;
+  border-color:var(--color-primary-soft-border);
+  background:var(--color-primary-soft);
+  color:var(--color-primary-hover);
 }
