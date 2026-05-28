@@ -82,19 +82,19 @@ export default function LoginPage() {
   }
 
   return (
-    <PageShell className="color-preview-shell color-preview-mockup-shell account-shell login-page-shell">
-      <section className="section-bg account-page-shell login-page-section">
-        <div className="container signup-page-container login-page-container">
-          <article className="login-centered-shell">
-            <div className="login-title-block signup-title-block"><h1>로그인</h1><span>전화번호 사용</span></div>
+    <PageShell className="color-preview-shell color-preview-mockup-shell account-shell auth-page-shell login-page-shell">
+      <section className="auth-page-section section-bg account-page-shell login-page-section">
+        <div className="site-container auth-page-container container signup-page-container login-page-container">
+          <article className="auth-card-shell login-centered-shell">
+            <div className="auth-title-block login-title-block signup-title-block"><h1>로그인</h1><span>전화번호 사용</span></div>
 
-            <form className="signup-page-form login-form-card" onSubmit={handleSubmit}>
-              <div className="signup-login-input-card login-input-stack">
-                <div className="login-input-group">
-                  <label className="login-input-label" htmlFor="login-phone">전화번호</label>
+            <form className="auth-form signup-page-form login-form-card" onSubmit={handleSubmit}>
+              <div className="auth-input-stack signup-login-input-card login-input-stack">
+                <div className="auth-input-group login-input-group">
+                  <label className="auth-input-label login-input-label" htmlFor="login-phone">전화번호</label>
                   <input
                     id="login-phone"
-                    className="login-line-input"
+                    className="auth-line-input login-line-input"
                     type="text"
                     inputMode="numeric"
                     autoComplete="tel"
@@ -106,11 +106,11 @@ export default function LoginPage() {
                   />
                 </div>
 
-                <div className="login-input-group">
-                  <label className="login-input-label" htmlFor="login-password">비밀번호</label>
+                <div className="auth-input-group login-input-group">
+                  <label className="auth-input-label login-input-label" htmlFor="login-password">비밀번호</label>
                   <input
                     id="login-password"
-                    className="login-line-input"
+                    className="auth-line-input login-line-input"
                     type="password"
                     autoComplete="current-password"
                     placeholder="비밀번호"
@@ -123,16 +123,16 @@ export default function LoginPage() {
               </div>
 
               {!isSupabaseClientReady ? (
-                <p className="login-error-text">Supabase 설정이 준비되지 않았습니다. 누락: {supabaseClientMissingEnv.join(', ') || 'unknown'}</p>
+                <p className="auth-error-text login-error-text">Supabase 설정이 준비되지 않았습니다. 누락: {supabaseClientMissingEnv.join(', ') || 'unknown'}</p>
               ) : null}
-              {errorMessage ? <p className="login-error-text">{errorMessage}</p> : null}
+              {errorMessage ? <p className="auth-error-text login-error-text">{errorMessage}</p> : null}
 
-              <button className="btn btn-dark btn-md btn-block login-submit-button" type="submit" disabled={submitting || loading || !isSupabaseClientReady}>
+              <button className="auth-submit-button btn btn-dark btn-md btn-block login-submit-button" type="submit" disabled={submitting || loading || !isSupabaseClientReady}>
                 {submitting ? '로그인 중...' : '로그인'}
               </button>
             </form>
 
-            <div className="signup-bottom-links login-bottom-links">
+            <div className="auth-bottom-links signup-bottom-links login-bottom-links">
               <Link to={`/signup?redirectTo=${encodeURIComponent(redirectTo)}`}>회원가입</Link>
               <Link to={`/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`}>비밀번호 재설정</Link>
               <Link to="/guest-bookings">비회원 예약조회</Link>
