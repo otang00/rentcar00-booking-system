@@ -175,12 +175,6 @@ export default function ForgotPasswordPage() {
           <article className="auth-card-shell">
             <div className="auth-title-block"><h1>비밀번호 재설정</h1><span>전화번호 사용</span></div>
 
-            <div className="auth-card auth-status-card">
-              <div className="reservation-result-row"><span>1단계</span><strong>{verificationId ? '인증번호 발송됨' : '휴대폰 번호 입력'}</strong></div>
-              <div className="reservation-result-row"><span>2단계</span><strong>{isOtpVerified ? '인증 완료' : '인증번호 확인'}</strong></div>
-              <div className="reservation-result-row"><span>3단계</span><strong>{isOtpVerified ? '새 비밀번호 설정 가능' : '인증 후 진행'}</strong></div>
-            </div>
-
             <form className="auth-form auth-form--stack" onSubmit={handleSubmit}>
               <div className="field-group">
                 <label className="field-label" htmlFor="reset-phone">휴대폰 번호</label>
