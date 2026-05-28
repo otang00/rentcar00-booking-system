@@ -82,14 +82,14 @@ export default function LoginPage() {
   }
 
   return (
-    <PageShell className="color-preview-shell color-preview-mockup-shell login-page-shell">
-      <section className="section-bg login-page-section">
-        <div className="container login-page-container">
+    <PageShell className="color-preview-shell color-preview-mockup-shell account-shell login-page-shell">
+      <section className="section-bg account-page-shell login-page-section">
+        <div className="container signup-page-container login-page-container">
           <article className="login-centered-shell">
-            <div className="login-title-block"><h1>로그인</h1><span>전화번호 사용</span></div>
+            <div className="login-title-block signup-title-block"><h1>로그인</h1><span>전화번호 사용</span></div>
 
-            <form className="login-form-card" onSubmit={handleSubmit}>
-              <div className="login-input-stack">
+            <form className="signup-page-form login-form-card" onSubmit={handleSubmit}>
+              <div className="signup-login-input-card login-input-stack">
                 <div className="login-input-group">
                   <label className="login-input-label" htmlFor="login-phone">전화번호</label>
                   <input
@@ -127,12 +127,12 @@ export default function LoginPage() {
               ) : null}
               {errorMessage ? <p className="login-error-text">{errorMessage}</p> : null}
 
-              <button className="login-submit-button" type="submit" disabled={submitting || loading || !isSupabaseClientReady}>
+              <button className="btn btn-dark btn-md btn-block login-submit-button" type="submit" disabled={submitting || loading || !isSupabaseClientReady}>
                 {submitting ? '로그인 중...' : '로그인'}
               </button>
             </form>
 
-            <div className="login-bottom-links">
+            <div className="signup-bottom-links login-bottom-links">
               <Link to={`/signup?redirectTo=${encodeURIComponent(redirectTo)}`}>회원가입</Link>
               <Link to={`/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`}>비밀번호 재설정</Link>
               <Link to="/guest-bookings">비회원 예약조회</Link>

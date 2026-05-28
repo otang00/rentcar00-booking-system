@@ -875,7 +875,7 @@ export default function CarDetailSection() {
                 <div className="detail-section-head">
                   <h2>예약 정보</h2>
                 </div>
-                <div className="info-grid three info-stat-grid reservation-info-grid detail-reservation-grid">
+                <div className="detail-reservation-grid">
                   <div><span>대여</span><strong>{formatDisplay(fixedSearchInfo.deliveryDateTime)}</strong></div>
                   <div><span>반납</span><strong>{formatDisplay(fixedSearchInfo.returnDateTime)}</strong></div>
                   <div><span>배차 위치</span><strong>{reservationLocationText}</strong><small>{parsedSearchState.pickupOption === 'delivery' ? '검색에서 선택한 위치' : '회사 방문 수령'}</small></div>
