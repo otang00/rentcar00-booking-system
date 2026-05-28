@@ -244,3 +244,69 @@
   text-align:left;
   line-height:1.4;
 }
+
+/* Signup terms agreement: independent from detail terms styles. */
+.signup-terms-card{
+  display:grid;
+  gap:0;
+}
+
+.signup-terms-box{
+  border-top:1px solid var(--color-border-soft);
+  background:var(--color-bg-surface);
+}
+
+.signup-terms-row{
+  min-height:46px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:0 var(--space-card-row-x);
+  color:var(--color-text-main);
+  font-size:14px;
+  font-weight:850;
+  line-height:1.4;
+}
+
+.signup-terms-row + .signup-terms-row,
+.signup-terms-list,
+.signup-terms-note{
+  border-top:1px solid var(--color-border-soft);
+}
+
+.signup-terms-row-all{
+  min-height:50px;
+  font-weight:950;
+}
+
+.signup-terms-list{
+  display:grid;
+  gap:0;
+}
+
+.signup-terms-note{
+  margin:0;
+  padding:12px var(--space-card-row-x);
+  font-size:13px;
+  font-weight:850;
+  line-height:1.45;
+  background:var(--color-bg-soft);
+}
+
+.signup-terms-card .auth-terms-row{
+  justify-content:space-between;
+}
+
+.signup-terms-card .auth-terms-check{
+  min-height:46px;
+}
+
+@media(max-width:760px){
+  .signup-terms-row{
+    padding:0 var(--space-card-row-x-mobile);
+  }
+
+  .signup-terms-note{
+    padding:12px var(--space-card-row-x-mobile);
+  }
+}

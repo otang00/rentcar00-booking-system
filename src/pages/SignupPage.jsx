@@ -639,33 +639,35 @@ export default function SignupPage() {
                   </div>
                 </section>
 
-                <section className="auth-card">
+                <section className="auth-card signup-terms-card">
                   <SectionTitle title="약관동의" />
 
-                  <label className="auth-card-row signup-terms-row signup-terms-row-all">
-                    <input
-                      className="auth-check-input"
-                      type="checkbox"
-                      checked={agreeAll}
-                      onChange={(event) => handleToggleAllTerms(event.target.checked)}
-                      disabled={submitting}
-                    />
-                    <span>전체 동의</span>
-                  </label>
-
-                  <div className="auth-card-stack signup-terms-list">
-                    <TermsRow checked={agreeTerms} onChange={setAgreeTerms} label="서비스 이용약관 동의" required onOpen={() => setActiveTermsModal('terms')} disabled={submitting} />
-                    <TermsRow checked={agreePrivacy} onChange={setAgreePrivacy} label="개인정보 수집 및 이용 동의" required onOpen={() => setActiveTermsModal('privacy')} disabled={submitting} />
-                    <TermsRow checked={agreeRental} onChange={setAgreeRental} label="렌터카 예약 및 대여 조건 동의" required onOpen={() => setActiveTermsModal('rental')} disabled={submitting} />
-                    <label className="signup-terms-row">
-                      <input className="auth-check-input" type="checkbox" checked={agreeMarketing} onChange={(event) => setAgreeMarketing(event.target.checked)} disabled={submitting} />
-                      <span>[선택] 마케팅 정보 수신 동의</span>
+                  <div className="signup-terms-box">
+                    <label className="signup-terms-row signup-terms-row-all">
+                      <input
+                        className="auth-check-input"
+                        type="checkbox"
+                        checked={agreeAll}
+                        onChange={(event) => handleToggleAllTerms(event.target.checked)}
+                        disabled={submitting}
+                      />
+                      <span>전체 동의</span>
                     </label>
-                  </div>
 
-                  <p className={`auth-card-row signup-terms-note auth-note auth-note--${requiredTermsAgreed ? 'success' : 'muted'}`}>
-                    {requiredTermsAgreed ? '필수 약관 동의가 완료되었습니다.' : '필수 약관에 모두 동의해 주세요.'}
-                  </p>
+                    <div className="signup-terms-list">
+                      <TermsRow checked={agreeTerms} onChange={setAgreeTerms} label="서비스 이용약관 동의" required onOpen={() => setActiveTermsModal('terms')} disabled={submitting} />
+                      <TermsRow checked={agreePrivacy} onChange={setAgreePrivacy} label="개인정보 수집 및 이용 동의" required onOpen={() => setActiveTermsModal('privacy')} disabled={submitting} />
+                      <TermsRow checked={agreeRental} onChange={setAgreeRental} label="렌터카 예약 및 대여 조건 동의" required onOpen={() => setActiveTermsModal('rental')} disabled={submitting} />
+                      <label className="signup-terms-row">
+                        <input className="auth-check-input" type="checkbox" checked={agreeMarketing} onChange={(event) => setAgreeMarketing(event.target.checked)} disabled={submitting} />
+                        <span>[선택] 마케팅 정보 수신 동의</span>
+                      </label>
+                    </div>
+
+                    <p className={`signup-terms-note auth-note auth-note--${requiredTermsAgreed ? 'success' : 'muted'}`}>
+                      {requiredTermsAgreed ? '필수 약관 동의가 완료되었습니다.' : '필수 약관에 모두 동의해 주세요.'}
+                    </p>
+                  </div>
                 </section>
               </div>
 
