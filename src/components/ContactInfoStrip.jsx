@@ -237,7 +237,7 @@ export default function ContactInfoStrip({ items }) {
         <div className="operation-card-grid landing-contact-grid">
           {items.map((item) => (
             <button key={item.label} type="button" className="operation-card landing-contact-card" onClick={() => handleItemClick(item)}>
-              <span className="operation-card__label field-label">{item.label}</span>
+              <span className="operation-card__label">{item.label}</span>
               <strong>{item.value}</strong>
               <p>{item.note}</p>
             </button>

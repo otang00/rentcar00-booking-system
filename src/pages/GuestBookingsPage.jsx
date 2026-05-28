@@ -310,12 +310,12 @@ export default function GuestBookingsPage() {
   }
 
   return (
-    <PageShell className="color-preview-shell color-preview-mockup-shell account-shell">
-      <section className="section-bg account-page-shell">
-        <div className="container signup-page-container guest-bookings-page-container">
-          <div className="login-title-block signup-title-block"><h1>비회원 예약조회</h1><span>전화번호 사용</span></div>
+    <PageShell className="auth-page-shell">
+      <section className="auth-page-section">
+        <div className="site-container auth-page-container guest-bookings-page-container">
+          <div className="auth-title-block"><h1>비회원 예약조회</h1><span>전화번호 사용</span></div>
 
-          <div className="signup-page-form guest-bookings-form">
+          <div className="auth-form auth-form--stack guest-bookings-form">
 
             {hasActiveLookupSession ? (
               <>
@@ -400,7 +400,7 @@ export default function GuestBookingsPage() {
             ) : null}
           </div>
 
-          <div className="signup-bottom-links">
+          <div className="auth-bottom-links">
             <Link to="/login">로그인</Link>
             <Link to="/signup">회원가입</Link>
           </div>

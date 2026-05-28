@@ -89,8 +89,8 @@ export default function LoginPage() {
             <div className="auth-title-block"><h1>로그인</h1><span>전화번호 사용</span></div>
 
             <form className="auth-form" onSubmit={handleSubmit}>
-              <div className="auth-input-stack">
-                <div className="auth-input-group">
+              <div className="auth-card">
+                <div className="auth-card-row">
                   <label className="auth-input-label" htmlFor="login-phone">전화번호</label>
                   <input
                     id="login-phone"
@@ -106,7 +106,7 @@ export default function LoginPage() {
                   />
                 </div>
 
-                <div className="auth-input-group">
+                <div className="auth-card-row">
                   <label className="auth-input-label" htmlFor="login-password">비밀번호</label>
                   <input
                     id="login-password"

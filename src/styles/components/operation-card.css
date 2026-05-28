@@ -13,12 +13,13 @@
   display:grid;
   align-content:start;
   gap:8px;
-  border:1px solid #e7eef4;
+  border:1px solid #dbe3ef;
   border-radius:16px;
-  background:#fbfdff;
+  background:#fff;
   padding:16px;
-  box-shadow:0 6px 18px rgba(23,33,43,.03);
+  box-shadow:0 16px 34px rgba(16,24,39,.07);
   color:inherit;
+  font-family:"Segoe UI","Noto Sans KR",-apple-system,BlinkMacSystemFont,sans-serif;
   text-align:left;
   transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
   cursor:pointer;
@@ -39,23 +40,26 @@
 }
 
 .operation-card__label{
-  color:#4f6174;
-  font-size:14px;
-  font-weight:700;
+  color:#168fd0;
+  font-size:15px;
+  font-weight:850;
+  letter-spacing:-.025em;
 }
 
 .operation-card strong{
-  color:#17212b;
-  font-size:20px;
-  line-height:1.35;
-  font-weight:800;
+  color:#101827;
+  font-size:24px;
+  line-height:1.15;
+  font-weight:900;
+  letter-spacing:-.055em;
 }
 
 .operation-card p{
   margin:0;
-  color:#667a8d;
+  color:#526173;
   font-size:14px;
-  line-height:1.6;
+  line-height:1.55;
+  letter-spacing:-.012em;
 }
 
 @media(max-width:960px){

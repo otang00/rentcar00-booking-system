@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { PageShell } from '../components/Layout'
+import ContactInfoStrip from '../components/ContactInfoStrip'
+import { landingContactItems } from '../data/landing'
 import { parseApiResponse } from '../utils/apiResponse'
 import { formatPhoneNumber, normalizePhoneNumber } from '../utils/phone'
 import { validateMobilePhoneNumber } from '../utils/identityValidation'
@@ -167,24 +169,19 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <PageShell>
-      <section className="section-bg">
-        <div className="container detail-layout" style={{ paddingTop: 24, paddingBottom: 24 }}>
-          <article className="detail-card panel" style={{ display: 'grid', gap: 16 }}>
-            <div>
-              <h1 style={{ margin: 0 }}>비밀번호 재설정</h1>
-              <p className="small-note" style={{ marginTop: 8 }}>
-                가입한 휴대폰 번호로 본인 인증 후 새 비밀번호를 설정합니다.
-              </p>
-            </div>
+    <PageShell className="auth-page-shell">
+      <section className="auth-page-section">
+        <div className="site-container auth-page-container">
+          <article className="auth-card-shell">
+            <div className="auth-title-block"><h1>비밀번호 재설정</h1><span>전화번호 사용</span></div>
 
-            <div className="panel-sub" style={{ display: 'grid', gap: 8 }}>
+            <div className="auth-card auth-status-card">
               <div className="reservation-result-row"><span>1단계</span><strong>{verificationId ? '인증번호 발송됨' : '휴대폰 번호 입력'}</strong></div>
               <div className="reservation-result-row"><span>2단계</span><strong>{isOtpVerified ? '인증 완료' : '인증번호 확인'}</strong></div>
               <div className="reservation-result-row"><span>3단계</span><strong>{isOtpVerified ? '새 비밀번호 설정 가능' : '인증 후 진행'}</strong></div>
             </div>
 
-            <form className="stack-form stack-form-centered" onSubmit={handleSubmit}>
+            <form className="auth-form auth-form--stack" onSubmit={handleSubmit}>
               <div className="field-group">
                 <label className="field-label" htmlFor="reset-phone">휴대폰 번호</label>
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -277,18 +274,19 @@ export default function ForgotPasswordPage() {
               {errorMessage ? <p className="field-note" style={{ color: '#be123c' }}>{errorMessage}</p> : null}
               {successMessage ? <p className="field-note" style={{ color: '#166534' }}>{successMessage}</p> : null}
 
-              <button className="btn btn-dark btn-md btn-block" type="submit" disabled={submitting || !isOtpVerified || !isPasswordReady}>
+              <button className="auth-submit-button" type="submit" disabled={submitting || !isOtpVerified || !isPasswordReady}>
                 {submitting ? '처리 중...' : '비밀번호 변경'}
               </button>
             </form>
 
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <Link className="btn btn-outline btn-md" to={`/login?redirectTo=${encodeURIComponent(redirectTo)}`}>로그인으로</Link>
-              <Link className="btn btn-outline btn-md" to="/">메인으로</Link>
+            <div className="auth-bottom-links">
+              <Link to={`/login?redirectTo=${encodeURIComponent(redirectTo)}`}>로그인으로</Link>
+              <Link to="/">메인으로</Link>
             </div>
           </article>
         </div>
       </section>
+      <ContactInfoStrip items={landingContactItems} />
     </PageShell>
   )
 }

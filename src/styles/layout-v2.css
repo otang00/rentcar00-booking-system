@@ -83,6 +83,9 @@
   border-top:1px solid #dfe7ef;
   margin-top:40px;
   padding:36px 0 56px;
+  color:#526173;
+  font-family:"Segoe UI","Noto Sans KR",-apple-system,BlinkMacSystemFont,sans-serif;
+  letter-spacing:-.018em;
 }
 
 .site-footer__inner{
@@ -101,13 +104,38 @@
   gap:8px;
 }
 
+.site-footer .footer-section-title{
+  color:#0f78b2;
+  font-weight:900;
+  letter-spacing:-.055em;
+  line-height:1.15;
+}
+
+.site-footer .footer-label{
+  color:#0f78b2;
+  font-weight:500;
+}
+
+.site-footer p,
+.site-footer span,
+.site-footer div,
+.site-footer a{
+  color:#526173;
+  letter-spacing:-.012em;
+  line-height:1.55;
+}
+
+.site-footer strong{
+  color:#101827;
+}
+
 .site-footer__bottom{
   display:flex;
   justify-content:space-between;
   gap:12px;
   flex-wrap:wrap;
   margin-top:24px;
-  color:#6b7c8f;
+  color:#526173;
   font-size:14px;
 }
 

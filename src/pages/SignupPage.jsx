@@ -96,32 +96,23 @@ function formatSeconds(seconds) {
 
 function SectionTitle({ title, description }) {
   return (
-    <div style={{ display: 'grid', gap: 4 }}>
-      <h2 style={{ margin: 0, fontSize: 18 }}>{title}</h2>
-      {description ? <p className="small-note" style={{ margin: 0 }}>{description}</p> : null}
+    <div className="auth-card-row">
+      <h2>{title}</h2>
+      {description ? <p>{description}</p> : null}
     </div>
   )
 }
 
-function FieldNote({ children, color = '#6b7280' }) {
-  return <p className="field-note" style={{ color, marginTop: 6 }}>{children}</p>
+function FieldNote({ children, tone = 'muted' }) {
+  return <p className={`field-note auth-note auth-note--${tone}`}>{children}</p>
 }
 
 function TermsRow({ checked, onChange, label, required = false, onOpen, disabled = false }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
-      <label style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+    <div className="auth-card-row auth-terms-row">
+      <label className="auth-terms-check">
         <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} disabled={disabled} />
-        <span
-          style={{
-            color: '#17212b',
-            font: 'inherit',
-            textAlign: 'left',
-            lineHeight: 1.4,
-          }}
-        >
-          {required ? '[필수]' : '[선택]'} {label}
-        </span>
+        <span>{required ? '[필수]' : '[선택]'} {label}</span>
       </label>
       <button type="button" className="btn btn-outline btn-sm" onClick={onOpen} disabled={disabled}>보기</button>
     </div>
@@ -401,20 +392,20 @@ export default function SignupPage() {
   }
 
   return (
-    <PageShell className="color-preview-shell color-preview-mockup-shell account-shell">
-      <section className="section-bg account-page-shell">
-        <div className="container signup-page-container">
-          <div className="login-title-block signup-title-block"><h1>회원가입</h1><span>전화번호 사용</span></div>
+    <PageShell className="auth-page-shell">
+      <section className="auth-page-section">
+        <div className="site-container auth-page-container">
+          <div className="auth-title-block"><h1>회원가입</h1><span>전화번호 사용</span></div>
 
-          <form className="signup-page-form" onSubmit={handleSubmit}>
-              <div className="signup-section-stack">
-                <section className="signup-login-input-card">
+          <form className="auth-form auth-form--stack" onSubmit={handleSubmit}>
+              <div className="auth-section-stack">
+                <section className="auth-card">
 
-                  <div className="field-group">
-                    <label className="login-input-label" htmlFor="signup-name">이름</label>
+                  <div className="auth-card-row">
+                    <label className="auth-input-label" htmlFor="signup-name">이름</label>
                     <input
                       id="signup-name"
-                      className="login-line-input"
+                      className="auth-line-input"
                       type="text"
                       placeholder="홍길동"
                       value={name}
@@ -422,14 +413,14 @@ export default function SignupPage() {
                       disabled={submitting}
                       required
                     />
-                    {name && !nameValidation.isValid ? <FieldNote color="#9f1239">{nameValidation.message}</FieldNote> : null}
+                    {name && !nameValidation.isValid ? <FieldNote tone="danger">{nameValidation.message}</FieldNote> : null}
                   </div>
 
-                  <div className="field-group">
-                    <label className="login-input-label" htmlFor="signup-birth-date">생년월일</label>
+                  <div className="auth-card-row">
+                    <label className="auth-input-label" htmlFor="signup-birth-date">생년월일</label>
                     <input
                       id="signup-birth-date"
-                      className="login-line-input"
+                      className="auth-line-input"
                       type="text"
                       inputMode="numeric"
                       placeholder="19900101"
@@ -438,14 +429,14 @@ export default function SignupPage() {
                       disabled={submitting}
                       required
                     />
-                    {birthDate && !birthValidation.isValid ? <FieldNote color="#9f1239">{birthValidation.message}</FieldNote> : null}
+                    {birthDate && !birthValidation.isValid ? <FieldNote tone="danger">{birthValidation.message}</FieldNote> : null}
                   </div>
 
-                  <div className="field-group">
-                    <label className="login-input-label" htmlFor="signup-email">이메일 (선택)</label>
+                  <div className="auth-card-row">
+                    <label className="auth-input-label" htmlFor="signup-email">이메일 (선택)</label>
                     <input
                       id="signup-email"
-                      className="login-line-input"
+                      className="auth-line-input"
                       type="email"
                       autoComplete="email"
                       placeholder="example@email.com"
@@ -456,13 +447,13 @@ export default function SignupPage() {
                   </div>
                 </section>
 
-                <section className="auth-main-card signup-flow-card">
+                <section className="auth-card">
                   <SectionTitle title="비밀번호" />
 
-                  <div className="field-group">
+                  <div className="auth-card-row field-group">
                     <label className="field-label" htmlFor="signup-password">비밀번호</label>
-                    <div style={{ display: 'grid', gap: 8 }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+                    <div className="auth-field-stack">
+                      <div className="auth-action-grid">
                         <input
                           id="signup-password"
                           className="field-input"
@@ -487,10 +478,10 @@ export default function SignupPage() {
                     </div>
                   </div>
 
-                  <div className="field-group">
+                  <div className="auth-card-row field-group">
                     <label className="field-label" htmlFor="signup-password-confirm">비밀번호 확인</label>
-                    <div style={{ display: 'grid', gap: 8 }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+                    <div className="auth-field-stack">
+                      <div className="auth-action-grid">
                         <input
                           id="signup-password-confirm"
                           className="field-input"
@@ -513,26 +504,26 @@ export default function SignupPage() {
                         </button>
                       </div>
                       {passwordConfirm ? (
-                        <FieldNote color={isPasswordConfirmed ? '#166534' : '#be123c'}>
+                        <FieldNote tone={isPasswordConfirmed ? 'success' : 'danger'}>
                           {isPasswordConfirmed ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.'}
                         </FieldNote>
                       ) : null}
-                      <div style={{ display: 'grid', gap: 4 }}>
-                        <FieldNote color={passwordChecks.length ? '#166534' : '#6b7280'}>{passwordChecks.length ? '✓' : '○'} 8자 이상</FieldNote>
-                        <FieldNote color={passwordChecks.english ? '#166534' : '#6b7280'}>{passwordChecks.english ? '✓' : '○'} 영문 포함</FieldNote>
-                        <FieldNote color={passwordChecks.number ? '#166534' : '#6b7280'}>{passwordChecks.number ? '✓' : '○'} 숫자 포함</FieldNote>
-                        <FieldNote color={passwordChecks.noSpace ? '#166534' : '#be123c'}>{passwordChecks.noSpace ? '✓' : '○'} 공백 없음</FieldNote>
-                        <FieldNote color={passwordChecks.notEmail ? '#166534' : '#be123c'}>{passwordChecks.notEmail ? '✓' : '○'} 이메일 입력 시 동일값 금지</FieldNote>
+                      <div className="auth-note-stack">
+                        <FieldNote tone={passwordChecks.length ? 'success' : 'muted'}>{passwordChecks.length ? '✓' : '○'} 8자 이상</FieldNote>
+                        <FieldNote tone={passwordChecks.english ? 'success' : 'muted'}>{passwordChecks.english ? '✓' : '○'} 영문 포함</FieldNote>
+                        <FieldNote tone={passwordChecks.number ? 'success' : 'muted'}>{passwordChecks.number ? '✓' : '○'} 숫자 포함</FieldNote>
+                        <FieldNote tone={passwordChecks.noSpace ? 'success' : 'danger'}>{passwordChecks.noSpace ? '✓' : '○'} 공백 없음</FieldNote>
+                        <FieldNote tone={passwordChecks.notEmail ? 'success' : 'danger'}>{passwordChecks.notEmail ? '✓' : '○'} 이메일 입력 시 동일값 금지</FieldNote>
                       </div>
                     </div>
                   </div>
                 </section>
 
-                <section className="auth-main-card signup-flow-card is-accent">
+                <section className="auth-card">
                   <SectionTitle title="연락처 인증" />
-                  <div className="field-group">
+                  <div className="auth-card-row field-group">
                     <label className="field-label" htmlFor="signup-phone">휴대폰 번호</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+                    <div className="auth-action-grid">
                       <input
                         id="signup-phone"
                         className="field-input"
@@ -553,12 +544,12 @@ export default function SignupPage() {
                         {otpRequesting ? '발송 중...' : otpCooldownLeft > 0 ? `재전송 ${otpCooldownLeft}s` : '인증번호 받기'}
                       </button>
                     </div>
-                    {phone && !phoneValidation.isValid ? <FieldNote color="#9f1239">{phoneValidation.message}</FieldNote> : null}
+                    {phone && !phoneValidation.isValid ? <FieldNote tone="danger">{phoneValidation.message}</FieldNote> : null}
                   </div>
 
-                  <div className="field-group">
+                  <div className="auth-card-row field-group">
                     <label className="field-label" htmlFor="signup-otp">인증번호</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+                    <div className="auth-action-grid">
                       <input
                         id="signup-otp"
                         className="field-input"
@@ -578,24 +569,24 @@ export default function SignupPage() {
                         {isOtpVerified ? '인증완료' : otpVerifying ? '확인 중...' : '확인'}
                       </button>
                     </div>
-                    <FieldNote color={isOtpVerified ? '#166534' : '#6b7280'}>
+                    <FieldNote tone={isOtpVerified ? 'success' : 'muted'}>
                       {isOtpVerified
                         ? '휴대폰 인증이 완료되었습니다.'
                         : verificationId
                           ? `남은 시간 ${formatSeconds(otpSecondsLeft)}`
                           : '인증번호를 먼저 요청해 주세요.'}
                     </FieldNote>
-                    <FieldNote color={isOtpVerified ? '#166534' : '#6b7280'}>{otpMessage}</FieldNote>
+                    <FieldNote tone={isOtpVerified ? 'success' : 'muted'}>{otpMessage}</FieldNote>
                   </div>
                 </section>
 
-                <section className="auth-main-card signup-flow-card">
+                <section className="auth-card">
                   <SectionTitle title="주소" />
 
-                  <div className="signup-address-stack">
-                    <div className="field-group">
+                  <div className="auth-card-stack signup-address-stack">
+                    <div className="auth-card-row field-group">
                       <label className="field-label" htmlFor="signup-postal-code">우편번호</label>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+                      <div className="auth-action-grid">
                         <input
                           id="signup-postal-code"
                           className="field-input"
@@ -614,7 +605,7 @@ export default function SignupPage() {
                       </div>
                     </div>
 
-                    <div className="field-group">
+                    <div className="auth-card-row field-group">
                       <label className="field-label" htmlFor="signup-address-main">기본주소</label>
                       <input
                         id="signup-address-main"
@@ -629,7 +620,7 @@ export default function SignupPage() {
                       />
                       </div>
 
-                    <div className="field-group">
+                    <div className="auth-card-row field-group">
                       <label className="field-label" htmlFor="signup-address-detail">상세주소</label>
                       <input
                         ref={addressDetailInputRef}
@@ -647,8 +638,8 @@ export default function SignupPage() {
                   </div>
                 </section>
 
-                <section className="signup-terms-box">
-                  <label className="signup-terms-row signup-terms-row-all">
+                <section className="auth-card">
+                  <label className="auth-card-row signup-terms-row signup-terms-row-all">
                     <input
                       type="checkbox"
                       checked={agreeAll}
@@ -658,7 +649,7 @@ export default function SignupPage() {
                     <span>전체 동의</span>
                   </label>
 
-                  <div className="signup-terms-list">
+                  <div className="auth-card-stack signup-terms-list">
                     <TermsRow checked={agreeTerms} onChange={setAgreeTerms} label="서비스 이용약관 동의" required onOpen={() => setActiveTermsModal('terms')} disabled={submitting} />
                     <TermsRow checked={agreePrivacy} onChange={setAgreePrivacy} label="개인정보 수집 및 이용 동의" required onOpen={() => setActiveTermsModal('privacy')} disabled={submitting} />
                     <TermsRow checked={agreeRental} onChange={setAgreeRental} label="렌터카 예약 및 대여 조건 동의" required onOpen={() => setActiveTermsModal('rental')} disabled={submitting} />
@@ -668,22 +659,22 @@ export default function SignupPage() {
                     </label>
                   </div>
 
-                  <p className="signup-terms-note" style={{ color: requiredTermsAgreed ? '#166534' : '#6b7280' }}>
+                  <p className={`auth-card-row signup-terms-note auth-note auth-note--${requiredTermsAgreed ? 'success' : 'muted'}`}>
                     {requiredTermsAgreed ? '필수 약관 동의가 완료되었습니다.' : '필수 약관에 모두 동의해 주세요.'}
                   </p>
                 </section>
               </div>
 
-              {errorMessage ? <p className="field-note" style={{ color: '#be123c' }}>{errorMessage}</p> : null}
-              {successMessage ? <p className="field-note" style={{ color: '#166534' }}>{successMessage}</p> : null}
+              {errorMessage ? <p className="field-note auth-note auth-note--danger">{errorMessage}</p> : null}
+              {successMessage ? <p className="field-note auth-note auth-note--success">{successMessage}</p> : null}
 
-              <button className="btn btn-dark btn-md btn-block" type="submit" disabled={!canSubmitCurrentSignup}>
+              <button className="auth-submit-button" type="submit" disabled={!canSubmitCurrentSignup}>
                 {submitting ? '회원가입 중...' : '회원가입'}
               </button>
 
             </form>
 
-          <div className="signup-bottom-links">
+          <div className="auth-bottom-links">
             <Link to={`/login?redirectTo=${encodeURIComponent(redirectTo)}`}>로그인</Link>
             <Link to="/guest-bookings">비회원 예약조회</Link>
             <Link to="/">메인으로</Link>
