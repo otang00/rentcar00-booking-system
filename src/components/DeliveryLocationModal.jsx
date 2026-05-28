@@ -232,7 +232,7 @@ export default function DeliveryLocationModal({
                 {provinces.map((province) => (
                   <button
                     key={province.id}
-                    className={`delivery-option-button delivery-region-button ${selectedProvince?.id === province.id ? 'is-active' : ''}`}
+                    className={`delivery-option-button delivery-region-button ${!selectedProvince ? 'is-flow-active' : ''} ${selectedProvince?.id === province.id ? 'is-active' : ''}`}
                     type="button"
                     onClick={() => handleProvinceSelect(province)}
                   >
@@ -252,7 +252,7 @@ export default function DeliveryLocationModal({
                 {cities.map((city) => (
                   <button
                     key={city.id}
-                    className={`delivery-option-button delivery-region-button ${selectedCity?.id === city.id ? 'is-active' : ''}`}
+                    className={`delivery-option-button delivery-region-button ${selectedProvince && !selectedCity ? 'is-flow-active' : ''} ${selectedCity?.id === city.id ? 'is-active' : ''}`}
                     type="button"
                     onClick={() => handleCitySelect(city)}
                   >
@@ -273,7 +273,7 @@ export default function DeliveryLocationModal({
                 {dongs.map((dong) => (
                   <button
                     key={dong.id}
-                    className={`delivery-fee-card delivery-region-card ${draftDongId === dong.id ? 'is-active' : ''}`}
+                    className={`delivery-fee-card delivery-region-card ${selectedCity && !draftDongId ? 'is-flow-active' : ''} ${draftDongId === dong.id ? 'is-active' : ''}`}
                     type="button"
                     onClick={() => handleDongSelect(dong)}
                   >

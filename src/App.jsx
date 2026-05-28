@@ -19,6 +19,7 @@ const AdminBookingsPage = lazy(() => import('./pages/AdminBookingsPage'))
 const AdminPricingHubPage = lazy(() => import('./pages/AdminPricingHubPage'))
 const AdminDeliveryRegionsPage = lazy(() => import('./pages/AdminDeliveryRegionsPage'))
 const ColorPreviewPage = lazy(() => import('./pages/ColorPreviewPage'))
+const LandingShellPage = lazy(() => import('./pages/LandingShellPage'))
 const SearchPage = lazy(() => import('./pages/SearchPage'))
 
 function RouteLoadingFallback() {
@@ -34,9 +35,10 @@ export default function App() {
     <>
       <ScrollToTop />
       <Routes>
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<LazyRoute><LandingShellPage /></LazyRoute>} />
       <Route path="/landing" element={<Navigate to="/" replace />} />
       <Route path="/landing-v2" element={<LandingV2Page />} />
+      <Route path="/landing-shell" element={<LazyRoute><LandingShellPage /></LazyRoute>} />
       <Route path="/color-preview" element={<LazyRoute><ColorPreviewPage /></LazyRoute>} />
       <Route path="/new-main" element={<LazyRoute><ColorPreviewPage /></LazyRoute>} />
       <Route path="/search" element={<LazyRoute><SearchPage /></LazyRoute>} />

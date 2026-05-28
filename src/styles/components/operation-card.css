@@ -1,7 +1,7 @@
 /* Shared operation/customer contact cards. Page-specific contact-card overrides are intentionally removed. */
 .operation-card-section{
   background:var(--color-bg-page);
-  padding:0;
+  padding:34px 0 0;
 }
 
 .operation-card-container{
@@ -72,6 +72,10 @@
 }
 
 @media(max-width:960px){
+  .operation-card-section{
+    padding-top:24px;
+  }
+
   .operation-card-grid{
     grid-template-columns:1fr;
   }
