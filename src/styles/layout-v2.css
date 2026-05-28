@@ -1,5 +1,139 @@
 /*
  * Layout v2
- * 목적: site shell/header/footer/container 배치 기준 자리.
- * 원칙: 기존 layout과 충돌하지 않도록 phase별 적용 전까지 비워둔다.
+ * 공통 shell/header/footer/container 기준.
+ * 기존 app-header/footer-cafe24 class와 병행해 화면을 유지하면서 새 구조로 이관한다.
  */
+.site-shell{
+  min-height:100vh;
+  background:#f4f8fb;
+}
+
+.site-container{
+  width:min(var(--container-width, 980px),calc(100% - 40px));
+  margin:0 auto;
+}
+
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:rgba(255,255,255,.98);
+  border-bottom:1px solid #dbe3ef;
+  box-shadow:0 10px 26px rgba(16,24,39,.05);
+}
+
+.site-header__inner{
+  min-height:84px;
+  padding:12px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:nowrap;
+}
+
+.site-header__brand{
+  display:inline-flex;
+  align-items:center;
+  min-width:0;
+  flex:1 1 auto;
+  overflow:hidden;
+}
+
+.site-header__wordmark{
+  display:block;
+  width:auto;
+  height:42px;
+  max-width:min(280px,100%);
+  object-fit:contain;
+}
+
+.site-header__nav,
+.site-header__menu{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  min-width:0;
+  flex-wrap:nowrap;
+}
+
+.site-header__button{
+  min-height:36px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid #168fd0;
+  background:#168fd0;
+  color:#fff;
+  box-shadow:none;
+  font-size:13px;
+  font-weight:700;
+  line-height:1;
+  white-space:nowrap;
+}
+
+.site-header__button.is-soft{
+  border-color:#d7eef9;
+  background:#eaf6fc;
+  color:#0f78b2;
+}
+
+.site-footer{
+  background:#fff;
+  border-top:1px solid #dfe7ef;
+  margin-top:40px;
+  padding:36px 0 56px;
+}
+
+.site-footer__inner{
+  width:min(var(--container-width, 980px),calc(100% - 40px));
+  margin:0 auto;
+}
+
+.site-footer__main{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:24px;
+}
+
+.site-footer__section{
+  display:grid;
+  gap:8px;
+}
+
+.site-footer__bottom{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:24px;
+  color:#6b7c8f;
+  font-size:14px;
+}
+
+@media(max-width:960px){
+  .site-container,
+  .site-footer__inner{
+    width:calc(100% - 24px);
+  }
+
+  .site-footer__main{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:760px){
+  .site-header__inner{
+    min-height:72px;
+  }
+
+  .site-header__wordmark{
+    height:34px;
+  }
+
+  .site-header__button{
+    min-height:32px;
+    padding:0 10px;
+    font-size:12px;
+  }
+}

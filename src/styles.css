@@ -10,6 +10,7 @@
 @import './styles/components/reservation-form.css';
 @import './styles/components/auth-form.css';
 @import './styles/components/modal.css';
+@import './styles/components/operation-card.css';
 @import './styles/pages/landing.css';
 @import './styles/pages/search.css';
 @import './styles/pages/detail.css';

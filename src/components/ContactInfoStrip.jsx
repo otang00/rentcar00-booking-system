@@ -232,12 +232,12 @@ export default function ContactInfoStrip({ items }) {
   }
 
   return (
-    <section className="landing-contact-section" id="landing-contact">
-      <div className="container landing-section-stack">
-        <div className="landing-contact-grid">
+    <section className="operation-card-section landing-contact-section" id="landing-contact">
+      <div className="site-container operation-card-container container landing-section-stack">
+        <div className="operation-card-grid landing-contact-grid">
           {items.map((item) => (
-            <button key={item.label} type="button" className="landing-contact-card" onClick={() => handleItemClick(item)}>
-              <span className="field-label">{item.label}</span>
+            <button key={item.label} type="button" className="operation-card landing-contact-card" onClick={() => handleItemClick(item)}>
+              <span className="operation-card__label field-label">{item.label}</span>
               <strong>{item.value}</strong>
               <p>{item.note}</p>
             </button>
@@ -246,9 +246,9 @@ export default function ContactInfoStrip({ items }) {
       </div>
 
       {activeModal ? (
-        <div className="delivery-modal-backdrop" onClick={closeModal}>
+        <div className="site-modal-backdrop delivery-modal-backdrop" onClick={closeModal}>
           <div
-            className="search-guard-modal panel"
+            className="site-modal-card search-guard-modal panel"
             onClick={(event) => event.stopPropagation()}
             role="dialog"
             aria-modal="true"

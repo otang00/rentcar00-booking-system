@@ -1,0 +1,65 @@
+/* Operation/customer contact cards shared across landing, auth, search and detail pages. */
+.operation-card-section{
+  background:#f4f8fb;
+}
+
+.operation-card-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+
+.operation-card{
+  display:grid;
+  align-content:start;
+  gap:8px;
+  border:1px solid #e7eef4;
+  border-radius:16px;
+  background:#fbfdff;
+  padding:16px;
+  box-shadow:0 6px 18px rgba(23,33,43,.03);
+  color:inherit;
+  text-align:left;
+  transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+  cursor:pointer;
+}
+
+.operation-card:hover{
+  background:#f4f8fc;
+  border-color:#d9e5ef;
+  box-shadow:0 10px 24px rgba(23,33,43,.05);
+  transform:translateY(-1px);
+}
+
+.operation-card:active{
+  background:#edf4fa;
+  border-color:#cbdbe8;
+  box-shadow:0 6px 14px rgba(23,33,43,.04);
+  transform:translateY(0);
+}
+
+.operation-card__label{
+  color:#4f6174;
+  font-size:14px;
+  font-weight:700;
+}
+
+.operation-card strong{
+  color:#17212b;
+  font-size:20px;
+  line-height:1.35;
+  font-weight:800;
+}
+
+.operation-card p{
+  margin:0;
+  color:#667a8d;
+  font-size:14px;
+  line-height:1.6;
+}
+
+@media(max-width:960px){
+  .operation-card-grid{
+    grid-template-columns:1fr;
+  }
+}
