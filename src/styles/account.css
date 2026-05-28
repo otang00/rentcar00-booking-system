@@ -6,11 +6,11 @@
   max-width:980px;
 }
 .account-page-card{
-  display:grid!important;
-  gap:18px!important;
-  border-radius:26px!important;
-  padding:24px!important;
-  box-shadow:0 18px 42px rgba(16,24,39,.06)!important;
+  display:grid;
+  gap:18px;
+  border-radius:26px;
+  padding:24px;
+  box-shadow:0 18px 42px rgba(16,24,39,.06);
 }
 .account-page-head{
   display:flex;
@@ -108,8 +108,8 @@
 }
 @media(max-width:760px){
   .account-page-card{
-    padding:18px!important;
-    border-radius:22px!important;
+    padding:18px;
+    border-radius:22px;
   }
   .account-page-head h1{
     font-size:28px;

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { parseSearchQuery, validateSearchState } from '../utils/searchQuery'
+import PageStateCard from './PageStateCard'
 import { fetchCarDetail } from '../services/carDetail'
 import { parseApiResponse } from '../utils/apiResponse'
 import {
@@ -269,21 +270,17 @@ function formatDisplay(dateText) {
 
 function ContextErrorState({ title, message }) {
   return (
-    <article className="detail-card panel">
-      <h2>{title}</h2>
-      <p className="muted small-note">{message}</p>
-      <Link to="/" className="btn btn-outline btn-md" style={{ display: 'inline-flex', marginTop: 12 }}>메인으로 돌아가기</Link>
-    </article>
+    <PageStateCard
+      eyebrow="상세 확인"
+      title={title}
+      message={message}
+      action={<Link to="/" className="btn btn-outline btn-md">메인으로 돌아가기</Link>}
+    />
   )
 }
 
 function LoadingState() {
-  return (
-    <article className="detail-card panel">
-      <h2>상세 정보 불러오는 중</h2>
-      <p className="muted small-note">상세 데이터를 불러오는 중입니다.</p>
-    </article>
-  )
+  return <PageStateCard eyebrow="상세 조회" title="예약 정보를 준비하고 있습니다" message="차량 상세, 요금, 보험 정보를 한 번에 확인하는 중입니다." />
 }
 
 function TermsCheckRow({ checked, onChange, label, onOpen }) {

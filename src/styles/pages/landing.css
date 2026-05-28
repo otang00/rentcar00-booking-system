@@ -149,9 +149,10 @@
   border:1px solid rgba(255,255,255,.72);
   border-radius:28px;
   background:rgba(255,255,255,.985);
-  padding:22px;
+  padding:26px;
   display:grid;
   gap:14px;
+  overflow:visible;
   box-shadow:0 24px 56px rgba(3,7,18,.16);
   backdrop-filter:blur(10px);
   font-family:var(--font-family-base);
@@ -168,6 +169,17 @@
 .landing-search-card b,
 .landing-search-card em{
   font-family:inherit;
+}
+
+.landing-search-card button,
+.landing-date-trigger,
+.landing-select-row,
+.landing-date-picker-card{
+  cursor:pointer;
+}
+
+.landing-search-card button:disabled{
+  cursor:not-allowed;
 }
 
 .landing-cta{
@@ -191,6 +203,7 @@
   display:grid;
   gap:8px;
   margin-top:0;
+  overflow:visible;
 }
 
 .landing-field > span{
@@ -314,6 +327,8 @@
 .landing-field.is-flow-active .landing-select-row,
 .landing-schedule-field.is-flow-active .landing-date-trigger,
 .landing-cta.is-flow-active{
+  position:relative;
+  z-index:2;
   animation:landing-flow-pulse 1.35s ease-in-out infinite;
 }
 
@@ -324,35 +339,14 @@
 }
 
 @keyframes landing-flow-pulse{
-  0%,100%{box-shadow:0 0 0 0 rgba(148,163,184,.18),0 8px 22px rgba(16,24,39,.05)}
-  50%{box-shadow:0 0 0 5px rgba(148,163,184,.22),0 10px 26px rgba(16,24,39,.08)}
-}
-
-.delivery-region-modal .delivery-inline-step-card.is-active{
-  border-color:var(--color-primary);
-  background:var(--color-primary-soft);
-  animation:none;
-}
-
-.delivery-region-modal .delivery-inline-step-card.is-active em{
-  background:var(--color-primary);
-  color:#fff;
-}
-
-.delivery-region-modal .delivery-region-button.is-flow-active,
-.delivery-region-modal .delivery-region-card.is-flow-active{
-  animation:landing-flow-pulse 1.35s ease-in-out infinite;
-  border-color:#cbd5e1;
-  background:#f8fafc;
+  0%,100%{box-shadow:0 0 0 0 rgba(22,143,208,.10),0 8px 22px rgba(16,24,39,.05)}
+  50%{box-shadow:0 0 0 4px rgba(22,143,208,.18),0 10px 26px rgba(16,24,39,.08)}
 }
 
 @media(prefers-reduced-motion: reduce){
   .landing-field.is-flow-active .landing-select-row,
   .landing-schedule-field.is-flow-active .landing-date-trigger,
-  .landing-cta.is-flow-active,
-  .delivery-region-modal .delivery-inline-step-card.is-active,
-  .delivery-region-modal .delivery-region-button.is-flow-active,
-  .delivery-region-modal .delivery-region-card.is-flow-active{
+  .landing-cta.is-flow-active{
     animation:none;
   }
 }

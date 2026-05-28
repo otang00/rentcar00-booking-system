@@ -18,21 +18,28 @@ export default function CarCard({ car }) {
 
   return (
     <Link
-      className="car-card panel search-car-card"
+      className="car-card panel search-car-card search-car-card-v2"
       to={`/cars/${car.id}${detailSearch}`}
+      aria-label={`${car.name} 상세보기`}
     >
-      <div className="car-thumb-wrap search-car-thumb">
+      <div className="search-car-thumb search-car-thumb-v2">
         <img src={car.image} alt={car.name} />
       </div>
-      <div className="car-body search-car-body">
-        <div className="search-car-title-row">
-          <h3>{car.name}</h3>
-        </div>
-        <div className="search-car-specs">
-          {specs.map((item) => <span key={item}>{item}</span>)}
-        </div>
-        <div className="prices refined-price search-car-price">
-          <strong>{car.dayPrice}</strong>
+
+      <div className="search-car-body search-car-body-v2">
+        <div className="search-car-main-copy">
+          <span className="search-car-badge">바로예약 가능</span>
+          <div className="search-car-title-row">
+            <h3>{car.name}</h3>
+          </div>
+          <div className="search-car-meta-price-row">
+            <div className="search-car-specs">
+              {specs.map((item) => <span key={item}>{item}</span>)}
+            </div>
+            <div className="prices refined-price search-car-price">
+              <strong>{car.dayPrice}</strong>
+            </div>
+          </div>
         </div>
       </div>
     </Link>

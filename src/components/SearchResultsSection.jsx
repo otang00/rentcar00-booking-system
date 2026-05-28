@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import CarCard from './CarCard'
 import SearchConditionEditor from './SearchConditionEditor'
+import PageStateCard from './PageStateCard'
 import { buildSearchQuery, parseSearchQuery, validateSearchState } from '../utils/searchQuery'
 import { fetchSearchCars } from '../services/cars'
 import { getMockCompany } from '../services/company'
@@ -15,41 +16,30 @@ function formatDisplay(dateText) {
 }
 
 function EmptyState() {
-  return (
-    <div className="detail-card panel search-state-card">
-      <h2>차량이 없습니다</h2>
-      <p className="muted small-note">현재 조건에 맞는 차량이 없습니다. 검색 조건을 다시 설정해 주세요.</p>
-    </div>
-  )
+  return <PageStateCard eyebrow="검색 결과" title="차량이 없습니다" message="현재 조건에 맞는 차량이 없습니다. 검색 조건을 다시 설정해 주세요." />
 }
 
 function ErrorState({ message }) {
-  return (
-    <div className="detail-card panel search-state-card">
-      <h2>검색 상태 확인 필요</h2>
-      <p className="muted small-note">{message}</p>
-    </div>
-  )
+  return <PageStateCard eyebrow="확인 필요" title="검색 상태 확인 필요" message={message} />
 }
 
 function LoadingState() {
-  return (
-    <div className="detail-card panel search-state-card">
-      <h2>차량 조회 중</h2>
-      <p className="muted small-note">차량 데이터를 불러오는 중입니다.</p>
-    </div>
-  )
+  return <PageStateCard eyebrow="차량 조회" title="예약 가능 차량을 확인하고 있습니다" message="선택하신 조건에 맞는 차량과 요금을 불러오는 중입니다." />
 }
 
 function SearchConditionSummary({ searchState, totalCount, onReset }) {
   return (
-    <section className="search-summary-panel panel" aria-label="검색 조건 요약">
+    <section className="search-summary-panel panel search-summary-panel-v2" aria-label="검색 조건 요약">
       <div className="search-summary-head">
         <div>
           <span>예약 가능 차량</span>
-          <strong>{totalCount}대 검색됨</strong>
+          <strong>{totalCount}대</strong>
+          <p>선택한 일정과 위치 기준으로 예약 가능한 차량입니다.</p>
         </div>
-        <button type="button" className="btn btn-dark btn-md" onClick={onReset}>검색조건 다시 설정</button>
+        <div className="search-summary-actions">
+          <button type="button" className="btn btn-dark btn-md" onClick={onReset}>조건 변경</button>
+          <button type="button" className="btn btn-outline btn-md search-research-desktop" onClick={onReset}>재검색</button>
+        </div>
       </div>
       <div className="search-summary-grid">
         <div>
@@ -64,11 +54,12 @@ function SearchConditionSummary({ searchState, totalCount, onReset }) {
           <span>반납</span>
           <strong>{formatDisplay(searchState.returnDateTime)}</strong>
         </div>
-        <div>
+        <div className="search-summary-driver-cell">
           <span>운전자</span>
           <strong>{searchState.driverAge === 26 ? '만 26세 이상' : '만 21세 이상'}</strong>
         </div>
       </div>
+      <button type="button" className="btn btn-outline btn-md search-research-mobile" onClick={onReset}>재검색</button>
     </section>
   )
 }
@@ -148,10 +139,16 @@ export default function SearchResultsSection() {
       <div className="container main-stack search-results-stack">
         <SearchConditionSummary searchState={searchState} totalCount={totalCount} onReset={handleReset} />
 
-        <div className="search-sort-row">
-          <button className={`btn btn-tab btn-md ${searchState.order === 'lower' ? 'is-active' : ''}`} onClick={() => handleOrderChange('lower')}>낮은 가격순</button>
-          <button className={`btn btn-tab btn-md ${searchState.order === 'higher' ? 'is-active' : ''}`} onClick={() => handleOrderChange('higher')}>높은 가격순</button>
-          <button className={`btn btn-tab btn-md ${searchState.order === 'newer' ? 'is-active' : ''}`} onClick={() => handleOrderChange('newer')}>신차순</button>
+        <div className="search-list-toolbar">
+          <div className="search-list-copy">
+            <span>차량 목록</span>
+            <strong>원하는 차량을 선택해 예약 정보를 확인하세요.</strong>
+          </div>
+          <div className="search-sort-row">
+            <button className={`btn btn-tab btn-md ${searchState.order === 'lower' ? 'is-active' : ''}`} onClick={() => handleOrderChange('lower')}>낮은 가격순</button>
+            <button className={`btn btn-tab btn-md ${searchState.order === 'higher' ? 'is-active' : ''}`} onClick={() => handleOrderChange('higher')}>높은 가격순</button>
+            <button className={`btn btn-tab btn-md ${searchState.order === 'newer' ? 'is-active' : ''}`} onClick={() => handleOrderChange('newer')}>신차순</button>
+          </div>
         </div>
 
         {!validation.isValid && <ErrorState message={validationErrorMessage} />}

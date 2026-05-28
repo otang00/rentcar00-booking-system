@@ -10,6 +10,8 @@
 @import './styles/components/reservation-form.css';
 @import './styles/components/auth-form.css';
 @import './styles/components/modal.css';
+@import './styles/components/delivery-modal.css';
+@import './styles/components/color-preview-modal.css';
 @import './styles/components/operation-card.css';
 @import './styles/pages/landing.css';
 @import './styles/pages/search.css';
@@ -17,6 +19,5 @@
 @import './styles/pages/auth.css';
 @import './styles/account.css';
 @import './styles/search.css';
-@import './styles/detail.css';
 @import './styles/reservation.css';
 @import './styles/overrides.css';
