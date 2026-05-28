@@ -49,42 +49,6 @@
 }
 
 @media(max-width:760px){
-  .page-shell .app-header__inner,
-  .landing-shell .app-header__inner,
-  .color-preview-shell .app-header__inner,
-  .login-page-shell .app-header__inner,
-  .account-shell .app-header__inner,
-  .search-page-shell .app-header__inner,
-  .reservation-flow-shell .app-header__inner{
-    width:calc(100% - 24px);
-    min-height:64px;
-    padding:8px 0;
-    gap:8px;
-  }
-
-  .page-shell .app-header__wordmark,
-  .landing-shell .app-header__wordmark,
-  .color-preview-shell .app-header__wordmark,
-  .login-page-shell .app-header__wordmark,
-  .account-shell .app-header__wordmark,
-  .search-page-shell .app-header__wordmark,
-  .reservation-flow-shell .app-header__wordmark{
-    height:30px;
-    max-width:min(170px,100%);
-  }
-
-  .page-shell .app-header__button,
-  .landing-shell .app-header__button,
-  .color-preview-shell .app-header__button,
-  .login-page-shell .app-header__button,
-  .account-shell .app-header__button,
-  .search-page-shell .app-header__button,
-  .reservation-flow-shell .app-header__button{
-    min-height:34px;
-    padding:0 10px;
-    font-size:12px;
-  }
-
   .reservation-complete-card .login-title-block h1{
     font-size:30px;
   }

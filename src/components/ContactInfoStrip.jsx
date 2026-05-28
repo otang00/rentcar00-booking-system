@@ -232,11 +232,11 @@ export default function ContactInfoStrip({ items }) {
   }
 
   return (
-    <section className="operation-card-section landing-contact-section" id="landing-contact">
-      <div className="site-container operation-card-container container landing-section-stack">
-        <div className="operation-card-grid landing-contact-grid">
+    <section className="operation-card-section" id="landing-contact">
+      <div className="site-container operation-card-container">
+        <div className="operation-card-grid">
           {items.map((item) => (
-            <button key={item.label} type="button" className="operation-card landing-contact-card" onClick={() => handleItemClick(item)}>
+            <button key={item.label} type="button" className="operation-card" onClick={() => handleItemClick(item)}>
               <span className="operation-card__label">{item.label}</span>
               <strong>{item.value}</strong>
               <p>{item.note}</p>

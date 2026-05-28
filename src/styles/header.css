@@ -1,11 +1,5 @@
-/* CSS stabilization 2026-05-28: common header + account/reservation typography lock */
-.page-shell .app-header,
-.landing-shell .app-header,
-.color-preview-shell .app-header,
-.login-page-shell .app-header,
-.account-shell .app-header,
-.search-page-shell .app-header,
-.reservation-flow-shell .app-header{
+/* Shared site header. Page-specific header overrides are intentionally removed. */
+.site-header{
   position:sticky;
   top:0;
   z-index:20;
@@ -14,17 +8,8 @@
   box-shadow:var(--shadow-card);
 }
 
-.page-shell .app-header__inner,
-.landing-shell .app-header__inner,
-.color-preview-shell .app-header__inner,
-.login-page-shell .app-header__inner,
-.account-shell .app-header__inner,
-.search-page-shell .app-header__inner,
-.reservation-flow-shell .app-header__inner{
-  width:min(var(--container-width),calc(100% - 40px));
+.site-header__inner{
   min-height:84px;
-  height:auto;
-  margin:0 auto;
   padding:12px 0;
   display:flex;
   align-items:center;
@@ -33,28 +18,15 @@
   flex-wrap:nowrap;
 }
 
-.page-shell .app-header__brand,
-.landing-shell .app-header__brand,
-.color-preview-shell .app-header__brand,
-.login-page-shell .app-header__brand,
-.account-shell .app-header__brand,
-.search-page-shell .app-header__brand,
-.reservation-flow-shell .app-header__brand{
+.site-header__brand{
   display:inline-flex;
   align-items:center;
   min-width:0;
   flex:1 1 auto;
   overflow:hidden;
-  filter:none;
 }
 
-.page-shell .app-header__wordmark,
-.landing-shell .app-header__wordmark,
-.color-preview-shell .app-header__wordmark,
-.login-page-shell .app-header__wordmark,
-.account-shell .app-header__wordmark,
-.search-page-shell .app-header__wordmark,
-.reservation-flow-shell .app-header__wordmark{
+.site-header__wordmark{
   content:url('/bbang-wordmark-navy.png');
   display:block;
   width:auto;
@@ -63,20 +35,8 @@
   object-fit:contain;
 }
 
-.page-shell .app-header__nav,
-.landing-shell .app-header__nav,
-.color-preview-shell .app-header__nav,
-.login-page-shell .app-header__nav,
-.account-shell .app-header__nav,
-.search-page-shell .app-header__nav,
-.reservation-flow-shell .app-header__nav,
-.page-shell .app-header__menu,
-.landing-shell .app-header__menu,
-.color-preview-shell .app-header__menu,
-.login-page-shell .app-header__menu,
-.account-shell .app-header__menu,
-.search-page-shell .app-header__menu,
-.reservation-flow-shell .app-header__menu{
+.site-header__nav,
+.site-header__menu{
   display:flex;
   align-items:center;
   justify-content:flex-end;
@@ -85,13 +45,10 @@
   flex-wrap:nowrap;
 }
 
-.page-shell .app-header__button,
-.landing-shell .app-header__button,
-.color-preview-shell .app-header__button,
-.login-page-shell .app-header__button,
-.account-shell .app-header__button,
-.search-page-shell .app-header__button,
-.reservation-flow-shell .app-header__button{
+.site-header__button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   min-height:36px;
   padding:0 12px;
   border-radius:999px;
@@ -105,14 +62,24 @@
   white-space:nowrap;
 }
 
-.page-shell .app-header__button.is-soft,
-.landing-shell .app-header__button.is-soft,
-.color-preview-shell .app-header__button.is-soft,
-.login-page-shell .app-header__button.is-soft,
-.account-shell .app-header__button.is-soft,
-.search-page-shell .app-header__button.is-soft,
-.reservation-flow-shell .app-header__button.is-soft{
+.site-header__button.is-soft{
   border-color:var(--color-primary-soft-border);
   background:var(--color-primary-soft);
   color:var(--color-primary-hover);
+}
+
+@media(max-width:760px){
+  .site-header__inner{
+    min-height:72px;
+  }
+
+  .site-header__wordmark{
+    height:34px;
+  }
+
+  .site-header__button{
+    min-height:32px;
+    padding:0 10px;
+    font-size:12px;
+  }
 }

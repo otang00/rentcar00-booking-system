@@ -402,12 +402,6 @@
   background:#f4f8fb;
 }
 
-.account-shell .landing-contact-strip,
-.account-shell .landing-contact-section,
-.account-shell .landing-contact-grid{
-  margin-top:0;
-}
-
 /* Signup/account page layout */
 .account-shell .signup-page-container{
   width:min(100%,560px);
@@ -521,16 +515,7 @@
   }
 }
 
-/* Header/account alignment and signup first card as login input stack */
-.account-shell .app-header,
-.login-page-shell .app-header{
-  position:sticky;
-  background:#fffffff7;
-  border-bottom:1px solid #e7eef5;
-  box-shadow:0 10px 30px rgba(16,24,39,.04);
-}
-
-
+/* Signup first card as login input stack */
 .account-shell .signup-page-container,
 .login-page-container{
   width:min(100%,420px);
@@ -560,11 +545,6 @@
 }
 
 @media(max-width:760px){
-  .account-shell .app-header__inner,
-  .login-page-shell .app-header__inner{
-    min-height:72px;
-  }
-
   .account-shell .signup-page-container,
   .login-page-container{
     width:calc(100% - 32px);
@@ -841,25 +821,11 @@
     padding-right:15px;
   }
 }
-/* Account background unification: use guest bookings background everywhere */
+/* Account background unification */
 .login-page-shell,
 .account-shell,
 .login-page-shell .login-page-section,
 .account-shell .account-page-shell,
-.account-shell .login-page-section,
-.account-shell .landing-contact-section,
-.account-shell .landing-contact-strip,
-.login-page-shell .landing-contact-section,
-.login-page-shell .landing-contact-strip{
+.account-shell .login-page-section{
   background:#f4f8fb;
-}
-
-.account-shell .landing-contact-card,
-.login-page-shell .landing-contact-card{
-  background:#f4f8fb;
-}
-
-.account-shell .landing-contact-card:hover,
-.login-page-shell .landing-contact-card:hover{
-  background:#eef6fb;
 }
