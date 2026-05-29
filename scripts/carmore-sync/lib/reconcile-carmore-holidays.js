@@ -109,12 +109,21 @@ async function reconcileCarmoreHolidays({
   supabaseClient,
   client,
   mappingOptions,
+  limit = 0,
+  onlyImsReservationId = '',
 } = {}) {
   const supabase = supabaseClient;
   const syncMode = shouldSave ? 'save' : 'dry-run';
   const run = await createRun({ syncMode, supabaseClient: supabase });
   try {
-    const desiredRows = await fetchEnrichedDesiredRows({ now, supabaseClient: supabase, mappingOptions });
+    let desiredRows = await fetchEnrichedDesiredRows({ now, supabaseClient: supabase, mappingOptions });
+    if (onlyImsReservationId) {
+      desiredRows = desiredRows.filter((row) => String(row.imsReservationId) === String(onlyImsReservationId));
+    }
+    const maxRows = Number(limit || 0);
+    if (maxRows > 0) {
+      desiredRows = desiredRows.slice(0, maxRows);
+    }
     const actualRows = await fetchActiveMappings({ supabaseClient: supabase, allowMissingTable: !shouldSave });
     const plan = planReconcile({ desiredRows, actualRows });
     const results = { additions: [], deletions: [], changes: [], unchanged: plan.unchanged, errors: [] };
