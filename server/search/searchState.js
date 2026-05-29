@@ -1,6 +1,7 @@
 'use strict'
 
 const MAX_SEARCH_RETURN_DAYS = 30
+const SEOUL_OFFSET = '+09:00'
 
 const DEFAULT_SEARCH_STATE = {
   deliveryDateTime: '2026-04-02 10:00',
@@ -19,6 +20,25 @@ const DRIVER_AGE_OPTIONS = new Set([21, 26])
 function normalizeDateTime(value, fallback) {
   const nextValue = typeof value === 'string' ? value.trim() : ''
   return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(nextValue) ? nextValue : fallback
+}
+
+function parseSearchDateTime(value) {
+  const normalized = normalizeDateTime(value, '')
+  if (!normalized) return null
+
+  const parsed = new Date(`${normalized.replace(' ', 'T')}:00${SEOUL_OFFSET}`)
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
+function getSeoulTodayFloor(now = new Date()) {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+  const parts = Object.fromEntries(formatter.formatToParts(now).map((part) => [part.type, part.value]))
+  return new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00${SEOUL_OFFSET}`)
 }
 
 function normalizeSearchState(rawState = {}) {
@@ -58,19 +78,29 @@ function normalizeSearchState(rawState = {}) {
 function buildSearchErrors(normalized) {
   const errors = {}
 
-  const pickupAt = new Date(normalized.deliveryDateTime.replace(' ', 'T'))
-  const returnAt = new Date(normalized.returnDateTime.replace(' ', 'T'))
+  const pickupAt = parseSearchDateTime(normalized.deliveryDateTime)
+  const returnAt = parseSearchDateTime(normalized.returnDateTime)
 
-  if (returnAt <= pickupAt) {
+  if (!pickupAt) {
+    errors.deliveryDateTime = 'deliveryDateTime is invalid'
+  }
+
+  if (!returnAt) {
+    errors.returnDateTime = 'returnDateTime is invalid'
+  }
+
+  if (pickupAt && returnAt && returnAt <= pickupAt) {
     errors.returnDateTime = 'returnDateTime must be after deliveryDateTime'
   }
 
-  const latestAllowedReturnAt = new Date()
-  latestAllowedReturnAt.setDate(latestAllowedReturnAt.getDate() + MAX_SEARCH_RETURN_DAYS)
-  latestAllowedReturnAt.setHours(23, 59, 59, 999)
+  if (returnAt) {
+    const latestAllowedReturnAt = getSeoulTodayFloor()
+    latestAllowedReturnAt.setDate(latestAllowedReturnAt.getDate() + MAX_SEARCH_RETURN_DAYS)
+    latestAllowedReturnAt.setHours(23, 59, 59, 999)
 
-  if (returnAt > latestAllowedReturnAt) {
-    errors.returnDateTime = `returnDateTime must be within ${MAX_SEARCH_RETURN_DAYS} days from today`
+    if (returnAt > latestAllowedReturnAt) {
+      errors.returnDateTime = `returnDateTime must be within ${MAX_SEARCH_RETURN_DAYS} days from today`
+    }
   }
 
   if (normalized.pickupOption === 'delivery' && normalized.dongId == null) {
