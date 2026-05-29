@@ -58,19 +58,56 @@ function buildHolidayMemo(desired) {
   return `IMS ${desired.imsReservationId}`;
 }
 
+function findRecoverableHoliday({ rows = [], desired, memo }) {
+  return (Array.isArray(rows) ? rows : []).find((row) => row.memo === memo && row.startDate === desired.holidayStartDate && row.endDate === desired.holidayEndDate) || null;
+}
+
+function isDuplicateHolidayError(error) {
+  const message = String(error?.message || '');
+  return message.includes('duplicate')
+    || message.includes('DUPLICATION')
+    || message.includes('중복')
+    || message.includes('이미')
+    || message.includes('휴무');
+}
+
 async function createOrRecoverHoliday({ desired, client }) {
   const memo = buildHolidayMemo(desired);
-  const existing = await client.getRentcarHolidays({ rentcarSerial: desired.carmoreRentcarSerial });
-  const exact = existing.find((row) => row.memo === memo && row.startDate === desired.holidayStartDate && row.endDate === desired.holidayEndDate) || null;
+  let existing = await client.getRentcarHolidays({ rentcarSerial: desired.carmoreRentcarSerial });
+  const exact = findRecoverableHoliday({ rows: existing, desired, memo });
   if (exact?.serial) {
     return { memo, holidaySerial: exact.serial, createResult: null, recoveredExisting: true, row: exact };
   }
-  const createResult = await client.createHoliday({
-    rentcarSerial: desired.carmoreRentcarSerial,
-    memo,
-    startDate: desired.holidayStartDate,
-    endDate: desired.holidayEndDate,
-  });
+
+  let createResult = null;
+  try {
+    createResult = await client.createHoliday({
+      rentcarSerial: desired.carmoreRentcarSerial,
+      memo,
+      startDate: desired.holidayStartDate,
+      endDate: desired.holidayEndDate,
+    });
+  } catch (error) {
+    if (!isDuplicateHolidayError(error)) throw error;
+    existing = await client.getRentcarHolidays({ rentcarSerial: desired.carmoreRentcarSerial });
+    const duplicate = findRecoverableHoliday({ rows: existing, desired, memo });
+    if (!duplicate?.serial) throw error;
+    return {
+      memo,
+      holidaySerial: duplicate.serial,
+      createResult: { duplicateRecovered: true, error: error.message },
+      recoveredExisting: true,
+      row: duplicate,
+    };
+  }
+
+  if (!createResult.holidaySerial) {
+    existing = await client.getRentcarHolidays({ rentcarSerial: desired.carmoreRentcarSerial });
+    const created = findRecoverableHoliday({ rows: existing, desired, memo });
+    createResult.holidaySerial = created?.serial || null;
+    createResult.row = created || createResult.row || null;
+  }
+
   if (!createResult.holidaySerial) throw new Error(`Carmore holiday serial not found after create for imsReservationId=${desired.imsReservationId}`);
   return { memo, holidaySerial: createResult.holidaySerial, createResult, recoveredExisting: false, row: createResult.row };
 }
@@ -82,18 +119,33 @@ async function applyAddition({ desired, client, shouldSave }) {
   return { ...base, applied: true, ...result };
 }
 
-async function applyDeletion({ actual, client, shouldSave }) {
-  const base = { action: 'delete', imsReservationId: actual.imsReservationId, actual, applied: false, deleteResult: null };
+function findSharedActiveHolidayMappings({ actual, actualRows = [] } = {}) {
+  if (!actual?.carmoreHolidaySerial) return [];
+  return (Array.isArray(actualRows) ? actualRows : []).filter((row) => (
+    row
+    && String(row.imsReservationId) !== String(actual.imsReservationId)
+    && String(row.syncStatus || 'active') === 'active'
+    && row.carmoreHolidaySerial != null
+    && String(row.carmoreHolidaySerial) === String(actual.carmoreHolidaySerial)
+  ));
+}
+
+async function applyDeletion({ actual, actualRows = [], client, shouldSave }) {
+  const sharedActiveMappings = findSharedActiveHolidayMappings({ actual, actualRows });
+  const base = { action: 'delete', imsReservationId: actual.imsReservationId, actual, applied: false, deleteResult: null, skippedCarmoreDelete: false, sharedActiveMappings };
   if (!shouldSave) return base;
   if (!actual.carmoreHolidaySerial) throw new Error(`carmoreHolidaySerial is required for delete: ${actual.imsReservationId}`);
+  if (sharedActiveMappings.length > 0) {
+    return { ...base, applied: true, skippedCarmoreDelete: true };
+  }
   const deleteResult = await client.deleteHoliday({ holidaySerial: actual.carmoreHolidaySerial });
   return { ...base, applied: true, deleteResult };
 }
 
-async function applyChange({ desired, actual, client, shouldSave }) {
+async function applyChange({ desired, actual, actualRows = [], client, shouldSave }) {
   const base = { action: 'change', imsReservationId: desired.imsReservationId, desired, actual, applied: false };
   if (!shouldSave) return base;
-  const deletion = actual.carmoreHolidaySerial ? await client.deleteHoliday({ holidaySerial: actual.carmoreHolidaySerial }) : null;
+  const deletion = await applyDeletion({ actual, actualRows, client, shouldSave });
   const addition = await createOrRecoverHoliday({ desired, client });
   return { ...base, applied: true, deletion, addition };
 }
@@ -156,7 +208,7 @@ async function reconcileCarmoreHolidays({
 
     for (const entry of plan.deletions) {
       try {
-        const result = await applyDeletion({ ...entry, client: carmoreClient, shouldSave });
+        const result = await applyDeletion({ ...entry, actualRows, client: carmoreClient, shouldSave });
         results.deletions.push(result);
         if (shouldSave) await markMappingDeleted({ imsReservationId: result.imsReservationId, supabaseClient: supabase });
       } catch (error) {
@@ -167,7 +219,7 @@ async function reconcileCarmoreHolidays({
 
     for (const entry of plan.changes) {
       try {
-        const result = await applyChange({ ...entry, client: carmoreClient, shouldSave });
+        const result = await applyChange({ ...entry, actualRows, client: carmoreClient, shouldSave });
         results.changes.push(result);
         if (shouldSave) await upsertMapping({ mapping: {
           imsReservationId: result.imsReservationId,
@@ -219,6 +271,9 @@ module.exports = {
   buildHolidayMemo,
   buildMapByImsReservationId,
   createOrRecoverHoliday,
+  findRecoverableHoliday,
+  findSharedActiveHolidayMappings,
+  isDuplicateHolidayError,
   enrichDesiredReservation,
   fetchEnrichedDesiredRows,
   hasChanged,
