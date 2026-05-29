@@ -30,15 +30,24 @@ function parseSearchDateTime(value) {
   return Number.isNaN(parsed.getTime()) ? null : parsed
 }
 
-function getSeoulTodayFloor(now = new Date()) {
+function getSeoulDateParts(now = new Date()) {
   const formatter = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Seoul',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
   })
-  const parts = Object.fromEntries(formatter.formatToParts(now).map((part) => [part.type, part.value]))
-  return new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00${SEOUL_OFFSET}`)
+  return Object.fromEntries(formatter.formatToParts(now).map((part) => [part.type, part.value]))
+}
+
+function getLatestAllowedSearchReturnAt(now = new Date()) {
+  const parts = getSeoulDateParts(now)
+  const seoulTodayUtc = Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day))
+  const latestSeoulDate = new Date(seoulTodayUtc + MAX_SEARCH_RETURN_DAYS * 24 * 60 * 60 * 1000)
+  const year = latestSeoulDate.getUTCFullYear()
+  const month = String(latestSeoulDate.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(latestSeoulDate.getUTCDate()).padStart(2, '0')
+  return new Date(`${year}-${month}-${day}T23:59:59.999${SEOUL_OFFSET}`)
 }
 
 function normalizeSearchState(rawState = {}) {
@@ -94,9 +103,7 @@ function buildSearchErrors(normalized) {
   }
 
   if (returnAt) {
-    const latestAllowedReturnAt = getSeoulTodayFloor()
-    latestAllowedReturnAt.setDate(latestAllowedReturnAt.getDate() + MAX_SEARCH_RETURN_DAYS)
-    latestAllowedReturnAt.setHours(23, 59, 59, 999)
+    const latestAllowedReturnAt = getLatestAllowedSearchReturnAt()
 
     if (returnAt > latestAllowedReturnAt) {
       errors.returnDateTime = `returnDateTime must be within ${MAX_SEARCH_RETURN_DAYS} days from today`
