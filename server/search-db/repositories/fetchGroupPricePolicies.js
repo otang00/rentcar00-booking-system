@@ -13,7 +13,7 @@ async function fetchGroupPricePolicies({ supabaseClient, sourceGroupIds = [], se
   const { data, error } = await supabaseClient
     .from('v_search_pricing_hub_policies')
     .select('*')
-    .in('ims_group_id', ids)
+    .in('source_group_id', ids)
 
   if (error) {
     throw error

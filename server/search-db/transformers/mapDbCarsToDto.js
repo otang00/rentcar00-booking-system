@@ -4,7 +4,7 @@ const { buildAppliedGroupPricing } = require('../pricing/buildAppliedGroupPricin
 
 function buildGroupPolicyIndex(priceRules = []) {
   return priceRules.reduce((acc, rule) => {
-    const groupId = rule.ims_group_id || rule.source_group_id
+    const groupId = rule.source_group_id || rule.ims_group_id
     if (groupId == null) return acc
     acc[String(groupId)] = rule
     return acc

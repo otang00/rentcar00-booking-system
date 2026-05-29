@@ -154,7 +154,7 @@ async function buildDbCarDetailDto({ supabaseClient, carId, search } = {}) {
     meta: {
       source: 'db-detail',
       carSource: 'supabase',
-      pricingSource: priceRule?.ims_group_id ? 'group-price-policy' : 'missing-group-price-policy',
+      pricingSource: (priceRule?.source_group_id || priceRule?.ims_group_id) ? 'group-price-policy' : 'missing-group-price-policy',
       groupId: car.source_group_id == null ? null : Number(car.source_group_id),
     },
   }
