@@ -1,0 +1,1155 @@
+{
+  "generatedAt": "2026-05-29T10:51:36.491Z",
+  "source": "/Users/otang_server/.openclaw/workspace/projects/rentcar00-pricing-normalizer/outputs/carmore/model-name-normalization-preview.json",
+  "counts": {
+    "groups": 36,
+    "cars": 60
+  },
+  "groups": [
+    {
+      "id": "90e1796f-74b8-4ab9-8a42-636c4ac41cfa",
+      "ims_group_id": 25141,
+      "group_name": "스타리아 투어러(2023년) 디젤 [25141]",
+      "metadata": {
+        "source": "ims-source-group-price-reset-20260529",
+        "confirmedBy": "telegram:8610689374",
+        "vehicleCount": 1,
+        "sourceGroupId": 25141,
+        "pricingOptionType": "semi_premium"
+      }
+    },
+    {
+      "id": "b09b34e1-f58e-4873-bc12-9d19bed53270",
+      "ims_group_id": 25142,
+      "group_name": "모닝 어반 (2020년) 가솔린 [25142]",
+      "metadata": {
+        "source": "ims-source-group-price-reset-20260529",
+        "confirmedBy": "telegram:8610689374",
+        "vehicleCount": 1,
+        "sourceGroupId": 25142,
+        "pricingOptionType": "basic"
+      }
+    },
+    {
+      "id": "bd41b2c2-0a79-46c3-a3b7-d0e4ee576307",
+      "ims_group_id": 23398,
+      "group_name": "더 뉴 셀토스 2025년 가솔린 [23398]",
+      "metadata": {
+        "brand": "기아",
+        "model": "[특가] 더 뉴 셀토스",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "[특가] 셀토스",
+        "modelYear": "2025",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 2,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 23398
+      }
+    },
+    {
+      "id": "c1193fed-11cb-40a5-ad7c-26e749b8438b",
+      "ims_group_id": 24154,
+      "group_name": "더 뉴 카니발(KA4) (2023년) 디젤 [24154]",
+      "metadata": {
+        "brand": "기아",
+        "model": "더 뉴 카니발(KA4)",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "디젤",
+        "submodel": "카니발",
+        "modelYear": "2024",
+        "importFlag": "국산차",
+        "licenseType": "2종자동",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 24154
+      }
+    },
+    {
+      "id": "5a7d072a-5749-4135-9bbb-e38b6295e265",
+      "ims_group_id": 22179,
+      "group_name": "셀토스 휘발유 [22179]",
+      "metadata": {
+        "brand": "기아",
+        "model": "더 뉴 셀토스",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "셀토스",
+        "modelYear": "2024",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 2,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22179
+      }
+    },
+    {
+      "id": "9e338f8b-e1c9-4eac-8587-7fb2af2b5365",
+      "ims_group_id": 22318,
+      "group_name": "신형K5 LPI [22318]",
+      "metadata": {
+        "brand": "기아",
+        "model": "더 뉴 K5 3세대",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "LPG",
+        "submodel": "K5",
+        "modelYear": "2024",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 2,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22318
+      }
+    },
+    {
+      "id": "07196d58-b5f9-481b-866f-824eca7053fb",
+      "ims_group_id": 22789,
+      "group_name": "코나 2.0 휘발유 [22789]",
+      "metadata": {
+        "brand": "현대",
+        "model": "더 뉴 코나",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "코나",
+        "modelYear": "2023",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22789
+      }
+    },
+    {
+      "id": "b2e0b032-477a-4889-a390-bcb09a47d933",
+      "ims_group_id": 23069,
+      "group_name": "더 뉴 아반떼 (CN7) (2025년) 가솔린 [23069]",
+      "metadata": {
+        "source": "ims-source-group-price-reset-20260529",
+        "vehicleCount": 2,
+        "sourceGroupId": 23069
+      }
+    },
+    {
+      "id": "8f36e415-7721-4323-b10c-d09da3f7617d",
+      "ims_group_id": 22030,
+      "group_name": "팰리세이드 3.8 휘발유 [22030]",
+      "metadata": {
+        "brand": "현대",
+        "model": "더 뉴 팰리세이드",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "팰리세이드",
+        "modelYear": "2023",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22030
+      }
+    },
+    {
+      "id": "5c81a5b7-2b84-402c-9035-1302e8c26bdf",
+      "ims_group_id": 22031,
+      "group_name": "카니발 9인승 경유 [22031]",
+      "metadata": {
+        "brand": "기아",
+        "model": "카니발 4세대",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "디젤",
+        "submodel": "카니발",
+        "modelYear": "2023",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22031
+      }
+    },
+    {
+      "id": "f454a460-a50a-4e68-95ba-4e3b16e7df36",
+      "ims_group_id": 22032,
+      "group_name": "G80 3.5 가솔린 [22032]",
+      "metadata": {
+        "brand": "제네시스",
+        "model": "G80 (RG3)",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "G80",
+        "modelYear": "2021",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22032
+      }
+    },
+    {
+      "id": "095d8c09-3665-453a-abb5-241c77026fde",
+      "ims_group_id": 22033,
+      "group_name": "GV70 2.5 가솔린 [22033]",
+      "metadata": {
+        "brand": "제네시스",
+        "model": "GV70",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "GV70",
+        "modelYear": "2021",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22033
+      }
+    },
+    {
+      "id": "0d388392-9d74-46b2-988c-cdacc047b741",
+      "ims_group_id": 22034,
+      "group_name": "GV80 3.5 가솔린 [22034]",
+      "metadata": {
+        "brand": "제네시스",
+        "model": "GV80",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "GV80",
+        "modelYear": "2020",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22034
+      }
+    },
+    {
+      "id": "ee23aa49-ba6b-4b5a-98ce-445f14c6cc51",
+      "ims_group_id": 22035,
+      "group_name": "모델3 롱레인지 [22035]",
+      "metadata": {
+        "brand": "테슬라",
+        "model": "모델 3",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "전기",
+        "submodel": "모델 3",
+        "modelYear": "2021~2022",
+        "importFlag": "수입차",
+        "licenseType": "2종보통",
+        "vehicleCount": 2,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22035
+      }
+    },
+    {
+      "id": "a20a4668-e6de-44c8-b90a-4c9ec4a7c7c4",
+      "ims_group_id": 22036,
+      "group_name": "모델Y 롱레인지 [22036]",
+      "metadata": {
+        "brand": "테슬라",
+        "model": "모델 Y",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "전기",
+        "submodel": "모델 Y",
+        "modelYear": "2021",
+        "importFlag": "수입차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22036
+      }
+    },
+    {
+      "id": "db653c49-266a-4429-9c20-873f18507213",
+      "ims_group_id": 22105,
+      "group_name": "모델Y RWD [22105]",
+      "metadata": {
+        "brand": "테슬라",
+        "model": "모델 Y",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "전기",
+        "submodel": "모델 Y",
+        "modelYear": "2024",
+        "importFlag": "수입차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22105
+      }
+    },
+    {
+      "id": "7cc29a0b-c4f4-4693-9bf3-a140480a6ffb",
+      "ims_group_id": 22380,
+      "group_name": "싼타페 MX5 휘발유 [22380]",
+      "metadata": {
+        "brand": "현대",
+        "model": "디 올 뉴 싼타페 (MX5)",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "싼타페",
+        "modelYear": "2025",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 2,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22380
+      }
+    },
+    {
+      "id": "fa51ff7d-8f0b-4d79-811c-b0e8b416c2ca",
+      "ims_group_id": 23032,
+      "group_name": "더 뉴 카니발(KA4) 2025 가솔린 3.5 [23032]",
+      "metadata": {
+        "brand": "기아",
+        "model": "더 뉴 카니발(KA4)",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "카니발",
+        "modelYear": "2025",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 2,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 23032
+      }
+    },
+    {
+      "id": "4bb933fd-b359-40f5-9eb1-46053bd5d1f7",
+      "ims_group_id": 23043,
+      "group_name": "모델 Y 주니퍼 (2025년) 전기 [23043]",
+      "metadata": {
+        "brand": "테슬라",
+        "model": "모델 Y 주니퍼",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "전기",
+        "submodel": "모델 Y",
+        "modelYear": "2025",
+        "importFlag": "수입차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 23043
+      }
+    },
+    {
+      "id": "c2493f7f-736c-40f8-802b-4794d3a86769",
+      "ims_group_id": 23049,
+      "group_name": "E220 아방가르드 [23049]",
+      "metadata": {
+        "brand": "벤츠",
+        "model": "E 클래스 (W214)",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "E 클래스",
+        "modelYear": "2025",
+        "importFlag": "수입차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 23049
+      }
+    },
+    {
+      "id": "d3d0d4d8-b289-4a2a-8caf-667c0cc71f12",
+      "ims_group_id": 22015,
+      "group_name": "CN7 아반떼 LPI [22015]",
+      "metadata": {
+        "brand": "현대",
+        "model": "아반떼 (CN7)",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "LPG",
+        "submodel": "아반떼",
+        "modelYear": "2021~2023",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 2,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22015
+      }
+    },
+    {
+      "id": "a3a92c22-826f-4c79-b361-ea881d386f41",
+      "ims_group_id": 22016,
+      "group_name": "DN8 쏘나타 LPI [22016]",
+      "metadata": {
+        "brand": "현대",
+        "model": "쏘나타 (DN8)",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "LPG",
+        "submodel": "쏘나타",
+        "modelYear": "2020~2022",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 8,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22016
+      }
+    },
+    {
+      "id": "30a4c757-a978-456c-a906-36744274f0d1",
+      "ims_group_id": 22017,
+      "group_name": "신형K5 LPI [22017]",
+      "metadata": {
+        "brand": "기아",
+        "model": "K5 3세대",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "LPG",
+        "submodel": "K5",
+        "modelYear": "2020~2023",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 3,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22017
+      }
+    },
+    {
+      "id": "cf2f6b04-6e1f-440d-9fb4-0cfa16aaa160",
+      "ims_group_id": 22019,
+      "group_name": "신형IG 그렌져 가솔린 [22019]",
+      "metadata": {
+        "brand": "현대",
+        "model": "그랜저 IG",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "그랜저",
+        "modelYear": "2019",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22019
+      }
+    },
+    {
+      "id": "7ef34275-5172-49a5-89b3-5e84f5f8d8cf",
+      "ims_group_id": 22020,
+      "group_name": "신형IG 그렌져 LPI [22020]",
+      "metadata": {
+        "brand": "현대",
+        "model": "그랜저 IG",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "LPG",
+        "submodel": "그랜저",
+        "modelYear": "2020",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22020
+      }
+    },
+    {
+      "id": "880f31fa-ea72-4e9c-9722-1a0d2335c63f",
+      "ims_group_id": 22022,
+      "group_name": "신형IG 그렌져 LPI [22022]",
+      "metadata": {
+        "brand": "현대",
+        "model": "더 뉴 그랜저 IG",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "LPG",
+        "submodel": "그랜저",
+        "modelYear": "2022~2023",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 5,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22022
+      }
+    },
+    {
+      "id": "814f5e0a-0331-43db-8141-b799fcd9d86d",
+      "ims_group_id": 22023,
+      "group_name": "GN7 그렌져 휘발유 [22023]",
+      "metadata": {
+        "brand": "현대",
+        "model": "디 올 뉴 그랜저",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "그랜저",
+        "modelYear": "2023",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 2,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22023
+      }
+    },
+    {
+      "id": "0fcd5f93-1c5b-4354-a6f3-5a774326c34c",
+      "ims_group_id": 22024,
+      "group_name": "K7 LPI [22024]",
+      "metadata": {
+        "brand": "기아",
+        "model": "올 뉴 K7",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "LPG",
+        "submodel": "K7",
+        "modelYear": "2018",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22024
+      }
+    },
+    {
+      "id": "2c43fe88-7186-427b-8c0a-df7cfc082669",
+      "ims_group_id": 22025,
+      "group_name": "K7프리미어 LPI [22025]",
+      "metadata": {
+        "brand": "기아",
+        "model": "K7 프리미어",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "LPG",
+        "submodel": "K7",
+        "modelYear": "2020",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22025
+      }
+    },
+    {
+      "id": "153743d4-82b5-4245-a110-2d553c2fa7a6",
+      "ims_group_id": 22533,
+      "group_name": "더 뉴 아반떼 (CN7) (2023년) 가솔린 [22533]",
+      "metadata": {
+        "brand": "현대",
+        "model": "더 뉴 아반떼 (CN7)",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [
+          "더 뉴 아반떼 (CN7) (2023년)_가솔린_어라운드뷰"
+        ],
+        "fuelType": "가솔린",
+        "submodel": "아반떼",
+        "modelYear": "2025",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22533
+      }
+    },
+    {
+      "id": "d40072a2-9bd8-4c6f-8376-5f7c2f9d5e34",
+      "ims_group_id": 23142,
+      "group_name": "더 뉴 K5 3세대 (2023년) 가솔린 [23142]",
+      "metadata": {
+        "brand": "기아",
+        "model": "더 뉴 K5 3세대",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "K5",
+        "modelYear": "2025",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 2,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 23142
+      }
+    },
+    {
+      "id": "a0ac4e3d-4922-4508-a922-518c37194ef9",
+      "ims_group_id": 23143,
+      "group_name": "더 뉴 K8 (2025년) 가솔린베스트셀렉션 [23143]",
+      "metadata": {
+        "brand": "기아",
+        "model": "더 뉴 K8",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "K8",
+        "modelYear": "2025",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 23143
+      }
+    },
+    {
+      "id": "cbe8789d-5257-49b1-8656-57978071b6f6",
+      "ims_group_id": 23159,
+      "group_name": "디 올 뉴 그랜저 (2025년) 가솔린 [23159]",
+      "metadata": {
+        "brand": "현대",
+        "model": "디 올 뉴 그랜저",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "그랜저",
+        "modelYear": "2025",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 23159
+      }
+    },
+    {
+      "id": "a66000c7-567f-44fb-a3fb-d4912971457d",
+      "ims_group_id": 22026,
+      "group_name": "코나 2.0 휘발유 [22026]",
+      "metadata": {
+        "brand": "현대",
+        "model": "더 뉴 코나",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "코나",
+        "modelYear": "2021",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22026
+      }
+    },
+    {
+      "id": "2f737ba9-c33b-4b26-9133-d5cb5413d73e",
+      "ims_group_id": 22027,
+      "group_name": "셀토스 휘발유 [22027]",
+      "metadata": {
+        "brand": "기아",
+        "model": "더 뉴 셀토스",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "셀토스",
+        "modelYear": "2024",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 2,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22027
+      }
+    },
+    {
+      "id": "162bf13f-d3ac-484e-b4ef-d4e26ad12a90",
+      "ims_group_id": 22029,
+      "group_name": "스포티지 휘발유 그라파이트 [22029]",
+      "metadata": {
+        "brand": "기아",
+        "model": "디 올 뉴 스포티지 (NQ5)",
+        "source": "ims-source-group-price-reset-20260529",
+        "aliases": [],
+        "fuelType": "가솔린",
+        "submodel": "스포티지",
+        "modelYear": "2024",
+        "importFlag": "국산차",
+        "licenseType": "2종보통",
+        "vehicleCount": 1,
+        "drivingCareer": "1년 이상",
+        "sourceGroupId": 22029
+      }
+    }
+  ],
+  "cars": [
+    {
+      "id": "8cf6fdbf-b187-40d1-8b09-d8ba86790d49",
+      "source_car_id": 242896,
+      "source_group_id": 25141,
+      "car_number": "175호2135",
+      "name": "스타리아 투어러",
+      "display_name": "스타리아 투어러(2023년)_디젤"
+    },
+    {
+      "id": "6ca60313-34d7-4c38-bd33-1f867525c76c",
+      "source_car_id": 215968,
+      "source_group_id": 22380,
+      "car_number": "142호5700",
+      "name": "디 올 뉴 싼타페 (MX5) (2025년)_가솔린",
+      "display_name": "2025싼타페 MX5 휘발유 흰색"
+    },
+    {
+      "id": "7dd2581b-09e1-4e73-9e50-022987109f84",
+      "source_car_id": 242895,
+      "source_group_id": 25142,
+      "car_number": "165허8095",
+      "name": "모닝 어반",
+      "display_name": "모닝 어반 (2020년)_가솔린"
+    },
+    {
+      "id": "40159ab9-5615-4e2e-8a0a-a751bb745655",
+      "source_car_id": 207608,
+      "source_group_id": 22031,
+      "car_number": "125호9212",
+      "name": "카니발 4세대 (2020년~)_디젤_9인승",
+      "display_name": "2023 카니발 9인승 경유 화이트"
+    },
+    {
+      "id": "61d37789-c3a9-4a1b-9522-0bf931934734",
+      "source_car_id": 233063,
+      "source_group_id": 24154,
+      "car_number": "177호3413",
+      "name": "더 뉴 카니발(KA4) (2023년)_디젤",
+      "display_name": "더 뉴 카니발(KA4) (2023년)_디젤"
+    },
+    {
+      "id": "3cf34348-15c5-4d70-a56a-f66bd99ee35c",
+      "source_car_id": 220644,
+      "source_group_id": 23069,
+      "car_number": "142호5772",
+      "name": "더 뉴 아반떼 (CN7) (2023년)_가솔린",
+      "display_name": "더 뉴 아반떼 (CN7) (2025년)_가솔린_파킹어시스트"
+    },
+    {
+      "id": "df2b576a-01fc-45f7-9bce-5b1ad2834314",
+      "source_car_id": 221617,
+      "source_group_id": 23159,
+      "car_number": "142호5795",
+      "name": "디 올 뉴 그랜저 (2025년)_가솔린",
+      "display_name": "디 올 뉴 그랜저 (2025년)_가솔린"
+    },
+    {
+      "id": "de88e313-7082-4db9-8e16-de31d40742b2",
+      "source_car_id": 207601,
+      "source_group_id": 22015,
+      "car_number": "101하9340",
+      "name": "아반떼 (CN7) (2020년~)_LPG",
+      "display_name": "2023 CN7 아반떼 LPI 화이트"
+    },
+    {
+      "id": "a8c29013-6c13-4009-82cc-32e6bf5055c3",
+      "source_car_id": 207613,
+      "source_group_id": 22029,
+      "car_number": "142호4719",
+      "name": "디 올 뉴 스포티지 (NQ5) (2021년)_가솔린",
+      "display_name": "2024 스포티지 휘발유 그라파이트"
+    },
+    {
+      "id": "bb48c50a-7e30-45f4-9b53-f961358c2018",
+      "source_car_id": 207603,
+      "source_group_id": 22027,
+      "car_number": "125하1638",
+      "name": "더 뉴 셀토스 (2023년)_가솔린",
+      "display_name": "2024 셀토스 휘발유 흰색"
+    },
+    {
+      "id": "a86c8380-a6de-4a94-8aed-c29a52599dd9",
+      "source_car_id": 221094,
+      "source_group_id": 23142,
+      "car_number": "142호4779",
+      "name": "더 뉴 K5 3세대 (2025년)_가솔린",
+      "display_name": "더 뉴 K5 3세대 (2023년)_가솔린"
+    },
+    {
+      "id": "592703af-d824-4ef9-9ce3-a33fe312464b",
+      "source_car_id": 207606,
+      "source_group_id": 22017,
+      "car_number": "125호6498",
+      "name": "K5 3세대 (2019년~)_LPG",
+      "display_name": "2023 신형K5 LPI 화이트"
+    },
+    {
+      "id": "109a8c1c-e9c0-4db7-bf6d-a11890b8de56",
+      "source_car_id": 226059,
+      "source_group_id": 23032,
+      "car_number": "142호4785",
+      "name": "더 뉴 카니발(KA4) (2023년)_가솔린",
+      "display_name": "더 뉴 카니발(KA4) 2025 가솔린 3.5 화이트"
+    },
+    {
+      "id": "c4aafa9f-5b94-46af-8b31-e8bf72f3e803",
+      "source_car_id": 225595,
+      "source_group_id": 22380,
+      "car_number": "142호5684",
+      "name": "디 올 뉴 싼타페 (MX5) (2025년)_가솔린",
+      "display_name": "2025싼타페 MX5 휘발유 흰색"
+    },
+    {
+      "id": "44000008-9126-4d31-bcc4-917f1527c82b",
+      "source_car_id": 220503,
+      "source_group_id": 23069,
+      "car_number": "142호5773",
+      "name": "더 뉴 아반떼 (CN7) (2023년)_가솔린",
+      "display_name": "더 뉴 아반떼 (CN7) (2025년)_가솔린_파킹어시스트"
+    },
+    {
+      "id": "022f7971-d886-4a78-a96e-d8adf5df5e55",
+      "source_car_id": 217155,
+      "source_group_id": 23049,
+      "car_number": "142호5734",
+      "name": "E 클래스 (W214) (2024년)_가솔린",
+      "display_name": "E220 아방가르드"
+    },
+    {
+      "id": "f7099a51-faf0-4f1c-ba1a-a673902c39dd",
+      "source_car_id": 207605,
+      "source_group_id": 22023,
+      "car_number": "125하1718",
+      "name": "디 올 뉴 그랜저 (2022년)_가솔린",
+      "display_name": "2023 GN7 그렌져 휘발유 흰색"
+    },
+    {
+      "id": "c3876f1c-ac30-4204-9b89-57ed00859e34",
+      "source_car_id": 117652,
+      "source_group_id": 22016,
+      "car_number": "101하7003",
+      "name": "쏘나타 (DN8) (2019년~)_LPG",
+      "display_name": "2022 DN8 쏘나타 LPI 흰색"
+    },
+    {
+      "id": "6091df15-226a-4c9d-ac8e-aee3d01e401e",
+      "source_car_id": 221095,
+      "source_group_id": 23142,
+      "car_number": "142호4778",
+      "name": "더 뉴 K5 3세대 (2025년)_가솔린",
+      "display_name": "더 뉴 K5 3세대 (2023년)_가솔린"
+    },
+    {
+      "id": "3a4f5e72-7c31-4078-b497-3bf627cc8bdf",
+      "source_car_id": 117657,
+      "source_group_id": 22016,
+      "car_number": "101하9257",
+      "name": "쏘나타 (DN8) (2019년~)_LPG",
+      "display_name": "2022 DN8 쏘나타 LPI 흰색"
+    },
+    {
+      "id": "577c3ad7-ccb8-4c0d-8d03-01a113409293",
+      "source_car_id": 207607,
+      "source_group_id": 22017,
+      "car_number": "125호6499",
+      "name": "K5 3세대 (2019년~)_LPG",
+      "display_name": "2023 신형K5 LPI 화이트"
+    },
+    {
+      "id": "2103c834-6ca0-4f92-86e5-29d10253a10b",
+      "source_car_id": 207609,
+      "source_group_id": 22179,
+      "car_number": "125호9326",
+      "name": "더 뉴 셀토스 (2024년)_특가요청_가솔린",
+      "display_name": "2024 셀토스 휘발유 흰색"
+    },
+    {
+      "id": "f16e129a-18ee-431c-bb64-4cf7c1fd79a3",
+      "source_car_id": 207612,
+      "source_group_id": 22318,
+      "car_number": "142호1588",
+      "name": "더 뉴 K5 3세대 (2024년)_LPG",
+      "display_name": "2024 신형K5 LPI 화이트"
+    },
+    {
+      "id": "aaa03248-13d1-4dae-a472-1a54b0e973cd",
+      "source_car_id": 207602,
+      "source_group_id": 22027,
+      "car_number": "125하1637",
+      "name": "더 뉴 셀토스 (2023년)_가솔린",
+      "display_name": "2024 셀토스 휘발유 흰색"
+    },
+    {
+      "id": "b10a5811-07ec-4c41-b65d-5a3f1adfe4fc",
+      "source_car_id": 117645,
+      "source_group_id": 22022,
+      "car_number": "101하9269",
+      "name": "더 뉴 그랜저 IG 2022_LPG",
+      "display_name": "2023 신형IG 그렌져 LPI 블랙"
+    },
+    {
+      "id": "c8a9dbcb-2113-49ba-b4da-4f0a1f594d48",
+      "source_car_id": 219860,
+      "source_group_id": 23043,
+      "car_number": "20하3779",
+      "name": "모델 Y 주니퍼 (2025년)_전기",
+      "display_name": "모델 Y 주니퍼 (2025년)_전기"
+    },
+    {
+      "id": "c62cdc11-5923-4ef9-bf9b-b63ed00c9d14",
+      "source_car_id": 117659,
+      "source_group_id": 22015,
+      "car_number": "101허4042",
+      "name": "아반떼 (CN7) (2020년~)_LPG",
+      "display_name": "2021 CN7 아반떼 LPI 화이트"
+    },
+    {
+      "id": "1290ac97-9bb3-4f75-bace-1f6ed367381c",
+      "source_car_id": 224218,
+      "source_group_id": 23398,
+      "car_number": "142호4783",
+      "name": "[특가] 더 뉴 셀토스_가솔린",
+      "display_name": "더 뉴 셀토스 2025년_가솔린"
+    },
+    {
+      "id": "d87ceb16-9431-47d6-8568-046db6b50541",
+      "source_car_id": 117646,
+      "source_group_id": 22034,
+      "car_number": "101허4014",
+      "name": "GV80 (2020년)_가솔린",
+      "display_name": "2020 GV80 3.5 가솔린 화이트"
+    },
+    {
+      "id": "5a60a32c-1762-41f0-bb23-5a89de59886d",
+      "source_car_id": 207604,
+      "source_group_id": 22023,
+      "car_number": "125하1717",
+      "name": "디 올 뉴 그랜저 (2022년)_가솔린",
+      "display_name": "2023 GN7 그렌져 휘발유 검정"
+    },
+    {
+      "id": "ae8edc88-383c-44fb-ab25-eed19882b3a1",
+      "source_car_id": 117642,
+      "source_group_id": 22022,
+      "car_number": "101하9262",
+      "name": "더 뉴 그랜저 IG 2022_LPG",
+      "display_name": "2023 신형IG 그렌져 LPI 블랙"
+    },
+    {
+      "id": "b953dedd-9a76-4a16-9daa-a51b65add285",
+      "source_car_id": 216821,
+      "source_group_id": 22533,
+      "car_number": "142호5728",
+      "name": "더 뉴 아반떼 (CN7) (2023년)_가솔린_어라운드뷰",
+      "display_name": "더 뉴 아반떼 (CN7) (2023년)_가솔린"
+    },
+    {
+      "id": "4b661e79-53cf-4f17-ae8c-c8fc923f2251",
+      "source_car_id": 207600,
+      "source_group_id": 22020,
+      "car_number": "101하3154",
+      "name": "그랜저 IG (2016년~)_LPG",
+      "display_name": "2020 신형IG 그렌져 LPI 블랙"
+    },
+    {
+      "id": "ace69e59-4180-4d1e-851c-c7bfd9acb0c1",
+      "source_car_id": 117607,
+      "source_group_id": 22035,
+      "car_number": "29하2769",
+      "name": "모델 3 (2017년)_전기",
+      "display_name": "2021 모델3 롱레인지 흰색"
+    },
+    {
+      "id": "32e01437-9410-435d-b088-f47b01eb1c81",
+      "source_car_id": 117656,
+      "source_group_id": 22016,
+      "car_number": "101하9256",
+      "name": "쏘나타 (DN8) (2019년~)_LPG",
+      "display_name": "2022 DN8 쏘나타 LPI 흰색"
+    },
+    {
+      "id": "2182e8e6-d45b-4d7f-9394-c200d63a039a",
+      "source_car_id": 117641,
+      "source_group_id": 22022,
+      "car_number": "101하7031",
+      "name": "더 뉴 그랜저 IG 2022_LPG",
+      "display_name": "2022 신형IG 그렌져 LPI 화이트"
+    },
+    {
+      "id": "091deedc-9ec6-413d-8179-6a9b5df97e80",
+      "source_car_id": 117655,
+      "source_group_id": 22016,
+      "car_number": "125호3844",
+      "name": "쏘나타 (DN8) (2019년~)_LPG",
+      "display_name": "2022 DN8 쏘나타 LPI 흰색"
+    },
+    {
+      "id": "ec030c0d-dea1-41d9-b9c0-a839ed1ee842",
+      "source_car_id": 117644,
+      "source_group_id": 22022,
+      "car_number": "101하9268",
+      "name": "더 뉴 그랜저 IG 2022_LPG",
+      "display_name": "2023 신형IG 그렌져 LPI 블랙"
+    },
+    {
+      "id": "6c5cbafd-096b-42d3-a1db-c2ce8273e6c1",
+      "source_car_id": 117653,
+      "source_group_id": 22016,
+      "car_number": "101하7004",
+      "name": "쏘나타 (DN8) (2019년~)_LPG",
+      "display_name": "2022 DN8 쏘나타 LPI 흰색"
+    },
+    {
+      "id": "b410ce27-eb48-4ea7-a435-0ac2e5510692",
+      "source_car_id": 117649,
+      "source_group_id": 22032,
+      "car_number": "101허4041",
+      "name": "G80 (RG3) (2020년~)_가솔린",
+      "display_name": "2021 G80 3.5 가솔린 무광그레이"
+    },
+    {
+      "id": "1e9579ed-65fc-4282-8570-6c3705eabc93",
+      "source_car_id": 117647,
+      "source_group_id": 22033,
+      "car_number": "101호9581",
+      "name": "GV70 (2021년)_가솔린",
+      "display_name": "2021 GV70 2.5 가솔린 블랙"
+    },
+    {
+      "id": "71a9ee0e-8f36-410a-ab23-87a6f62698d9",
+      "source_car_id": 117638,
+      "source_group_id": 22017,
+      "car_number": "101호4703",
+      "name": "K5 3세대 (2019년~)_LPG",
+      "display_name": "2020 신형K5 LPI 화이트"
+    },
+    {
+      "id": "706e4e08-739d-440a-90ea-eaf9da32c8ad",
+      "source_car_id": 117651,
+      "source_group_id": 22016,
+      "car_number": "101호4701",
+      "name": "쏘나타 (DN8) (2019년~)_LPG",
+      "display_name": "2020 DN8 쏘나타 LPI 흰색"
+    },
+    {
+      "id": "7095ebbb-00bb-449b-8ca8-a3701ebf11c9",
+      "source_car_id": 214768,
+      "source_group_id": 22105,
+      "car_number": "29하2814",
+      "name": "2024 모델 Y (2020년)_전기",
+      "display_name": "2024 모델Y RWD 흰색"
+    },
+    {
+      "id": "47882446-98f0-46bc-a6e8-4b8c427e77c0",
+      "source_car_id": 117612,
+      "source_group_id": 22019,
+      "car_number": "34호7488",
+      "name": "그랜저 IG (2016년~)_가솔린",
+      "display_name": "2019 신형IG 그렌져 가솔린 블랙"
+    },
+    {
+      "id": "3784c530-99f3-4b6d-8cf9-ea780cb7eac0",
+      "source_car_id": 117643,
+      "source_group_id": 22022,
+      "car_number": "101하9263",
+      "name": "더 뉴 그랜저 IG 2022_LPG",
+      "display_name": "2023 신형IG 그렌져 LPI 블랙"
+    },
+    {
+      "id": "74681050-c1bd-48c0-91d6-38cbb9ee83d9",
+      "source_car_id": 224219,
+      "source_group_id": 23398,
+      "car_number": "142호4782",
+      "name": "[특가] 더 뉴 셀토스_가솔린",
+      "display_name": "더 뉴 셀토스 2025년_가솔린"
+    },
+    {
+      "id": "4d7ae852-9152-4584-94c5-bdbb69f8dd48",
+      "source_car_id": 221097,
+      "source_group_id": 23143,
+      "car_number": "142호4780",
+      "name": "더 뉴 K8 (2025년)_가솔린_베스트셀렉션",
+      "display_name": "더 뉴 K8 (2025년)_가솔린베스트셀렉션_그래비티그레이"
+    },
+    {
+      "id": "a70cda96-b21a-43f3-9b4f-4ca2e87e8dec",
+      "source_car_id": 207611,
+      "source_group_id": 22318,
+      "car_number": "142호1587",
+      "name": "더 뉴 K5 3세대 (2024년)_LPG",
+      "display_name": "2024 신형K5 LPI 화이트"
+    },
+    {
+      "id": "ab2d4a6c-d157-4900-ae29-e4afc3ba48ab",
+      "source_car_id": 207610,
+      "source_group_id": 22179,
+      "car_number": "125호9327",
+      "name": "더 뉴 셀토스 (2024년)_특가요청_가솔린",
+      "display_name": "2024 셀토스 휘발유 흰색"
+    },
+    {
+      "id": "4fa9842f-9c7a-45c0-939a-fb19a71b5bfb",
+      "source_car_id": 117658,
+      "source_group_id": 22016,
+      "car_number": "101하9261",
+      "name": "쏘나타 (DN8) (2019년~)_LPG",
+      "display_name": "2022 DN8 쏘나타 LPI 흰색"
+    },
+    {
+      "id": "38020fb7-e762-4198-a8c6-f117c44da650",
+      "source_car_id": 117604,
+      "source_group_id": 22016,
+      "car_number": "101호4700",
+      "name": "쏘나타 (DN8) (2019년~)_LPG",
+      "display_name": "2020 DN8 쏘나타 LPI 흰색"
+    },
+    {
+      "id": "b49a9963-c67f-4d7f-9fde-c2f6f58dcc6d",
+      "source_car_id": 219785,
+      "source_group_id": 23032,
+      "car_number": "101하3049",
+      "name": "더 뉴 카니발(KA4) (2023년)_가솔린",
+      "display_name": "2025 카니발 가솔린 블랙"
+    },
+    {
+      "id": "2da6a4c1-16dd-4547-ac44-6a0b188a86f5",
+      "source_car_id": 117631,
+      "source_group_id": 22025,
+      "car_number": "101허3187",
+      "name": "K7 프리미어 (2019년~)_LPG",
+      "display_name": "2020 K7프리미어 LPI 화이트"
+    },
+    {
+      "id": "06e25189-6cfc-4dfe-997c-7c171fb08af5",
+      "source_car_id": 117608,
+      "source_group_id": 22035,
+      "car_number": "29하2785",
+      "name": "모델 3 (2017년)_전기",
+      "display_name": "2022 모델3 롱레인지 흰색"
+    },
+    {
+      "id": "59c82b5b-2c17-4322-b248-83e636075f85",
+      "source_car_id": 117624,
+      "source_group_id": 22024,
+      "car_number": "34호7499",
+      "name": "올 뉴 K7 (2016년~)_LPG",
+      "display_name": "2018 K7 LPI 블랙"
+    },
+    {
+      "id": "fca2be0f-08a3-4d37-a8da-e8b6e418a26d",
+      "source_car_id": 117605,
+      "source_group_id": 22036,
+      "car_number": "29하2763",
+      "name": "모델 Y (2020년)_전기_롱레인지",
+      "display_name": "2021 모델Y 롱레인지 흰색"
+    },
+    {
+      "id": "665b43eb-ea3b-4480-969f-fd66df1a4f63",
+      "source_car_id": 117601,
+      "source_group_id": 22789,
+      "car_number": "101하9300",
+      "name": "더 뉴 코나 (2022년~)_가솔린",
+      "display_name": "2023 코나 2.0 휘발유 흰색"
+    },
+    {
+      "id": "e2108577-99ef-4110-87dc-ca1a4d43ba1a",
+      "source_car_id": 117600,
+      "source_group_id": 22026,
+      "car_number": "101하6688",
+      "name": "더 뉴 코나 (2020년~)_가솔린",
+      "display_name": "2021 코나 2.0 휘발유 블루"
+    },
+    {
+      "id": "c72ad5ba-28af-4ff2-8916-def1fb011eda",
+      "source_car_id": 117599,
+      "source_group_id": 22030,
+      "car_number": "101하9270",
+      "name": "더 뉴 팰리세이드 (2022년)_가솔린_7인승",
+      "display_name": "2023 팰리세이드 3.8 휘발유 흰색"
+    }
+  ]
+}
