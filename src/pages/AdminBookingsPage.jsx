@@ -51,20 +51,21 @@ function buildSyncSummaryText(kind, sync, loading) {
   if (loading) {
     return kind === 'ims'
       ? 'IMS | 확인중 | -- | fetched - / upserted - | 오류 -'
-      : 'ZZIMCAR | 확인중 | -- | add - / del - / chg - | 오류 -'
+      : `${kind === 'carmore' ? 'CARMORE' : 'ZZIMCAR'} | 확인중 | -- | add - / del - / chg - | 오류 -`
   }
 
   if (!sync) {
     return kind === 'ims'
       ? 'IMS | 이력없음 | -- | fetched - / upserted - | 오류 -'
-      : 'ZZIMCAR | 이력없음 | -- | add - / del - / chg - | 오류 -'
+      : `${kind === 'carmore' ? 'CARMORE' : 'ZZIMCAR'} | 이력없음 | -- | add - / del - / chg - | 오류 -`
   }
 
   if (kind === 'ims') {
     return `IMS | ${formatSyncStatusLabel(sync.status)} | ${formatSyncDateTime(sync.updatedAt)} | fetched ${sync.fetchedCount ?? 0} / upserted ${sync.upsertedCount ?? 0} | 오류 ${sync.failedCount ?? 0}`
   }
 
-  return `ZZIMCAR | ${formatSyncStatusLabel(sync.status)} | ${formatSyncDateTime(sync.updatedAt)} | add ${sync.additionsCount ?? 0} / del ${sync.deletionsCount ?? 0} / chg ${sync.changesCount ?? 0} | 오류 ${sync.failedCount ?? 0}`
+  const label = kind === 'carmore' ? 'CARMORE' : 'ZZIMCAR'
+  return `${label} | ${formatSyncStatusLabel(sync.status)} | ${formatSyncDateTime(sync.updatedAt)} | add ${sync.additionsCount ?? 0} / del ${sync.deletionsCount ?? 0} / chg ${sync.changesCount ?? 0} | 오류 ${sync.failedCount ?? 0}`
 }
 
 function SyncStatusRow({ sync, errors = [], loading = false, kind = 'ims' }) {
@@ -135,6 +136,8 @@ export default function AdminBookingsPage() {
   const [imsSyncErrors, setImsSyncErrors] = useState([])
   const [zzimcarSync, setZzimcarSync] = useState(null)
   const [zzimcarSyncErrors, setZzimcarSyncErrors] = useState([])
+  const [carmoreSync, setCarmoreSync] = useState(null)
+  const [carmoreSyncErrors, setCarmoreSyncErrors] = useState([])
 
   const tab = searchParams.get('tab') || 'active'
   const qField = searchParams.get('qField') || 'carNumber'
@@ -175,6 +178,8 @@ export default function AdminBookingsPage() {
         setImsSyncErrors(result.imsSyncErrors || [])
         setZzimcarSync(result.zzimcarSync || null)
         setZzimcarSyncErrors(result.zzimcarSyncErrors || [])
+        setCarmoreSync(result.carmoreSync || null)
+        setCarmoreSyncErrors(result.carmoreSyncErrors || [])
         setError('')
       })
       .catch((fetchError) => {
@@ -185,6 +190,8 @@ export default function AdminBookingsPage() {
         setImsSyncErrors([])
         setZzimcarSync(null)
         setZzimcarSyncErrors([])
+        setCarmoreSync(null)
+        setCarmoreSyncErrors([])
         setError(fetchError.message || '관리자 예약 목록을 불러오지 못했습니다.')
       })
       .finally(() => {
@@ -242,11 +249,12 @@ export default function AdminBookingsPage() {
                 <div style={{ display: 'grid', gap: 10 }}>
                   <div>
                     <strong style={{ display: 'block', marginBottom: 6 }}>운영 동기화 패널</strong>
-                    <p className="field-note" style={{ margin: 0 }}>IMS와 찜카 반영 상태를 압축형으로 표시합니다.</p>
+                    <p className="field-note" style={{ margin: 0 }}>IMS, 찜카, 카모아 반영 상태를 압축형으로 표시합니다.</p>
                   </div>
                   <div style={{ display: 'grid', gap: 8 }}>
                     <SyncStatusRow sync={imsSync} errors={imsSyncErrors} loading={fetching} kind="ims" />
                     <SyncStatusRow sync={zzimcarSync} errors={zzimcarSyncErrors} loading={fetching} kind="zzimcar" />
+                    <SyncStatusRow sync={carmoreSync} errors={carmoreSyncErrors} loading={fetching} kind="carmore" />
                   </div>
                 </div>
               ) : null}
