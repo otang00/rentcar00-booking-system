@@ -24,11 +24,37 @@
           "value": "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' https://developers.kakao.com https://dapi.kakao.com https://t1.daumcdn.net https://*.kcp.co.kr; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://developers.kakao.com https://dapi.kakao.com https://*.kakao.com https://*.daumcdn.net https://*.kakaocdn.net https://*.kcp.co.kr; frame-src 'self' https://postcode.map.kakao.com https://*.kcp.co.kr;"
         }
       ]
+    },
+    {
+      "source": "/article/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/board/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
     }
   ],
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
+      "source": "/article/(.*)",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/board/(.*)",
+      "destination": "/api/gone"
+    },
+    {
+      "source": "/((?!api/|robots.txt|sitemap.xml).*)",
       "destination": "/index.html"
     }
   ]

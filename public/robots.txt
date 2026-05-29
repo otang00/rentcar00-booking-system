@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /article/
+Disallow: /board/
+Disallow: /shop/
+Disallow: /product/
+Disallow: /member/
+Disallow: /order/
+Allow: /
+
+Sitemap: https://rentcar00.com/sitemap.xml
