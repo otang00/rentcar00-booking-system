@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import DeliveryLocationModal from './DeliveryLocationModal'
+import { HeroPromoCard } from './HeroPromoCard'
 import { DateRangeModal, DriverAgeModal, addMonths, startOfMonth } from './SearchFlowModals'
 import { getDefaultSearchState } from '../constants/search'
 import { fetchSearchCompany, getMockCompany } from '../services/company'
@@ -211,6 +212,7 @@ export function ColorPreviewHero() {
         </div>
 
         <div className="color-preview-action-column">
+          <HeroPromoCard onClick={goSearch} />
           <aside className="color-preview-search-card" aria-label="예약 가능 차량 검색">
             <button type="button" className={`color-preview-cta color-preview-cta-top ${searchState.dongId && isScheduleConfirmed ? 'is-flow-active' : ''}`} onClick={goSearch}>예약 가능 차량 검색</button>
             <label className={`color-preview-field ${!searchState.dongId ? 'is-flow-active' : ''}`}>

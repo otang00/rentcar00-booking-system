@@ -43,6 +43,18 @@ export const landingHero = {
   ],
 }
 
+export const landingPromo = {
+  slogan: '서울·수도권 단기렌트 · 1주일렌트 · 사고대차 상담 가능',
+  sloganShort: '단기렌트 · 1주일렌트 · 사고대차',
+  sloganNote: '카카오톡 00RENTCAR',
+  hero: {
+    eyebrow: '전기차 특가',
+    title: '테슬라 모델3 · 모델Y 특가 렌트',
+    description: '유가 부담 줄이고, 전기차로 더 알뜰하게',
+    cta: '테슬라 차량 확인',
+  },
+}
+
 export const landingContactItems = [
   {
     label: '전화상담',
