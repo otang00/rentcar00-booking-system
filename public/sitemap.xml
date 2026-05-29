@@ -15,14 +15,4 @@
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>
-    <loc>https://rentcar00.com/guest-bookings</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://rentcar00.com/login</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.3</priority>
-  </url>
 </urlset>
