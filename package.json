@@ -12,7 +12,9 @@
     "zzimcar:plan": "node scripts/zzimcar-sync/run-zzimcar-disable-time-plan.js",
     "zzimcar:sync:disable-time": "node scripts/zzimcar-sync/run-zzimcar-disable-time-sync.js",
     "zzimcar:reconcile": "node scripts/zzimcar-sync/run-zzimcar-reconcile-sync.js",
-    "test:zzimcar-sync": "node --test scripts/zzimcar-sync/__tests__/*.test.js"
+    "carmore:reconcile": "node scripts/carmore-sync/run-carmore-reconcile-sync.js",
+    "test:zzimcar-sync": "node --test scripts/zzimcar-sync/__tests__/*.test.js",
+    "test:carmore-sync": "node --test scripts/carmore-sync/__tests__/*.test.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.0",
