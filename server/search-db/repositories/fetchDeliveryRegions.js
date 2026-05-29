@@ -24,7 +24,7 @@ async function fetchDeliveryRegions({ supabaseClient, dongId } = {}) {
     .order('dong_id', { ascending: true })
 
   if (dongId != null) {
-    query = query.eq('dong_id', Number(dongId))
+    query = query.eq('dong_id', String(dongId))
   }
 
   try {
