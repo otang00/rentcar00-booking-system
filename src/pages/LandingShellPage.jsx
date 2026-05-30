@@ -1,7 +1,8 @@
 import { Header, Footer } from '../components/Layout'
 import ContactInfoStrip from '../components/ContactInfoStrip'
-import { landingContactItems } from '../data/landing'
 import { LandingHero } from '../components/LandingHero'
+import LandingSeoSection from '../components/LandingSeoSection'
+import { landingContactItems } from '../data/landing'
 
 export default function LandingShellPage() {
   return (
@@ -10,6 +11,7 @@ export default function LandingShellPage() {
       <main className="landing-page">
         <LandingHero />
         <ContactInfoStrip items={landingContactItems} />
+        <LandingSeoSection />
       </main>
       <Footer />
     </div>
