@@ -197,7 +197,7 @@ export function LandingHero() {
 
   return (
     <section className="landing-hero">
-      <div className="landing-car-photo" aria-hidden="true"><img src="/assets/mock-cars/mock-car-2.jpg" alt="" /></div>
+      <div className="landing-car-photo" aria-hidden="true"><img src="/assets/fallback-cars/fallback-car-2.jpg" alt="" /></div>
       <div className="container landing-hero-grid">
         <div className="landing-copy">
           <span className="landing-eyebrow">서울·수도권 딜리버리 렌터카</span>
