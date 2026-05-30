@@ -1,10 +1,18 @@
 User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /login
+Disallow: /signup
+Disallow: /reservations
+Disallow: /guest-bookings
+Disallow: /reservation-complete
+Disallow: /search
+Disallow: /cars
 Disallow: /article/
 Disallow: /board/
 Disallow: /shop/
 Disallow: /product/
 Disallow: /member/
 Disallow: /order/
-Allow: /
 
 Sitemap: https://rentcar00.com/sitemap.xml
