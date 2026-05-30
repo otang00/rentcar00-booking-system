@@ -26,7 +26,7 @@ export const landingHeaderMenu = [
 export const landingPromo = {
   slogan: '서울·수도권 단기렌트 · 1주일렌트 · 사고대차 상담 가능',
   sloganShort: '단기렌트 · 1주일렌트 · 사고대차',
-  sloganNote: '카카오톡 00RENTCAR',
+  sloganNote: '카카오톡 00RENTCAR · 전화 010-2416-7114',
 }
 
 export const landingContactItems = [
