@@ -7,18 +7,15 @@ const AdminBookingsPage = lazy(() => import('./pages/AdminBookingsPage'))
 const AdminDeliveryRegionsPage = lazy(() => import('./pages/AdminDeliveryRegionsPage'))
 const AdminPricingHubPage = lazy(() => import('./pages/AdminPricingHubPage'))
 const CarsPage = lazy(() => import('./pages/CarsPage'))
-const ColorPreviewPage = lazy(() => import('./pages/ColorPreviewPage'))
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'))
 const GuestBookingsPage = lazy(() => import('./pages/GuestBookingsPage'))
 const LandingPage = lazy(() => import('./pages/LandingPage'))
 const LandingShellPage = lazy(() => import('./pages/LandingShellPage'))
-const LandingV2Page = lazy(() => import('./pages/LandingV2Page'))
 const LegalPage = lazy(() => import('./pages/LegalPage'))
 const LoginPage = lazy(() => import('./pages/LoginPage'))
 const MemberReservationDetailPage = lazy(() => import('./pages/MemberReservationDetailPage'))
 const MemberReservationsPage = lazy(() => import('./pages/MemberReservationsPage'))
 const PlaceholderPage = lazy(() => import('./pages/PlaceholderPage'))
-const PostcodeTestPage = lazy(() => import('./pages/PostcodeTestPage'))
 const ReservationCompletePage = lazy(() => import('./pages/ReservationCompletePage'))
 const SearchPage = lazy(() => import('./pages/SearchPage'))
 const SignupPage = lazy(() => import('./pages/SignupPage'))
@@ -38,10 +35,7 @@ export default function App() {
       <Routes>
       <Route path="/" element={<LazyRoute><LandingShellPage /></LazyRoute>} />
       <Route path="/landing" element={<Navigate to="/" replace />} />
-      <Route path="/landing-v2" element={<LazyRoute><LandingV2Page /></LazyRoute>} />
       <Route path="/landing-shell" element={<LazyRoute><LandingShellPage /></LazyRoute>} />
-      <Route path="/color-preview" element={<LazyRoute><ColorPreviewPage /></LazyRoute>} />
-      <Route path="/new-main" element={<LazyRoute><ColorPreviewPage /></LazyRoute>} />
       <Route path="/search" element={<LazyRoute><SearchPage /></LazyRoute>} />
       <Route path="/cars" element={<LazyRoute><CarsPage /></LazyRoute>} />
       <Route path="/cars/:carId" element={<LazyRoute><LandingPage /></LazyRoute>} />
@@ -51,7 +45,6 @@ export default function App() {
       <Route path="/reservation-complete" element={<LazyRoute><ReservationCompletePage /></LazyRoute>} />
       <Route path="/login" element={<LazyRoute><LoginPage /></LazyRoute>} />
       <Route path="/signup" element={<LazyRoute><SignupPage /></LazyRoute>} />
-      <Route path="/postcode-test" element={<LazyRoute><PostcodeTestPage /></LazyRoute>} />
       <Route path="/forgot-password" element={<LazyRoute><ForgotPasswordPage /></LazyRoute>} />
       <Route path="/admin/booking-confirm" element={<LazyRoute><AdminBookingConfirmPage /></LazyRoute>} />
       <Route path="/admin/bookings" element={<LazyRoute><AdminBookingsPage /></LazyRoute>} />
