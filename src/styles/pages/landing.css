@@ -399,11 +399,12 @@
 }
 
 .landing-seo-card{
-  border:1px solid var(--color-border-strong);
+  border:1px solid rgba(148,163,184,.26);
   border-radius:22px;
-  background:#fff;
+  background:linear-gradient(180deg,#f8fbfe 0%,#fff 100%);
   padding:18px;
-  box-shadow:0 14px 32px rgba(16,24,39,.055);
+  box-shadow:0 8px 20px rgba(16,24,39,.035);
+  cursor:default;
 }
 
 .landing-seo-card h3{
