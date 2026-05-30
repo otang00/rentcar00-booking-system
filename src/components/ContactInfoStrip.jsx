@@ -249,8 +249,11 @@ export default function ContactInfoStrip({ items }) {
               <strong>{item.value}</strong>
               <p>{item.note}</p>
               <span className="operation-card__action" aria-hidden="true">
-                {getActionLabel(item.actionType)}
-                <span>›</span>
+                <span>{getActionLabel(item.actionType)}</span>
+                <svg viewBox="0 0 16 16" focusable="false">
+                  <path d="M5 3.5h7.5V11" />
+                  <path d="M12.5 3.5 4 12" />
+                </svg>
               </span>
             </button>
           ))}
