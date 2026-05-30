@@ -22,7 +22,7 @@
   justify-items:start;
   grid-template-rows:auto auto 1fr auto;
   gap:8px;
-  border:1px solid rgba(22,143,208,.48);
+  border:1px solid rgba(22,143,208,.62);
   border-radius:var(--radius-card);
   overflow:hidden;
   background:var(--color-bg-surface);
