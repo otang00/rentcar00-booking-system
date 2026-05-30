@@ -325,7 +325,7 @@
 }
 
 .landing-field.is-flow-active .landing-select-row,
-.landing-schedule-field.is-flow-active .landing-date-trigger,
+.landing-schedule-field.is-flow-active .landing-date-picker-card,
 .landing-cta.is-flow-active{
   position:relative;
   z-index:2;
@@ -333,7 +333,7 @@
 }
 
 .landing-field.is-flow-active .landing-select-row,
-.landing-schedule-field.is-flow-active .landing-date-trigger{
+.landing-schedule-field.is-flow-active .landing-date-picker-card{
   border-color:#cbd5e1;
   background:#f8fafc;
 }
@@ -345,7 +345,7 @@
 
 @media(prefers-reduced-motion: reduce){
   .landing-field.is-flow-active .landing-select-row,
-  .landing-schedule-field.is-flow-active .landing-date-trigger,
+  .landing-schedule-field.is-flow-active .landing-date-picker-card,
   .landing-cta.is-flow-active{
     animation:none;
   }
