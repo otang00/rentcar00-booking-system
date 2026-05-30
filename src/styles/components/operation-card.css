@@ -22,7 +22,7 @@
   justify-items:start;
   grid-template-rows:auto auto 1fr auto;
   gap:8px;
-  border:1px solid rgba(22,143,208,.28);
+  border:1px solid rgba(22,143,208,.48);
   border-radius:var(--radius-card);
   overflow:hidden;
   background:var(--color-bg-surface);
@@ -33,15 +33,6 @@
   text-align:left;
   transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
   cursor:pointer;
-}
-
-.operation-card::after{
-  content:"";
-  position:absolute;
-  inset:10px;
-  border-radius:calc(var(--radius-card) - 10px);
-  border:1px solid rgba(22,143,208,.10);
-  pointer-events:none;
 }
 
 .operation-card:hover{
@@ -87,20 +78,20 @@
   align-self:end;
   display:flex;
   align-items:center;
-  justify-content:center;
+  justify-content:space-between;
   gap:6px;
   width:calc(100% + 32px);
-  min-height:42px;
+  height:42px;
   margin:10px -16px 0;
   padding:0 16px;
   border-top:1px solid rgba(22,143,208,.12);
   background:linear-gradient(180deg,rgba(22,143,208,.055),rgba(22,143,208,.095));
   color:#168fd0;
   font-size:12px;
-  line-height:1;
+  line-height:42px;
   font-weight:900;
   letter-spacing:-.015em;
-  text-align:center;
+  text-align:left;
 }
 
 .operation-card__action svg{
@@ -113,6 +104,7 @@
   stroke-linejoin:round;
   fill:none;
   flex:0 0 auto;
+  align-self:center;
   transition:color .18s ease,transform .18s ease;
 }
 
