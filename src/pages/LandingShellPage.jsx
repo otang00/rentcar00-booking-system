@@ -10,8 +10,8 @@ export default function LandingShellPage() {
       <Header brandName="빵빵카 주식회사" showGuestBookingAction />
       <main className="landing-page">
         <LandingHero />
-        <ContactInfoStrip items={landingContactItems} />
         <LandingSeoSection />
+        <ContactInfoStrip items={landingContactItems} />
       </main>
       <Footer />
     </div>
