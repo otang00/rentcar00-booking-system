@@ -3,7 +3,9 @@ const crypto = require('crypto');
 
 const CARMORE_BASE_URL = process.env.CARMORE_BASE_URL || 'https://partners.carmore.kr/partners';
 const DEFAULT_ENV_PATH = process.env.CARMORE_ENV_PATH || '/Users/otang_server/.openclaw/skills/manual/manuals/carmore-api/files/.env';
-const DEFAULT_VENDORS_PATH = process.env.CARMORE_VENDORS_PATH || '/tmp/carmore_js/vendors.bundle.js';
+const STABLE_VENDORS_PATH = '/Users/otang_server/.openclaw/skills/manual/manuals/carmore-api/files/vendors.bundle.js';
+const LEGACY_TMP_VENDORS_PATH = '/tmp/carmore_js/vendors.bundle.js';
+const DEFAULT_VENDORS_PATH = process.env.CARMORE_VENDORS_PATH || STABLE_VENDORS_PATH;
 
 function readEnvFile(path = DEFAULT_ENV_PATH) {
   if (!fs.existsSync(path)) return {};
@@ -16,10 +18,21 @@ function readEnvFile(path = DEFAULT_ENV_PATH) {
     }));
 }
 
+function resolveVendorsPath(vendorsPath = DEFAULT_VENDORS_PATH) {
+  const candidates = [vendorsPath, LEGACY_TMP_VENDORS_PATH]
+    .filter(Boolean)
+    .filter((item, index, list) => list.indexOf(item) === index);
+  const found = candidates.find((candidate) => fs.existsSync(candidate));
+  if (found) return found;
+  throw new Error(`Carmore vendors bundle is required. Checked: ${candidates.join(', ')}`);
+}
+
 function makeCarmoreCrypto(vendorsPath = DEFAULT_VENDORS_PATH) {
-  const vendors = fs.readFileSync(vendorsPath, 'utf8');
-  const secret = vendors.match(/var I=t\.CRYPTR="([^"]+)"/)?.[1];
-  if (!secret) throw new Error(`CRYPTR secret not found in ${vendorsPath}`);
+  const resolvedVendorsPath = resolveVendorsPath(vendorsPath);
+  const vendors = fs.readFileSync(resolvedVendorsPath, 'utf8');
+  const secret = vendors.match(/var [A-Za-z_$][\w$]*=t\.CRYPTR="([^"]+)"/)?.[1]
+    || vendors.match(/t\.CRYPTR="([^"]+)"/)?.[1];
+  if (!secret) throw new Error(`CRYPTR secret not found in ${resolvedVendorsPath}`);
   const decryptCryptr = (hex) => {
     const data = Buffer.from(hex, 'hex');
     const iv = data.subarray(0, 16);
@@ -143,10 +156,14 @@ class CarmoreClient {
 
 module.exports = {
   CARMORE_BASE_URL,
+  DEFAULT_VENDORS_PATH,
+  LEGACY_TMP_VENDORS_PATH,
+  STABLE_VENDORS_PATH,
   CarmoreClient,
   addParam,
   formBody,
   makeCarmoreCrypto,
   normalizeHolidayRow,
+  resolveVendorsPath,
   readEnvFile,
 };
