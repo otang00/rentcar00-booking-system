@@ -1,4 +1,5 @@
 import { Suspense, lazy } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import { Navigate, Routes, Route } from 'react-router-dom'
 import ScrollToTop from './components/ScrollToTop'
 
@@ -32,6 +33,7 @@ export default function App() {
   return (
     <>
       <ScrollToTop />
+      <Analytics />
       <Routes>
       <Route path="/" element={<LazyRoute><LandingShellPage /></LazyRoute>} />
       <Route path="/landing" element={<Navigate to="/" replace />} />
