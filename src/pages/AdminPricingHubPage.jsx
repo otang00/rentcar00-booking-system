@@ -391,12 +391,12 @@ export default function AdminPricingHubPage() {
     <PageShell>
       <section className="section-bg pricing-admin-page">
         <style>{`
-          .pricing-admin-page .pricing-admin-shell{max-width:1480px;margin:0 auto;padding:24px 18px;}
+          .pricing-admin-page .pricing-admin-shell{max-width:1760px;margin:0 auto;padding:24px 18px;}
           .pricing-admin-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:16px;}
           .pricing-admin-top h1{margin:0;font-size:25px;letter-spacing:-.045em;}
           .pricing-admin-top p{margin:7px 0 0;color:#64748b;font-size:13px;}
           .pricing-admin-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
-          .pricing-admin-layout{display:grid;grid-template-columns:300px minmax(560px,1fr) 430px;gap:14px;align-items:start;}
+          .pricing-admin-layout{display:grid;grid-template-columns:280px minmax(760px,1fr) 390px;gap:14px;align-items:start;}
           .pricing-admin-panel{background:#fff;border:1px solid #dbe3ef;border-radius:18px;box-shadow:0 18px 45px rgba(15,23,42,.08);overflow:hidden;}
           .pricing-admin-panel-head{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:15px 16px;border-bottom:1px solid #dbe3ef;background:#fff;}
           .pricing-admin-panel-head strong{font-size:15px;}
@@ -413,14 +413,14 @@ export default function AdminPricingHubPage() {
           .pricing-admin-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;}
           .pricing-admin-metric{border:1px solid #dbe3ef;border-radius:15px;background:#fff;padding:12px;}.pricing-admin-metric span{display:block;color:#64748b;font-size:12px;}.pricing-admin-metric strong{display:block;font-size:17px;margin-top:4px;letter-spacing:-.03em;}.pricing-admin-metric.is-green{background:#f0fdf4;border-color:#bbf7d0;}.pricing-admin-metric.is-amber{background:#fffbeb;border-color:#fde68a;}
           .pricing-admin-notice{border:1px solid #bfdbfe;background:#eff6ff;color:#1e40af;border-radius:14px;padding:11px;font-weight:850;margin-bottom:12px;}
-          .pricing-admin-table{border:1px solid #dbe3ef;border-radius:16px;overflow:hidden;}.pricing-admin-row{display:grid;grid-template-columns:minmax(160px,1.25fr) 100px 76px 76px 98px 98px 122px 76px;align-items:center;}.pricing-admin-row.is-head{background:#f8fafc;color:#475569;font-size:12px;font-weight:900;}.pricing-admin-cell{padding:10px;border-bottom:1px solid #dbe3ef;min-height:48px;}.pricing-admin-row:last-child .pricing-admin-cell{border-bottom:none;}.pricing-admin-num{text-align:right;font-weight:900;font-variant-numeric:tabular-nums;}.pricing-admin-num.is-changed{color:#15803d;}
+          .pricing-admin-table-scroll{overflow-x:auto;border:1px solid #dbe3ef;border-radius:16px;}.pricing-admin-table{min-width:1040px;}.pricing-admin-row{display:grid;grid-template-columns:minmax(180px,1.35fr) 108px 82px 82px 108px 108px 140px 82px;align-items:center;}.pricing-admin-row.is-head{background:#f8fafc;color:#475569;font-size:12px;font-weight:900;}.pricing-admin-cell{padding:10px;border-bottom:1px solid #dbe3ef;min-height:48px;}.pricing-admin-row:last-child .pricing-admin-cell{border-bottom:none;}.pricing-admin-num{text-align:right;font-weight:900;font-variant-numeric:tabular-nums;}.pricing-admin-num.is-changed{color:#15803d;}
           .pricing-admin-editor{position:sticky;top:16px;}.pricing-admin-selected-title{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px;}.pricing-admin-selected-title b{font-size:18px;}
           .pricing-admin-control-card{border:1px solid #dbe3ef;border-radius:16px;padding:14px;background:#fff;margin-bottom:12px;}.pricing-admin-control-card label{display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;color:#475569;font-size:13px;font-weight:900;}.pricing-admin-control-card small{color:#64748b;font-weight:700;}
           .pricing-admin-big-input-row{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center;}.pricing-admin-big-input{width:100%;border:2px solid #c7d2fe;border-radius:14px;background:#eef2ff;padding:13px 14px;text-align:right;font-size:24px;font-weight:950;letter-spacing:-.04em;}.pricing-admin-big-input.is-percent{border-color:#bfdbfe;background:#eff6ff;}.pricing-admin-big-input-row strong{font-size:16px;color:#475569;}
           .pricing-admin-step-row{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px;}.pricing-admin-option-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}.pricing-admin-option-grid button{border:1px solid #dbe3ef;background:#f8fafc;border-radius:12px;padding:10px 8px;font-weight:900;}.pricing-admin-option-grid button.is-selected{background:#111827;color:#fff;border-color:#111827;}
           .pricing-admin-preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}.pricing-admin-preview-card{border:1px solid #dbe3ef;border-radius:13px;padding:11px;background:#f8fafc;}.pricing-admin-preview-card span{display:block;color:#64748b;font-size:12px;}.pricing-admin-preview-card strong{display:block;text-align:right;margin-top:4px;font-size:17px;font-variant-numeric:tabular-nums;}
           .pricing-admin-section-label{margin:16px 0 8px;font-size:13px;color:#475569;font-weight:950;}.pricing-admin-diff{display:grid;gap:9px;}.pricing-admin-diff-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid #dbe3ef;border-radius:13px;padding:10px;background:#fff;}.pricing-admin-before{color:#64748b;text-decoration:line-through;}.pricing-admin-after{color:#15803d;font-weight:900;}.pricing-admin-log{background:#0f172a;color:#cbd5e1;border-radius:14px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.55;margin-top:12px;white-space:pre-line;}.pricing-admin-footer-actions{display:flex;gap:8px;margin-top:12px;}.pricing-admin-footer-actions .btn{flex:1;}
-          @media (max-width: 1180px){.pricing-admin-layout{grid-template-columns:1fr;}.pricing-admin-editor{position:static;}.pricing-admin-row{grid-template-columns:minmax(150px,1fr) repeat(3,80px) repeat(2,92px) 112px 72px;}.pricing-admin-page .pricing-admin-shell{padding-left:12px;padding-right:12px;}}
+          @media (max-width: 1280px){.pricing-admin-layout{grid-template-columns:1fr;}.pricing-admin-editor{position:static;}.pricing-admin-page .pricing-admin-shell{padding-left:12px;padding-right:12px;}}
         `}</style>
         <div className="pricing-admin-shell">
           <div className="pricing-admin-top">
@@ -488,26 +488,28 @@ export default function AdminPricingHubPage() {
                   <MetricCard label="변경 상태" value={changed ? '변경 대기' : '원본'} tone={changed ? 'is-amber' : ''} />
                 </div>
                 <div className="pricing-admin-notice">수정은 오른쪽 입력 패널에서만 합니다. 가운데 표는 그룹별 현재 적용가와 자동 계산 결과를 확인하는 용도입니다.</div>
-                <div className="pricing-admin-table">
-                  <div className="pricing-admin-row is-head">
-                    <div className="pricing-admin-cell">그룹</div><div className="pricing-admin-cell pricing-admin-num">기준24</div><div className="pricing-admin-cell pricing-admin-num">주중%</div><div className="pricing-admin-cell pricing-admin-num">주말%</div><div className="pricing-admin-cell pricing-admin-num">주중24</div><div className="pricing-admin-cell pricing-admin-num">주말24</div><div className="pricing-admin-cell pricing-admin-num">7/14/30일</div><div className="pricing-admin-cell">상태</div>
+                <div className="pricing-admin-table-scroll">
+                  <div className="pricing-admin-table">
+                    <div className="pricing-admin-row is-head">
+                      <div className="pricing-admin-cell">그룹</div><div className="pricing-admin-cell pricing-admin-num">기준24</div><div className="pricing-admin-cell pricing-admin-num">주중%</div><div className="pricing-admin-cell pricing-admin-num">주말%</div><div className="pricing-admin-cell pricing-admin-num">주중24</div><div className="pricing-admin-cell pricing-admin-num">주말24</div><div className="pricing-admin-cell pricing-admin-num">7/14/30일</div><div className="pricing-admin-cell">상태</div>
+                    </div>
+                    {sortedGroups.map((item) => {
+                      const isSelected = item.pricePolicyGroupId === selectedPricePolicyGroupId
+                      const preview = isSelected && editorPreview ? editorPreview : buildComputedRate(item.legacyPolicy, item.currentVariables?.base24h, item.currentVariables?.weekdayPercent, item.currentVariables?.weekendPercent, item.pricingOptionType)
+                      return (
+                        <div key={item.pricePolicyGroupId} className="pricing-admin-row">
+                          <div className="pricing-admin-cell"><strong>{item.groupName}</strong><br /><span className="pricing-admin-muted">{item.carNumbers?.length || 0}대 · {PRICING_OPTION_LABELS[preview.pricingOptionType]}</span></div>
+                          <div className={`pricing-admin-cell pricing-admin-num ${isSelected && changed ? 'is-changed' : ''}`}>{formatMoney(preview.base24h)}</div>
+                          <div className={`pricing-admin-cell pricing-admin-num ${isSelected && changed ? 'is-changed' : ''}`}>{preview.weekdayRatePercent}%</div>
+                          <div className={`pricing-admin-cell pricing-admin-num ${isSelected && changed ? 'is-changed' : ''}`}>{preview.weekendRatePercent}%</div>
+                          <div className={`pricing-admin-cell pricing-admin-num ${isSelected && changed ? 'is-changed' : ''}`}>{formatMoney(preview.weekdayApplied24h)}</div>
+                          <div className={`pricing-admin-cell pricing-admin-num ${isSelected && changed ? 'is-changed' : ''}`}>{formatMoney(preview.weekendApplied24h)}</div>
+                          <div className="pricing-admin-cell pricing-admin-num">{formatShortMoney(preview.week1Price)} / {formatShortMoney(preview.week2Price)} / {formatShortMoney(preview.month1Price)}</div>
+                          <div className="pricing-admin-cell"><span className={`pricing-admin-pill ${isSelected && changed ? 'is-green' : ''}`}>{isSelected && changed ? '수정' : '원본'}</span></div>
+                        </div>
+                      )
+                    })}
                   </div>
-                  {sortedGroups.map((item) => {
-                    const isSelected = item.pricePolicyGroupId === selectedPricePolicyGroupId
-                    const preview = isSelected && editorPreview ? editorPreview : buildComputedRate(item.legacyPolicy, item.currentVariables?.base24h, item.currentVariables?.weekdayPercent, item.currentVariables?.weekendPercent, item.pricingOptionType)
-                    return (
-                      <div key={item.pricePolicyGroupId} className="pricing-admin-row">
-                        <div className="pricing-admin-cell"><strong>{item.groupName}</strong><br /><span className="pricing-admin-muted">{item.carNumbers?.length || 0}대 · {PRICING_OPTION_LABELS[preview.pricingOptionType]}</span></div>
-                        <div className={`pricing-admin-cell pricing-admin-num ${isSelected && changed ? 'is-changed' : ''}`}>{formatMoney(preview.base24h)}</div>
-                        <div className={`pricing-admin-cell pricing-admin-num ${isSelected && changed ? 'is-changed' : ''}`}>{preview.weekdayRatePercent}%</div>
-                        <div className={`pricing-admin-cell pricing-admin-num ${isSelected && changed ? 'is-changed' : ''}`}>{preview.weekendRatePercent}%</div>
-                        <div className={`pricing-admin-cell pricing-admin-num ${isSelected && changed ? 'is-changed' : ''}`}>{formatMoney(preview.weekdayApplied24h)}</div>
-                        <div className={`pricing-admin-cell pricing-admin-num ${isSelected && changed ? 'is-changed' : ''}`}>{formatMoney(preview.weekendApplied24h)}</div>
-                        <div className="pricing-admin-cell pricing-admin-num">{formatShortMoney(preview.week1Price)} / {formatShortMoney(preview.week2Price)} / {formatShortMoney(preview.month1Price)}</div>
-                        <div className="pricing-admin-cell"><span className={`pricing-admin-pill ${isSelected && changed ? 'is-green' : ''}`}>{isSelected && changed ? '수정' : '원본'}</span></div>
-                      </div>
-                    )
-                  })}
                 </div>
               </div>
             </main>
