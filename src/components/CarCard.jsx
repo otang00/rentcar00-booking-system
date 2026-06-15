@@ -28,14 +28,16 @@ export default function CarCard({ car }) {
 
       <div className="search-car-body search-car-body-v2">
         <div className="search-car-main-copy">
-          <div className="search-car-title-row">
-            <h3>{car.name}</h3>
+          <div className="search-car-status-spec-row">
             <span className="search-car-badge">바로예약 가능</span>
-          </div>
-          <div className="search-car-meta-price-row">
             <div className="search-car-specs">
               {specs.map((item) => <span key={item}>{item}</span>)}
             </div>
+          </div>
+          <div className="search-car-title-row">
+            <h3>{car.name}</h3>
+          </div>
+          <div className="search-car-meta-price-row">
             <div className="prices refined-price search-car-price">
               <strong>{car.dayPrice}</strong>
             </div>

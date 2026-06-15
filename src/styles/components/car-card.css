@@ -46,16 +46,19 @@
   gap:12px;
 }
 
-.search-car-title-row{
+.search-car-status-spec-row{
   min-width:0;
-  display:flex;
+  display:grid;
+  grid-template-columns:max-content minmax(0,1fr);
   align-items:center;
-  justify-content:space-between;
   gap:10px;
 }
 
+.search-car-title-row{
+  min-width:0;
+}
+
 .search-car-badge{
-  flex:0 0 auto;
   width:max-content;
   border-radius:999px;
   background:var(--color-primary-soft);
@@ -68,7 +71,6 @@
 }
 
 .search-car-card-v2 .search-car-title-row h3{
-  flex:1 1 auto;
   min-width:0;
   margin:0;
   color:var(--color-text-strong);
@@ -84,15 +86,15 @@
 .search-car-meta-price-row{
   display:flex;
   align-items:flex-end;
-  justify-content:space-between;
+  justify-content:flex-end;
   gap:12px;
   min-width:0;
 }
 
 .search-car-card-v2 .search-car-specs{
-  flex:1 1 auto;
   display:flex;
   flex-wrap:nowrap;
+  justify-content:flex-end;
   gap:5px;
   min-width:0;
   overflow:hidden;
@@ -153,14 +155,13 @@
     gap:9px;
   }
 
-  .search-car-title-row{
+  .search-car-status-spec-row{
+    grid-template-columns:max-content minmax(0,1fr);
     gap:6px;
   }
 
   .search-car-meta-price-row{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) max-content;
-    align-items:end;
+    justify-content:flex-end;
     gap:7px;
   }
 
