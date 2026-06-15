@@ -8,6 +8,7 @@ Disallow: /guest-bookings
 Disallow: /reservation-complete
 Disallow: /search
 Disallow: /cars
+Disallow: /faq
 Disallow: /article/
 Disallow: /board/
 Disallow: /shop/

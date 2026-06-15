@@ -37,7 +37,7 @@ export default function App() {
       <Routes>
       <Route path="/" element={<LazyRoute><LandingShellPage /></LazyRoute>} />
       <Route path="/landing" element={<Navigate to="/" replace />} />
-      <Route path="/landing-shell" element={<LazyRoute><LandingShellPage /></LazyRoute>} />
+      <Route path="/landing-shell" element={<Navigate to="/" replace />} />
       <Route path="/search" element={<LazyRoute><SearchPage /></LazyRoute>} />
       <Route path="/cars" element={<LazyRoute><CarsPage /></LazyRoute>} />
       <Route path="/cars/:carId" element={<LazyRoute><LandingPage /></LazyRoute>} />
