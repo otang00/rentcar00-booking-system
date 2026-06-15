@@ -121,7 +121,13 @@ export function LandingHero() {
       setDraftReturnTime('')
       return
     }
-    if (dateKey === draftPickupDate) return
+    if (dateKey === draftPickupDate) {
+      setDraftPickupDate('')
+      setDraftReturnDate('')
+      setDraftPickupTime('')
+      setDraftReturnTime('')
+      return
+    }
     if (dateKey < draftPickupDate) {
       setDraftReturnDate(draftPickupDate)
       setDraftPickupDate(dateKey)

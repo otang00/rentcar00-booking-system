@@ -78,7 +78,7 @@
 .search-car-card-v2 .search-car-specs{
   display:flex;
   flex-wrap:nowrap;
-  justify-content:flex-end;
+  justify-content:flex-start;
   gap:5px;
   min-width:0;
   overflow:hidden;
@@ -149,7 +149,7 @@
   }
 
   .search-car-card-v2 .search-car-specs{
-    justify-content:flex-end;
+    justify-content:flex-start;
     gap:4px;
   }
 
