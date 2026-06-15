@@ -28,9 +28,9 @@ export default function CarCard({ car }) {
 
       <div className="search-car-body search-car-body-v2">
         <div className="search-car-main-copy">
-          <span className="search-car-badge">바로예약 가능</span>
           <div className="search-car-title-row">
             <h3>{car.name}</h3>
+            <span className="search-car-badge">바로예약 가능</span>
           </div>
           <div className="search-car-meta-price-row">
             <div className="search-car-specs">
