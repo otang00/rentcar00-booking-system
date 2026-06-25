@@ -205,6 +205,19 @@ function createDetailPath(item) {
   return `/admin/booking-confirm?token=${encodeURIComponent(token)}`
 }
 
+function toAdminBookingDetail(booking, rawBooking = {}) {
+  const rawPhone = String(rawBooking?.customer_phone || '').trim()
+  const rawBirth = String(rawBooking?.customer_birth || rawBooking?.pricing_snapshot?.customerBirth || '').trim()
+
+  return {
+    ...booking,
+    customerPhone: rawPhone || booking?.customerPhone || null,
+    customerBirth: rawBirth || booking?.customerBirth || null,
+    customerPhoneRaw: rawPhone || null,
+    customerBirthRaw: rawBirth || null,
+  }
+}
+
 function toAdminBookingItem(order, fallbackCarNumberById = new Map()) {
   const item = serializeBookingOrder(order)
   const fallbackCarNumber = fallbackCarNumberById.get(String(order?.car_id || '').trim()) || ''
@@ -532,7 +545,7 @@ async function handleConfirmTarget(req, res, supabaseClient) {
     })
   }
 
-  return res.status(200).json({ booking: result.booking })
+  return res.status(200).json({ booking: toAdminBookingDetail(result.booking, result.rawBooking) })
 }
 
 async function handleCancel(req, res, supabaseClient) {
@@ -567,12 +580,12 @@ async function handleCancel(req, res, supabaseClient) {
     return res.status(result.status || 400).json({
       error: result.code || 'admin_cancel_failed',
       message: result.message || '예약 취소에 실패했습니다.',
-      booking: result.booking || null,
+      booking: result.booking ? toAdminBookingDetail(result.booking, lookup.rawBooking) : null,
     })
   }
 
   return res.status(200).json({
-    booking: result.booking,
+    booking: toAdminBookingDetail(result.booking, lookup.rawBooking),
     mapping: result.mapping || null,
   })
 }
@@ -655,7 +668,7 @@ async function handleChange(req, res, supabaseClient) {
     return res.status(409).json({
       error: 'booking_change_not_allowed_status',
       message: '예약 확정 상태에서만 변경할 수 있습니다.',
-      booking: lookup.booking,
+      booking: toAdminBookingDetail(lookup.booking, lookup.rawBooking),
     })
   }
 
@@ -664,7 +677,7 @@ async function handleChange(req, res, supabaseClient) {
     return res.status(409).json({
       error: 'started_booking_change_requires_force',
       message: '이미 시작된 예약은 1차 변경 기능에서 변경할 수 없습니다.',
-      booking: lookup.booking,
+      booking: toAdminBookingDetail(lookup.booking, lookup.rawBooking),
     })
   }
 
@@ -764,7 +777,7 @@ async function handleChange(req, res, supabaseClient) {
   if (eventError) throw eventError
 
   return res.status(200).json({
-    booking: serializeBookingOrder(updatedOrder),
+    booking: toAdminBookingDetail(serializeBookingOrder(updatedOrder), updatedOrder),
     change: {
       type: changeType,
       keptAmount,
@@ -800,12 +813,12 @@ async function handleRefundComplete(req, res, supabaseClient) {
     return res.status(result.status || 400).json({
       error: result.code || 'admin_refund_complete_failed',
       message: result.message || '환불 완료 처리에 실패했습니다.',
-      booking: result.booking || null,
+      booking: result.booking ? toAdminBookingDetail(result.booking, lookup.rawBooking) : null,
     })
   }
 
   return res.status(200).json({
-    booking: result.booking,
+    booking: toAdminBookingDetail(result.booking, lookup.rawBooking),
   })
 }
 

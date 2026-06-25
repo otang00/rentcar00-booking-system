@@ -15,6 +15,7 @@ const {
   canGuestCancelBooking,
   resolveCancelSyncStatus,
   resolveCancelledPaymentStatus,
+  serializeBookingOrder,
 } = require('../guestBookingUtils')
 
 test('normalizeReservationCode trims and uppercases', () => {
@@ -131,4 +132,19 @@ test('resolveCancelSyncStatus requests external cancel when mapping exists', () 
 test('resolveCancelledPaymentStatus uses refund only when already paid', () => {
   assert.equal(resolveCancelledPaymentStatus({ payment_status: 'paid' }), 'refund_pending')
   assert.equal(resolveCancelledPaymentStatus({ payment_status: 'pending' }), 'pending')
+})
+
+test('serializeBookingOrder masks customer phone and birth by default', () => {
+  const result = serializeBookingOrder({
+    id: 'booking-1',
+    public_reservation_code: 'BB260625123456',
+    customer_name: '홍길동',
+    customer_phone: '01012345678',
+    customer_phone_last4: '5678',
+    customer_birth: '19900101',
+  })
+
+  assert.equal(result.customerPhone, '010-****-5678')
+  assert.equal(result.customerPhoneLast4, '5678')
+  assert.equal(result.customerBirth, '1990****')
 })
