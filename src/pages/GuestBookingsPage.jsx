@@ -78,6 +78,7 @@ export default function GuestBookingsPage() {
   const [results, setResults] = useState([])
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
+  const [otpSendErrorCode, setOtpSendErrorCode] = useState('')
   const [hasLookedUp, setHasLookedUp] = useState(false)
   const [lookupToken, setLookupToken] = useState(() => readStoredSession()?.lookupToken || '')
   const [lookupTokenExpiresAt, setLookupTokenExpiresAt] = useState(() => readStoredSession()?.lookupTokenExpiresAt || null)
@@ -152,6 +153,7 @@ export default function GuestBookingsPage() {
     setOtpExpiresAt(null)
     setOtpCooldownUntil(null)
     setOtpMessage(message)
+    setOtpSendErrorCode('')
   }
 
   function clearLookupSession(message = '휴대폰 인증을 진행해 주세요.') {
@@ -169,6 +171,7 @@ export default function GuestBookingsPage() {
     try {
       setIsLookupSubmitting(true)
       setError('')
+      setOtpSendErrorCode('')
       setNotice('')
       const response = await lookupGuestBooking({ lookupToken: token })
       setResults(response.bookings || [])
@@ -196,6 +199,7 @@ export default function GuestBookingsPage() {
 
     setIsOtpRequesting(true)
     setError('')
+    setOtpSendErrorCode('')
     setNotice('')
 
     try {
@@ -211,7 +215,12 @@ export default function GuestBookingsPage() {
       })
 
       const result = await response.json()
-      if (!response.ok) throw new Error(result.message || '인증번호 발송에 실패했습니다.')
+      if (!response.ok) {
+        const sendError = new Error(result.message || '인증번호 발송에 실패했습니다.')
+        sendError.code = result.error || ''
+        sendError.cooldownSeconds = result.cooldownSeconds
+        throw sendError
+      }
       setVerificationId(result.verificationId || '')
       setVerificationToken('')
       setOtpCode('')
@@ -219,6 +228,11 @@ export default function GuestBookingsPage() {
       setOtpCooldownUntil(Date.now() + Number(result.cooldownSeconds || 60) * 1000)
       setOtpMessage(result.message || '인증번호를 발송했습니다.')
     } catch (requestError) {
+      const errorCode = requestError.code || ''
+      setOtpSendErrorCode(errorCode)
+      if (errorCode === 'otp_cooldown' && requestError.cooldownSeconds) {
+        setOtpCooldownUntil(Date.now() + Number(requestError.cooldownSeconds) * 1000)
+      }
       setOtpMessage(requestError.message || '인증번호 발송에 실패했습니다.')
     } finally {
       setIsOtpRequesting(false)
@@ -239,6 +253,7 @@ export default function GuestBookingsPage() {
     setIsOtpVerifying(true)
     setIsLookupSubmitting(true)
     setError('')
+    setOtpSendErrorCode('')
     setNotice('')
 
     try {
@@ -347,6 +362,7 @@ export default function GuestBookingsPage() {
                         setCustomerPhone(formatPhoneNumber(e.target.value))
                         resetOtpState('휴대폰 인증을 진행해 주세요.')
                         setError('')
+                        setOtpSendErrorCode('')
                         setNotice('')
                       }}
                       disabled={isOtpRequesting || isOtpVerifying || isLookupSubmitting}
@@ -380,6 +396,27 @@ export default function GuestBookingsPage() {
 
             {error ? <p className="small-note" style={{ margin: 0 }}>{error}</p> : null}
             {notice ? <p className="small-note" style={{ margin: 0 }}>{notice}</p> : null}
+            {otpSendErrorCode ? (
+              <div className={`guest-otp-alert ${otpSendErrorCode === 'phone_already_registered' ? 'is-actionable' : ''}`}>
+                <strong>
+                  {otpSendErrorCode === 'phone_already_registered'
+                    ? '회원으로 가입된 번호입니다.'
+                    : otpSendErrorCode === 'otp_cooldown'
+                      ? '잠시 후 다시 요청해 주세요.'
+                      : '인증번호 발송을 완료하지 못했습니다.'}
+                </strong>
+                <p>
+                  {otpSendErrorCode === 'phone_already_registered'
+                    ? '회원 예약은 로그인 후 예약내역에서 확인할 수 있습니다.'
+                    : otpSendErrorCode === 'otp_cooldown'
+                      ? otpMessage
+                      : '문자 발송이 지연되었거나 설정 확인이 필요합니다. 잠시 후 다시 시도해 주세요.'}
+                </p>
+                {otpSendErrorCode === 'phone_already_registered' ? (
+                  <Link className="btn btn-dark btn-md" to="/login?redirectTo=/reservations">로그인하고 예약내역 보기</Link>
+                ) : null}
+              </div>
+            ) : null}
             {otpMessage ? <p className="field-note" style={{ margin: 0 }}>{otpMessage}</p> : null}
 
             {hasActiveLookupSession && hasLookedUp && !error && results.length === 0 ? (

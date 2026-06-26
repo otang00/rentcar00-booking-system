@@ -168,6 +168,44 @@
   margin:0;
 }
 
+.guest-otp-alert{
+  display:grid;
+  gap:8px;
+  padding:14px;
+  border:1px solid #ffd7a8;
+  border-radius:16px;
+  background:#fff7ed;
+  color:#7c2d12;
+}
+
+.guest-otp-alert strong{
+  font-size:15px;
+  font-weight:1000;
+  letter-spacing:-.025em;
+}
+
+.guest-otp-alert p{
+  margin:0;
+  color:#9a3412;
+  font-size:14px;
+  line-height:1.55;
+  font-weight:800;
+}
+
+.guest-otp-alert.is-actionable{
+  border-color:#b9def4;
+  background:#eef8ff;
+  color:#075985;
+}
+
+.guest-otp-alert.is-actionable p{
+  color:#0f5d83;
+}
+
+.guest-otp-alert .btn{
+  justify-self:start;
+}
+
 @media(max-width:760px){
   .guest-bookings-form .guest-lookup-card > div:nth-child(2){
     grid-template-columns:1fr;
