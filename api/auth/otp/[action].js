@@ -1,6 +1,7 @@
 'use strict'
 
 const { createServerPrivilegedClient } = require('../../../server/supabase/createServerClient')
+const { appLogger } = require('../../../server/logging/appLogger')
 const { sendSolapiMessage } = require('../../../server/sms/sendSolapiMessage')
 const { findMemberProfileByPhone, getMemberPhoneBlockMessage } = require('../../../server/auth/memberPhoneLookup')
 const {
@@ -30,6 +31,18 @@ function isSupportedPurpose(purpose) {
   return ['signup', 'guest_booking', 'guest_lookup', 'reset_password'].includes(purpose)
 }
 
+function getRequestId(req) {
+  return String(req.headers?.['x-vercel-id'] || req.headers?.['x-request-id'] || '').slice(0, 120) || undefined
+}
+
+function logOtpSend(level, event, message, req, context = {}) {
+  appLogger[level](event, message, {
+    route: '/api/auth/otp/send',
+    requestId: getRequestId(req),
+    ...context,
+  })
+}
+
 async function handleOtpSend(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
@@ -42,11 +55,22 @@ async function handleOtpSend(req, res) {
   const contextPayload = typeof payload.context === 'object' && payload.context !== null ? payload.context : {}
 
   if (!isSupportedPurpose(purpose)) {
+    logOtpSend('warn', 'otp_send_invalid_purpose', 'Unsupported OTP send purpose.', req, {
+      status: 400,
+      reason: 'invalid_purpose',
+      purpose,
+    })
     return res.status(400).json({ error: 'invalid_purpose', message: '지원하지 않는 인증 목적입니다.' })
   }
 
   const phoneValidation = validateMobilePhoneNumber(phone)
   if (!phoneValidation.isValid) {
+    logOtpSend('warn', 'otp_send_invalid_phone', 'Invalid phone for OTP send.', req, {
+      status: 400,
+      reason: 'invalid_phone',
+      purpose,
+      phoneLast4: getPhoneLast4(phone),
+    })
     return res.status(400).json({ error: 'invalid_phone', message: phoneValidation.message })
   }
 
@@ -54,6 +78,12 @@ async function handleOtpSend(req, res) {
   if (purpose === 'guest_booking') {
     const contextValidation = validateBookingOtpContext({ ...contextPayload, phone })
     if (!contextValidation.isValid) {
+      logOtpSend('warn', 'otp_send_invalid_booking_context', 'Invalid booking context for OTP send.', req, {
+        status: 400,
+        reason: 'invalid_booking_context',
+        purpose,
+        phoneLast4: getPhoneLast4(phone),
+      })
       return res.status(400).json({ error: 'invalid_booking_context', message: contextValidation.message })
     }
     contextHash = createBookingOtpContextHash(contextValidation.normalized)
@@ -61,6 +91,12 @@ async function handleOtpSend(req, res) {
 
   const supabaseClient = createServerPrivilegedClient()
   if (!supabaseClient) {
+    logOtpSend('error', 'otp_provider_unavailable', 'Supabase privileged client is unavailable for OTP send.', req, {
+      status: 500,
+      reason: 'supabase_client_unavailable',
+      purpose,
+      phoneLast4: getPhoneLast4(phone),
+    })
     return res.status(500).json({ error: 'supabase_client_unavailable' })
   }
 
@@ -75,6 +111,12 @@ async function handleOtpSend(req, res) {
   } else if (['signup', 'guest_booking', 'guest_lookup'].includes(purpose)) {
     const existingMember = await findMemberProfileByPhone({ supabaseClient, phone })
     if (existingMember) {
+      logOtpSend('info', 'otp_send_blocked_member_phone', 'OTP send blocked because phone belongs to an existing member.', req, {
+        status: 409,
+        reason: 'phone_already_registered',
+        purpose,
+        phoneLast4: getPhoneLast4(phone),
+      })
       return res.status(409).json({
         error: 'phone_already_registered',
         message: getMemberPhoneBlockMessage(purpose),
@@ -83,6 +125,12 @@ async function handleOtpSend(req, res) {
   }
 
   if (!isSolapiConfigured()) {
+    logOtpSend('error', 'otp_provider_unavailable', 'Solapi OTP provider is not configured.', req, {
+      status: 503,
+      reason: 'otp_provider_unavailable',
+      purpose,
+      phoneLast4: getPhoneLast4(phone),
+    })
     return res.status(503).json({
       error: 'otp_provider_unavailable',
       message: '문자 인증 설정이 아직 준비되지 않았습니다.',
@@ -100,11 +148,24 @@ async function handleOtpSend(req, res) {
     .maybeSingle()
 
   if (latestError) {
+    logOtpSend('error', 'otp_lookup_failed', 'Failed to lookup latest OTP verification.', req, {
+      status: 500,
+      reason: 'otp_lookup_failed',
+      purpose,
+      phoneLast4: getPhoneLast4(phone),
+    })
     return res.status(500).json({ error: 'otp_lookup_failed', message: '인증 상태 확인에 실패했습니다.' })
   }
 
   if (latest?.cooldown_until && latest.cooldown_until > nowIso) {
     const cooldownSeconds = Math.max(1, Math.ceil((new Date(latest.cooldown_until).getTime() - Date.now()) / 1000))
+    logOtpSend('warn', 'otp_cooldown', 'OTP send blocked by cooldown.', req, {
+      status: 429,
+      reason: 'otp_cooldown',
+      purpose,
+      phoneLast4: getPhoneLast4(phone),
+      cooldownSeconds,
+    })
     return res.status(429).json({
       error: 'otp_cooldown',
       message: `인증번호는 ${cooldownSeconds}초 후 다시 요청할 수 있습니다.`,
@@ -142,9 +203,21 @@ async function handleOtpSend(req, res) {
       .single()
 
     if (error) {
+      logOtpSend('error', 'otp_save_failed', 'Failed to save OTP verification.', req, {
+        status: 500,
+        reason: 'otp_save_failed',
+        purpose,
+        phoneLast4: getPhoneLast4(phone),
+      })
       return res.status(500).json({ error: 'otp_save_failed', message: '인증번호 저장에 실패했습니다.' })
     }
 
+    logOtpSend('info', 'otp_send_success', 'OTP send completed.', req, {
+      status: 200,
+      reason: 'otp_send_success',
+      purpose,
+      phoneLast4: getPhoneLast4(phone),
+    })
     return res.status(200).json({
       verificationId: data.id,
       expiresInSeconds: OTP_TTL_SECONDS,
@@ -152,6 +225,15 @@ async function handleOtpSend(req, res) {
       message: '인증번호를 발송했습니다.',
     })
   } catch (error) {
+    logOtpSend('error', 'otp_send_failed', 'Failed to send OTP SMS.', req, {
+      status: 500,
+      reason: 'otp_send_failed',
+      purpose,
+      phoneLast4: getPhoneLast4(phone),
+      metadata: {
+        errorName: error?.name,
+      },
+    })
     return res.status(500).json({
       error: 'otp_send_failed',
       message: error?.message || '인증번호 발송에 실패했습니다.',
