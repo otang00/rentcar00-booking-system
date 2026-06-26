@@ -1,0 +1,82 @@
+/* Shared operation/customer contact cards. Page-specific contact-card overrides are intentionally removed. */
+.operation-card-section{
+  background:var(--color-bg-page);
+  padding:34px 0 0;
+}
+
+.operation-card-container{
+  display:grid;
+  gap:14px;
+}
+
+.operation-card-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+
+.operation-card{
+  display:grid;
+  align-content:start;
+  justify-items:start;
+  gap:8px;
+  border:1px solid var(--color-border-strong);
+  border-radius:var(--radius-card);
+  background:var(--color-bg-surface);
+  padding:16px;
+  box-shadow:0 16px 34px rgba(16,24,39,.07);
+  color:inherit;
+  font-family:var(--font-family-base);
+  text-align:left;
+  transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+  cursor:pointer;
+}
+
+.operation-card:hover{
+  background:var(--color-primary-soft);
+  border-color:var(--color-primary-soft-border);
+  box-shadow:0 10px 24px rgba(23,33,43,.05);
+  transform:translateY(-1px);
+}
+
+.operation-card:active{
+  background:#edf4fa;
+  border-color:#cbdbe8;
+  box-shadow:0 6px 14px rgba(23,33,43,.04);
+  transform:translateY(0);
+}
+
+.operation-card__label{
+  color:var(--color-primary);
+  font-size:15px;
+  font-weight:850;
+  letter-spacing:-.025em;
+}
+
+.operation-card strong{
+  color:var(--color-text-strong);
+  font-size:24px;
+  line-height:1.15;
+  font-weight:900;
+  letter-spacing:-.055em;
+  text-align:left;
+}
+
+.operation-card p{
+  margin:0;
+  color:var(--color-text-muted);
+  font-size:14px;
+  line-height:1.55;
+  letter-spacing:-.012em;
+  text-align:left;
+}
+
+@media(max-width:960px){
+  .operation-card-section{
+    padding-top:24px;
+  }
+
+  .operation-card-grid{
+    grid-template-columns:1fr;
+  }
+}

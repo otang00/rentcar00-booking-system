@@ -1,0 +1,215 @@
+/* Account/admin renewal shared shell */
+.account-page-shell{
+  background:#f4f8fb;
+}
+.account-page-shell .detail-layout{
+  max-width:980px;
+}
+.account-page-card{
+  display:grid;
+  gap:18px;
+  border-radius:26px;
+  padding:24px;
+  box-shadow:0 18px 42px rgba(16,24,39,.06);
+}
+.account-page-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+  flex-wrap:wrap;
+}
+.account-page-head h1{
+  margin:0;
+  color:#101827;
+  font-size:32px;
+  line-height:1.15;
+  letter-spacing:-.065em;
+  font-weight:1000;
+}
+.account-page-head p{
+  margin:8px 0 0;
+  color:#52677c;
+  font-size:15px;
+  line-height:1.55;
+  font-weight:750;
+}
+.account-sub-card,
+.account-page-shell .panel-sub{
+  border-radius:18px;
+  background:#fbfdff;
+  border-color:#dbe3ef;
+}
+.account-page-shell .field-label{
+  color:#101827;
+  font-size:14px;
+  font-weight:1000;
+  letter-spacing:-.025em;
+}
+.account-page-shell .field-input,
+.account-page-shell .field-select{
+  min-height:52px;
+  border-radius:14px;
+  background:#fff;
+  font-size:17px;
+}
+.account-page-shell .btn-md{
+  min-height:48px;
+  border-radius:14px;
+  font-weight:950;
+}
+.account-page-shell .btn-dark.btn-md,
+.account-page-shell .btn-dark.btn-lg{
+  min-height:56px;
+  border-radius:16px;
+  font-size:18px;
+  font-weight:1000;
+}
+.account-action-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.account-auth-box{
+  display:grid;
+  gap:10px;
+  padding:14px;
+  border:1px solid #dbe3ef;
+  border-radius:18px;
+  background:#fbfdff;
+}
+.account-form-grid{
+  display:grid;
+  gap:12px;
+}
+.account-page-shell .reservation-result-card{
+  border-radius:22px;
+  border-color:#dbe3ef;
+  box-shadow:0 12px 28px rgba(16,24,39,.05);
+}
+.account-page-shell .reservation-result-card__title{
+  color:#101827;
+  font-weight:1000;
+  letter-spacing:-.04em;
+}
+.account-page-shell .reservation-result-card__price strong{
+  font-size:30px;
+  letter-spacing:-.055em;
+}
+.account-page-shell .tab-row .btn{
+  border-radius:999px;
+}
+.admin-page-card{
+  max-width:1120px;
+  margin:0 auto;
+}
+.admin-page-card .reservation-result-card{
+  background:#fff;
+}
+@media(max-width:760px){
+  .account-page-card{
+    padding:18px;
+    border-radius:22px;
+  }
+  .account-page-head h1{
+    font-size:28px;
+  }
+  .account-page-shell .container{
+    width:calc(100% - 24px);
+  }
+  .account-page-shell .form-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+/* Guest bookings page aligned to login/signup tone */
+.guest-bookings-form{
+  gap:14px;
+}
+
+.guest-bookings-form .guest-lookup-card,
+.guest-bookings-form .guest-status-card,
+.guest-bookings-form .guest-results-card{
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  padding:16px;
+  box-shadow:none;
+}
+
+.guest-bookings-form .guest-lookup-card{
+  display:grid;
+  gap:12px;
+}
+
+.guest-bookings-form .field-input{
+  min-height:46px;
+  border-radius:13px;
+  font-size:16px;
+}
+
+.guest-bookings-form .btn-md{
+  min-height:46px;
+  border-radius:13px;
+}
+
+.guest-bookings-form .btn-dark{
+  background:#168fd0;
+  border-color:#168fd0;
+}
+
+.guest-bookings-form .account-action-row{
+  margin-top:0;
+}
+
+.guest-bookings-form .small-note,
+.guest-bookings-form .field-note,
+.guest-bookings-form .legal-note{
+  margin:0;
+}
+
+@media(max-width:760px){
+  .guest-bookings-form .guest-lookup-card > div:nth-child(2){
+    grid-template-columns:1fr;
+  }
+}
+
+/* Guest status boxes */
+.guest-status-box{
+  border:1px solid #d7e4ec;
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+}
+
+.guest-status-row{
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:0 16px;
+}
+
+.guest-status-row + .guest-status-row{
+  border-top:1px solid #e7eef4;
+}
+
+.guest-status-row span{
+  color:#6f8194;
+  font-size:13px;
+  font-weight:900;
+}
+
+.guest-status-row strong{
+  color:#101827;
+  font-size:16px;
+  font-weight:950;
+}
+
+@media(max-width:760px){
+  .guest-status-row{
+    padding-left:15px;
+    padding-right:15px;
+  }
+}

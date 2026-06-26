@@ -1,0 +1,1670 @@
+{
+  "generatedAt": "2026-04-15T08:01:12.221Z",
+  "summary": {
+    "carGroups": 34,
+    "pricePolicies": 19,
+    "pricePolicyGroups": 34,
+    "resolvedGroupIds": 34,
+    "unresolvedGroupIds": 0
+  },
+  "carGroups": [
+    {
+      "imsGroupId": 24154,
+      "groupName": "더 뉴 카니발(KA4) (2023년)_디젤",
+      "grade": "RV",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "더 뉴 카니발(KA4)",
+        "submodel": "카니발",
+        "fuelType": "디젤",
+        "modelYear": "2024",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종자동"
+      }
+    },
+    {
+      "imsGroupId": 23398,
+      "groupName": "[특가] 더 뉴 셀토스_가솔린",
+      "grade": "소형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "[특가] 더 뉴 셀토스",
+        "submodel": "[특가] 셀토스",
+        "fuelType": "가솔린",
+        "modelYear": "2025",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 23159,
+      "groupName": "디 올 뉴 그랜저 (2025년)_가솔린",
+      "grade": "준대형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "디 올 뉴 그랜저",
+        "submodel": "그랜저",
+        "fuelType": "가솔린",
+        "modelYear": "2025",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 23143,
+      "groupName": "더 뉴 K8 (2025년)_가솔린_베스트셀렉션",
+      "grade": "준대형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "더 뉴 K8",
+        "submodel": "K8",
+        "fuelType": "가솔린",
+        "modelYear": "2025",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 23142,
+      "groupName": "더 뉴 K5 3세대 (2025년)_가솔린",
+      "grade": "중형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "더 뉴 K5 3세대",
+        "submodel": "K5",
+        "fuelType": "가솔린",
+        "modelYear": "2025",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22533,
+      "groupName": "더 뉴 아반떼 (CN7) (2023년)_가솔린",
+      "grade": "준중형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "더 뉴 아반떼 (CN7)",
+        "submodel": "아반떼",
+        "fuelType": "가솔린",
+        "modelYear": "2025",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 23049,
+      "groupName": "E 클래스 (W214) (2024년)_가솔린",
+      "grade": "준대형",
+      "metadata": {
+        "importFlag": "수입차",
+        "brand": "벤츠",
+        "model": "E 클래스 (W214)",
+        "submodel": "E 클래스",
+        "fuelType": "가솔린",
+        "modelYear": "2025",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 23043,
+      "groupName": "모델 Y 주니퍼 (2025년)_전기",
+      "grade": "중형",
+      "metadata": {
+        "importFlag": "수입차",
+        "brand": "테슬라",
+        "model": "모델 Y 주니퍼",
+        "submodel": "모델 Y",
+        "fuelType": "전기",
+        "modelYear": "2025",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 23032,
+      "groupName": "더 뉴 카니발(KA4) (2023년)_가솔린",
+      "grade": "RV",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "더 뉴 카니발(KA4)",
+        "submodel": "카니발",
+        "fuelType": "가솔린",
+        "modelYear": "2025",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22789,
+      "groupName": "더 뉴 코나 (2022년~)_가솔린",
+      "grade": "소형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "더 뉴 코나",
+        "submodel": "코나",
+        "fuelType": "가솔린",
+        "modelYear": "2023",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22533,
+      "groupName": "더 뉴 아반떼 (CN7) (2023년)_가솔린_어라운드뷰",
+      "grade": "준중형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "더 뉴 아반떼 (CN7)",
+        "submodel": "아반떼",
+        "fuelType": "가솔린",
+        "modelYear": "2025",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22380,
+      "groupName": "디 올 뉴 싼타페 (MX5) (2025년)_가솔린",
+      "grade": "중형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "디 올 뉴 싼타페 (MX5)",
+        "submodel": "싼타페",
+        "fuelType": "가솔린",
+        "modelYear": "2025",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22318,
+      "groupName": "더 뉴 K5 3세대 (2024년)_LPG",
+      "grade": "중형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "더 뉴 K5 3세대",
+        "submodel": "K5",
+        "fuelType": "LPG",
+        "modelYear": "2024",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22179,
+      "groupName": "더 뉴 셀토스 (2024년)_특가요청_가솔린",
+      "grade": "소형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "더 뉴 셀토스",
+        "submodel": "셀토스",
+        "fuelType": "가솔린",
+        "modelYear": "2024",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22105,
+      "groupName": "2024 모델 Y (2020년)_전기",
+      "grade": "중형",
+      "metadata": {
+        "importFlag": "수입차",
+        "brand": "테슬라",
+        "model": "모델 Y",
+        "submodel": "모델 Y",
+        "fuelType": "전기",
+        "modelYear": "2024",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22036,
+      "groupName": "모델 Y (2020년)_전기_롱레인지",
+      "grade": "중형",
+      "metadata": {
+        "importFlag": "수입차",
+        "brand": "테슬라",
+        "model": "모델 Y",
+        "submodel": "모델 Y",
+        "fuelType": "전기",
+        "modelYear": "2021",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22035,
+      "groupName": "모델 3 (2017년)_전기",
+      "grade": "중형",
+      "metadata": {
+        "importFlag": "수입차",
+        "brand": "테슬라",
+        "model": "모델 3",
+        "submodel": "모델 3",
+        "fuelType": "전기",
+        "modelYear": "2021~2022",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22034,
+      "groupName": "GV80 (2020년)_가솔린",
+      "grade": "준대형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "제네시스",
+        "model": "GV80",
+        "submodel": "GV80",
+        "fuelType": "가솔린",
+        "modelYear": "2020",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22033,
+      "groupName": "GV70 (2021년)_가솔린",
+      "grade": "중형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "제네시스",
+        "model": "GV70",
+        "submodel": "GV70",
+        "fuelType": "가솔린",
+        "modelYear": "2021",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22032,
+      "groupName": "G80 (RG3) (2020년~)_가솔린",
+      "grade": "준대형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "제네시스",
+        "model": "G80 (RG3)",
+        "submodel": "G80",
+        "fuelType": "가솔린",
+        "modelYear": "2021",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22031,
+      "groupName": "카니발 4세대 (2020년~)_디젤_9인승",
+      "grade": "RV",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "카니발 4세대",
+        "submodel": "카니발",
+        "fuelType": "디젤",
+        "modelYear": "2023",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22030,
+      "groupName": "더 뉴 팰리세이드 (2022년)_가솔린_7인승",
+      "grade": "준대형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "더 뉴 팰리세이드",
+        "submodel": "팰리세이드",
+        "fuelType": "가솔린",
+        "modelYear": "2023",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22029,
+      "groupName": "디 올 뉴 스포티지 (NQ5) (2021년)_가솔린",
+      "grade": "준중형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "디 올 뉴 스포티지 (NQ5)",
+        "submodel": "스포티지",
+        "fuelType": "가솔린",
+        "modelYear": "2024",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22027,
+      "groupName": "더 뉴 셀토스 (2023년)_가솔린",
+      "grade": "소형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "더 뉴 셀토스",
+        "submodel": "셀토스",
+        "fuelType": "가솔린",
+        "modelYear": "2024",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22026,
+      "groupName": "더 뉴 코나 (2020년~)_가솔린",
+      "grade": "소형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "더 뉴 코나",
+        "submodel": "코나",
+        "fuelType": "가솔린",
+        "modelYear": "2021",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22025,
+      "groupName": "K7 프리미어 (2019년~)_LPG",
+      "grade": "준대형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "K7 프리미어",
+        "submodel": "K7",
+        "fuelType": "LPG",
+        "modelYear": "2020",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22024,
+      "groupName": "올 뉴 K7 (2016년~)_LPG",
+      "grade": "준대형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "올 뉴 K7",
+        "submodel": "K7",
+        "fuelType": "LPG",
+        "modelYear": "2018",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22023,
+      "groupName": "디 올 뉴 그랜저 (2022년)_가솔린",
+      "grade": "준대형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "디 올 뉴 그랜저",
+        "submodel": "그랜저",
+        "fuelType": "가솔린",
+        "modelYear": "2023",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22022,
+      "groupName": "더 뉴 그랜저 IG 2022_LPG",
+      "grade": "준대형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "더 뉴 그랜저 IG",
+        "submodel": "그랜저",
+        "fuelType": "LPG",
+        "modelYear": "2022~2023",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22020,
+      "groupName": "그랜저 IG (2016년~)_LPG",
+      "grade": "준대형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "그랜저 IG",
+        "submodel": "그랜저",
+        "fuelType": "LPG",
+        "modelYear": "2020",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22019,
+      "groupName": "그랜저 IG (2016년~)_가솔린",
+      "grade": "준대형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "그랜저 IG",
+        "submodel": "그랜저",
+        "fuelType": "가솔린",
+        "modelYear": "2019",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22017,
+      "groupName": "K5 3세대 (2019년~)_LPG",
+      "grade": "중형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "기아",
+        "model": "K5 3세대",
+        "submodel": "K5",
+        "fuelType": "LPG",
+        "modelYear": "2020~2023",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22016,
+      "groupName": "쏘나타 (DN8) (2019년~)_LPG",
+      "grade": "중형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "쏘나타 (DN8)",
+        "submodel": "쏘나타",
+        "fuelType": "LPG",
+        "modelYear": "2020~2022",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    },
+    {
+      "imsGroupId": 22015,
+      "groupName": "아반떼 (CN7) (2020년~)_LPG",
+      "grade": "준중형",
+      "metadata": {
+        "importFlag": "국산차",
+        "brand": "현대",
+        "model": "아반떼 (CN7)",
+        "submodel": "아반떼",
+        "fuelType": "LPG",
+        "modelYear": "2021~2023",
+        "drivingCareer": "1년 이상",
+        "licenseType": "2종보통"
+      }
+    }
+  ],
+  "pricePolicies": [
+    {
+      "policyName": "테슬라 모델3",
+      "appliedGroups": [
+        "모델 3 (2017년)_전기"
+      ],
+      "baseDailyPrice": 240000,
+      "weekday_1_2d_price": 108000,
+      "weekday_3_4d_price": 96000,
+      "weekday_5_6d_price": 90000,
+      "weekday_7d_plus_price": 84000,
+      "weekend_1_2d_price": 120000,
+      "weekend_3_4d_price": 108000,
+      "weekend_5_6d_price": 102000,
+      "weekend_7d_plus_price": 96000,
+      "hour_1_price": 10800,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "테슬라 모델3",
+            "B": "모델 3 (2017년)_전기",
+            "C": "240,000",
+            "D": "(주중) 45%",
+            "E": "108,000",
+            "F": "96,000",
+            "G": "90,000",
+            "H": "84,000",
+            "I": "10,800",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "120,000",
+            "F": "108,000",
+            "G": "102,000",
+            "H": "96,000",
+            "I": "12,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "모델Y 롱레인지",
+      "appliedGroups": [
+        "모델 Y (2020년)_전기_롱레인지",
+        "2024 모델 Y (2020년)_전기"
+      ],
+      "baseDailyPrice": 380000,
+      "weekday_1_2d_price": 171000,
+      "weekday_3_4d_price": 152000,
+      "weekday_5_6d_price": 142500,
+      "weekday_7d_plus_price": 133000,
+      "weekend_1_2d_price": 190000,
+      "weekend_3_4d_price": 171000,
+      "weekend_5_6d_price": 161500,
+      "weekend_7d_plus_price": 152000,
+      "hour_1_price": 17100,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "모델Y 롱레인지",
+            "B": "모델 Y (2020년)_전기_롱레인지 / 2024 모델 Y (2020년)_전기",
+            "C": "380,000",
+            "D": "(주중) 45%",
+            "E": "171,000",
+            "F": "152,000",
+            "G": "142,500",
+            "H": "133,000",
+            "I": "17,100",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "190,000",
+            "F": "171,000",
+            "G": "161,500",
+            "H": "152,000",
+            "I": "19,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "G80 요금표",
+      "appliedGroups": [
+        "G80 (RG3) (2020년~)_가솔린",
+        "E 클래스 (W214) (2024년)_가솔린"
+      ],
+      "baseDailyPrice": 400000,
+      "weekday_1_2d_price": 180000,
+      "weekday_3_4d_price": 160000,
+      "weekday_5_6d_price": 150000,
+      "weekday_7d_plus_price": 140000,
+      "weekend_1_2d_price": 200000,
+      "weekend_3_4d_price": 180000,
+      "weekend_5_6d_price": 170000,
+      "weekend_7d_plus_price": 160000,
+      "hour_1_price": 18000,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "G80 요금표",
+            "B": "G80 (RG3) (2020년~)_가솔린 / E 클래스 (W214) (2024년)_가솔린",
+            "C": "400,000",
+            "D": "(주중) 45%",
+            "E": "180,000",
+            "F": "160,000",
+            "G": "150,000",
+            "H": "140,000",
+            "I": "18,000",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "200,000",
+            "F": "180,000",
+            "G": "170,000",
+            "H": "160,000",
+            "I": "20,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "K7 프리미어",
+      "appliedGroups": [
+        "더 뉴 K5 3세대 (2024년)_LPG"
+      ],
+      "baseDailyPrice": 280000,
+      "weekday_1_2d_price": 84000,
+      "weekday_3_4d_price": 70000,
+      "weekday_5_6d_price": 63000,
+      "weekday_7d_plus_price": 56000,
+      "weekend_1_2d_price": 140000,
+      "weekend_3_4d_price": 126000,
+      "weekend_5_6d_price": 119000,
+      "weekend_7d_plus_price": 112000,
+      "hour_1_price": 8400,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "K7 프리미어",
+            "B": "더 뉴 K5 3세대 (2024년)_LPG",
+            "C": "280,000",
+            "D": "(주중) 30%",
+            "E": "84,000",
+            "F": "70,000",
+            "G": "63,000",
+            "H": "56,000",
+            "I": "8,400",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "140,000",
+            "F": "126,000",
+            "G": "119,000",
+            "H": "112,000",
+            "I": "14,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "K7구형",
+      "appliedGroups": [
+        "올 뉴 K7 (2016년~)_LPG"
+      ],
+      "baseDailyPrice": 180000,
+      "weekday_1_2d_price": 81000,
+      "weekday_3_4d_price": 72000,
+      "weekday_5_6d_price": 67500,
+      "weekday_7d_plus_price": 63000,
+      "weekend_1_2d_price": 90000,
+      "weekend_3_4d_price": 81000,
+      "weekend_5_6d_price": 76500,
+      "weekend_7d_plus_price": 72000,
+      "hour_1_price": 8100,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "K7구형",
+            "B": "올 뉴 K7 (2016년~)_LPG",
+            "C": "180,000",
+            "D": "(주중) 45%",
+            "E": "81,000",
+            "F": "72,000",
+            "G": "67,500",
+            "H": "63,000",
+            "I": "8,100",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "90,000",
+            "F": "81,000",
+            "G": "76,500",
+            "H": "72,000",
+            "I": "9,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "디올뉴그렌져2.5",
+      "appliedGroups": [
+        "디 올 뉴 그랜저 (2022년)_가솔린",
+        "카니발 4세대 (2020년~)_디젤_9인승",
+        "더 뉴 K8 (2025년)_가솔린_베스트셀렉션",
+        "디 올 뉴 그랜저 (2025년)_가솔린",
+        "더 뉴 카니발(KA4) (2023년)_디젤"
+      ],
+      "baseDailyPrice": 260000,
+      "weekday_1_2d_price": 104000,
+      "weekday_3_4d_price": 91000,
+      "weekday_5_6d_price": 84500,
+      "weekday_7d_plus_price": 78000,
+      "weekend_1_2d_price": 130000,
+      "weekend_3_4d_price": 117000,
+      "weekend_5_6d_price": 110500,
+      "weekend_7d_plus_price": 104000,
+      "hour_1_price": 10400,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "디올뉴그렌져2.5",
+            "B": "디 올 뉴 그랜저 (2022년)_가솔린 / 카니발 4세대 (2020년~)_디젤_9인승 / 더 뉴 K8 (2025년)_가솔린_베스트셀렉션 / 디 올 뉴 그랜저 (2025년)_가솔린 / 더 뉴 카니발(KA4) (2023년)_디젤",
+            "C": "260,000",
+            "D": "(주중) 40%",
+            "E": "104,000",
+            "F": "91,000",
+            "G": "84,500",
+            "H": "78,000",
+            "I": "10,400",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "130,000",
+            "F": "117,000",
+            "G": "110,500",
+            "H": "104,000",
+            "I": "13,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "더뉴그렌져2019",
+      "appliedGroups": [
+        "더 뉴 그랜저 IG 2022_LPG",
+        "K7 프리미어 (2019년~)_LPG",
+        "디 올 뉴 싼타페 (MX5) (2025년)_가솔린"
+      ],
+      "baseDailyPrice": 240000,
+      "weekday_1_2d_price": 84000,
+      "weekday_3_4d_price": 72000,
+      "weekday_5_6d_price": 66000,
+      "weekday_7d_plus_price": 60000,
+      "weekend_1_2d_price": 108000,
+      "weekend_3_4d_price": 96000,
+      "weekend_5_6d_price": 90000,
+      "weekend_7d_plus_price": 84000,
+      "hour_1_price": 8400,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "더뉴그렌져2019",
+            "B": "더 뉴 그랜저 IG 2022_LPG / K7 프리미어 (2019년~)_LPG / 디 올 뉴 싼타페 (MX5) (2025년)_가솔린",
+            "C": "240,000",
+            "D": "(주중) 35%",
+            "E": "84,000",
+            "F": "72,000",
+            "G": "66,000",
+            "H": "60,000",
+            "I": "8,400",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 45%",
+            "E": "108,000",
+            "F": "96,000",
+            "G": "90,000",
+            "H": "84,000",
+            "I": "10,800",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "GV80",
+      "appliedGroups": [
+        "GV80 (2020년)_가솔린"
+      ],
+      "baseDailyPrice": 520000,
+      "weekday_1_2d_price": 234000,
+      "weekday_3_4d_price": 208000,
+      "weekday_5_6d_price": 195000,
+      "weekday_7d_plus_price": 182000,
+      "weekend_1_2d_price": 260000,
+      "weekend_3_4d_price": 234000,
+      "weekend_5_6d_price": 221000,
+      "weekend_7d_plus_price": 208000,
+      "hour_1_price": 23400,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "GV80",
+            "B": "GV80 (2020년)_가솔린",
+            "C": "520,000",
+            "D": "(주중) 45%",
+            "E": "234,000",
+            "F": "208,000",
+            "G": "195,000",
+            "H": "182,000",
+            "I": "23,400",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "260,000",
+            "F": "234,000",
+            "G": "221,000",
+            "H": "208,000",
+            "I": "26,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "GV70",
+      "appliedGroups": [
+        "GV70 (2021년)_가솔린"
+      ],
+      "baseDailyPrice": 380000,
+      "weekday_1_2d_price": 171000,
+      "weekday_3_4d_price": 152000,
+      "weekday_5_6d_price": 142500,
+      "weekday_7d_plus_price": 133000,
+      "weekend_1_2d_price": 190000,
+      "weekend_3_4d_price": 171000,
+      "weekend_5_6d_price": 161500,
+      "weekend_7d_plus_price": 152000,
+      "hour_1_price": 17100,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "GV70",
+            "B": "GV70 (2021년)_가솔린",
+            "C": "380,000",
+            "D": "(주중) 45%",
+            "E": "171,000",
+            "F": "152,000",
+            "G": "142,500",
+            "H": "133,000",
+            "I": "17,100",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "190,000",
+            "F": "171,000",
+            "G": "161,500",
+            "H": "152,000",
+            "I": "19,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "카니발 4세대",
+      "appliedGroups": [
+        "더 뉴 카니발(KA4) (2023년)_가솔린"
+      ],
+      "baseDailyPrice": 275000,
+      "weekday_1_2d_price": 110000,
+      "weekday_3_4d_price": 96300,
+      "weekday_5_6d_price": 89400,
+      "weekday_7d_plus_price": 82500,
+      "weekend_1_2d_price": 137500,
+      "weekend_3_4d_price": 123800,
+      "weekend_5_6d_price": 116900,
+      "weekend_7d_plus_price": 110000,
+      "hour_1_price": 11000,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "카니발 4세대",
+            "B": "더 뉴 카니발(KA4) (2023년)_가솔린",
+            "C": "275,000",
+            "D": "(주중) 40%",
+            "E": "110,000",
+            "F": "96,300",
+            "G": "89,400",
+            "H": "82,500",
+            "I": "11,000",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "137,500",
+            "F": "123,800",
+            "G": "116,900",
+            "H": "110,000",
+            "I": "13,800",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "펠리셰이드",
+      "appliedGroups": [
+        "더 뉴 팰리세이드 (2022년)_가솔린_7인승"
+      ],
+      "baseDailyPrice": 380000,
+      "weekday_1_2d_price": 171000,
+      "weekday_3_4d_price": 152000,
+      "weekday_5_6d_price": 142500,
+      "weekday_7d_plus_price": 133000,
+      "weekend_1_2d_price": 190000,
+      "weekend_3_4d_price": 171000,
+      "weekend_5_6d_price": 161500,
+      "weekend_7d_plus_price": 152000,
+      "hour_1_price": 17100,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "펠리셰이드",
+            "B": "더 뉴 팰리세이드 (2022년)_가솔린_7인승",
+            "C": "380,000",
+            "D": "(주중) 45%",
+            "E": "171,000",
+            "F": "152,000",
+            "G": "142,500",
+            "H": "133,000",
+            "I": "17,100",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "190,000",
+            "F": "171,000",
+            "G": "161,500",
+            "H": "152,000",
+            "I": "19,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "스포티지NQ5",
+      "appliedGroups": [
+        "디 올 뉴 스포티지 (NQ5) (2021년)_가솔린"
+      ],
+      "baseDailyPrice": 220000,
+      "weekday_1_2d_price": 77000,
+      "weekday_3_4d_price": 66000,
+      "weekday_5_6d_price": 60500,
+      "weekday_7d_plus_price": 55000,
+      "weekend_1_2d_price": 110000,
+      "weekend_3_4d_price": 99000,
+      "weekend_5_6d_price": 93500,
+      "weekend_7d_plus_price": 88000,
+      "hour_1_price": 7700,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "스포티지NQ5",
+            "B": "디 올 뉴 스포티지 (NQ5) (2021년)_가솔린",
+            "C": "220,000",
+            "D": "(주중) 35%",
+            "E": "77,000",
+            "F": "66,000",
+            "G": "60,500",
+            "H": "55,000",
+            "I": "7,700",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "110,000",
+            "F": "99,000",
+            "G": "93,500",
+            "H": "88,000",
+            "I": "11,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "셀토스",
+      "appliedGroups": [
+        "쏘나타 (DN8) (2019년~)_LPG",
+        "더 뉴 셀토스 (2023년)_가솔린",
+        "더 뉴 셀토스 (2024년)_특가요청_가솔린",
+        "[특가] 더 뉴 셀토스_가솔린"
+      ],
+      "baseDailyPrice": 180000,
+      "weekday_1_2d_price": 72000,
+      "weekday_3_4d_price": 63000,
+      "weekday_5_6d_price": 58500,
+      "weekday_7d_plus_price": 54000,
+      "weekend_1_2d_price": 90000,
+      "weekend_3_4d_price": 81000,
+      "weekend_5_6d_price": 76500,
+      "weekend_7d_plus_price": 72000,
+      "hour_1_price": 7200,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "셀토스",
+            "B": "쏘나타 (DN8) (2019년~)_LPG / 더 뉴 셀토스 (2023년)_가솔린 / 더 뉴 셀토스 (2024년)_특가요청_가솔린 / [특가] 더 뉴 셀토스_가솔린",
+            "C": "180,000",
+            "D": "(주중) 40%",
+            "E": "72,000",
+            "F": "63,000",
+            "G": "58,500",
+            "H": "54,000",
+            "I": "7,200",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "90,000",
+            "F": "81,000",
+            "G": "76,500",
+            "H": "72,000",
+            "I": "9,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "코나",
+      "appliedGroups": [
+        "더 뉴 코나 (2020년~)_가솔린",
+        "더 뉴 코나 (2022년~)_가솔린"
+      ],
+      "baseDailyPrice": 160000,
+      "weekday_1_2d_price": 72000,
+      "weekday_3_4d_price": 64000,
+      "weekday_5_6d_price": 60000,
+      "weekday_7d_plus_price": 56000,
+      "weekend_1_2d_price": 80000,
+      "weekend_3_4d_price": 72000,
+      "weekend_5_6d_price": 68000,
+      "weekend_7d_plus_price": 64000,
+      "hour_1_price": 7200,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "코나",
+            "B": "더 뉴 코나 (2020년~)_가솔린 / 더 뉴 코나 (2022년~)_가솔린",
+            "C": "160,000",
+            "D": "(주중) 45%",
+            "E": "72,000",
+            "F": "64,000",
+            "G": "60,000",
+            "H": "56,000",
+            "I": "7,200",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "80,000",
+            "F": "72,000",
+            "G": "68,000",
+            "H": "64,000",
+            "I": "8,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "아반떼",
+      "appliedGroups": [
+        "아반떼 (CN7) (2020년~)_LPG",
+        "더 뉴 아반떼 (CN7) (2023년)_가솔린_어라운드뷰",
+        "더 뉴 아반떼 (CN7) (2023년)_가솔린"
+      ],
+      "baseDailyPrice": 160000,
+      "weekday_1_2d_price": 56000,
+      "weekday_3_4d_price": 48000,
+      "weekday_5_6d_price": 44000,
+      "weekday_7d_plus_price": 40000,
+      "weekend_1_2d_price": 80000,
+      "weekend_3_4d_price": 72000,
+      "weekend_5_6d_price": 68000,
+      "weekend_7d_plus_price": 64000,
+      "hour_1_price": 5600,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "아반떼",
+            "B": "아반떼 (CN7) (2020년~)_LPG / 더 뉴 아반떼 (CN7) (2023년)_가솔린_어라운드뷰 / 더 뉴 아반떼 (CN7) (2023년)_가솔린",
+            "C": "160,000",
+            "D": "(주중) 35%",
+            "E": "56,000",
+            "F": "48,000",
+            "G": "44,000",
+            "H": "40,000",
+            "I": "5,600",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "80,000",
+            "F": "72,000",
+            "G": "68,000",
+            "H": "64,000",
+            "I": "8,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "쏘나타DN8",
+      "appliedGroups": [],
+      "baseDailyPrice": 150000,
+      "weekday_1_2d_price": 52500,
+      "weekday_3_4d_price": 45000,
+      "weekday_5_6d_price": 41300,
+      "weekday_7d_plus_price": 37500,
+      "weekend_1_2d_price": 75000,
+      "weekend_3_4d_price": 67500,
+      "weekend_5_6d_price": 63800,
+      "weekend_7d_plus_price": 60000,
+      "hour_1_price": 5300,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "쏘나타DN8",
+            "B": "150,000",
+            "D": "(주중) 35%",
+            "E": "52,500",
+            "F": "45,000",
+            "G": "41,300",
+            "H": "37,500",
+            "I": "5,300",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "75,000",
+            "F": "67,500",
+            "G": "63,800",
+            "H": "60,000",
+            "I": "7,500",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": true
+      }
+    },
+    {
+      "policyName": "K5 3세대",
+      "appliedGroups": [
+        "K5 3세대 (2019년~)_LPG",
+        "더 뉴 K5 3세대 (2025년)_가솔린"
+      ],
+      "baseDailyPrice": 180000,
+      "weekday_1_2d_price": 63000,
+      "weekday_3_4d_price": 54000,
+      "weekday_5_6d_price": 49500,
+      "weekday_7d_plus_price": 45000,
+      "weekend_1_2d_price": 90000,
+      "weekend_3_4d_price": 81000,
+      "weekend_5_6d_price": 76500,
+      "weekend_7d_plus_price": 72000,
+      "hour_1_price": 6300,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "K5 3세대",
+            "B": "K5 3세대 (2019년~)_LPG / 더 뉴 K5 3세대 (2025년)_가솔린",
+            "C": "180,000",
+            "D": "(주중) 35%",
+            "E": "63,000",
+            "F": "54,000",
+            "G": "49,500",
+            "H": "45,000",
+            "I": "6,300",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "90,000",
+            "F": "81,000",
+            "G": "76,500",
+            "H": "72,000",
+            "I": "9,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "구IG그렌져",
+      "appliedGroups": [
+        "그랜저 IG (2016년~)_가솔린",
+        "그랜저 IG (2016년~)_LPG"
+      ],
+      "baseDailyPrice": 200000,
+      "weekday_1_2d_price": 70000,
+      "weekday_3_4d_price": 60000,
+      "weekday_5_6d_price": 55000,
+      "weekday_7d_plus_price": 50000,
+      "weekend_1_2d_price": 100000,
+      "weekend_3_4d_price": 90000,
+      "weekend_5_6d_price": 85000,
+      "weekend_7d_plus_price": 80000,
+      "hour_1_price": 7000,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "구IG그렌져",
+            "B": "그랜저 IG (2016년~)_가솔린 / 그랜저 IG (2016년~)_LPG",
+            "C": "200,000",
+            "D": "(주중) 35%",
+            "E": "70,000",
+            "F": "60,000",
+            "G": "55,000",
+            "H": "50,000",
+            "I": "7,000",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "100,000",
+            "F": "90,000",
+            "G": "85,000",
+            "H": "80,000",
+            "I": "10,000",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    },
+    {
+      "policyName": "모델 Y 쥬니퍼",
+      "appliedGroups": [
+        "모델 Y 주니퍼 (2025년)_전기"
+      ],
+      "baseDailyPrice": 650000,
+      "weekday_1_2d_price": 292500,
+      "weekday_3_4d_price": 260000,
+      "weekday_5_6d_price": 243800,
+      "weekday_7d_plus_price": 227500,
+      "weekend_1_2d_price": 325000,
+      "weekend_3_4d_price": 292500,
+      "weekend_5_6d_price": 276300,
+      "weekend_7d_plus_price": 260000,
+      "hour_1_price": 29300,
+      "hour_6_price": 0,
+      "hour_12_price": 0,
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "metadata": {
+        "rawRows": [
+          {
+            "A": "모델 Y 쥬니퍼",
+            "B": "모델 Y 주니퍼 (2025년)_전기",
+            "C": "650,000",
+            "D": "(주중) 45%",
+            "E": "292,500",
+            "F": "260,000",
+            "G": "243,800",
+            "H": "227,500",
+            "I": "29,300",
+            "J": "0",
+            "K": "0"
+          },
+          {
+            "A": "(주말) 50%",
+            "E": "325,000",
+            "F": "292,500",
+            "G": "276,300",
+            "H": "260,000",
+            "I": "32,500",
+            "J": "0",
+            "K": "0"
+          }
+        ],
+        "shiftedBasePrice": false
+      }
+    }
+  ],
+  "pricePolicyGroups": [
+    {
+      "policyName": "테슬라 모델3",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "모델 3 (2017년)_전기",
+      "imsGroupId": 22035,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "모델Y 롱레인지",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "모델 Y (2020년)_전기_롱레인지",
+      "imsGroupId": 22036,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "모델Y 롱레인지",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "2024 모델 Y (2020년)_전기",
+      "imsGroupId": 22105,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "G80 요금표",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "G80 (RG3) (2020년~)_가솔린",
+      "imsGroupId": 22032,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "G80 요금표",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "E 클래스 (W214) (2024년)_가솔린",
+      "imsGroupId": 23049,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "K7 프리미어",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 K5 3세대 (2024년)_LPG",
+      "imsGroupId": 22318,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "K7구형",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "올 뉴 K7 (2016년~)_LPG",
+      "imsGroupId": 22024,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "디올뉴그렌져2.5",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "디 올 뉴 그랜저 (2022년)_가솔린",
+      "imsGroupId": 22023,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "디올뉴그렌져2.5",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "카니발 4세대 (2020년~)_디젤_9인승",
+      "imsGroupId": 22031,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "디올뉴그렌져2.5",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 K8 (2025년)_가솔린_베스트셀렉션",
+      "imsGroupId": 23143,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "디올뉴그렌져2.5",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "디 올 뉴 그랜저 (2025년)_가솔린",
+      "imsGroupId": 23159,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "디올뉴그렌져2.5",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 카니발(KA4) (2023년)_디젤",
+      "imsGroupId": 24154,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "더뉴그렌져2019",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 그랜저 IG 2022_LPG",
+      "imsGroupId": 22022,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "더뉴그렌져2019",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "K7 프리미어 (2019년~)_LPG",
+      "imsGroupId": 22025,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "더뉴그렌져2019",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "디 올 뉴 싼타페 (MX5) (2025년)_가솔린",
+      "imsGroupId": 22380,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "GV80",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "GV80 (2020년)_가솔린",
+      "imsGroupId": 22034,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "GV70",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "GV70 (2021년)_가솔린",
+      "imsGroupId": 22033,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "카니발 4세대",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 카니발(KA4) (2023년)_가솔린",
+      "imsGroupId": 23032,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "펠리셰이드",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 팰리세이드 (2022년)_가솔린_7인승",
+      "imsGroupId": 22030,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "스포티지NQ5",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "디 올 뉴 스포티지 (NQ5) (2021년)_가솔린",
+      "imsGroupId": 22029,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "셀토스",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "쏘나타 (DN8) (2019년~)_LPG",
+      "imsGroupId": 22016,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "셀토스",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 셀토스 (2023년)_가솔린",
+      "imsGroupId": 22027,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "셀토스",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 셀토스 (2024년)_특가요청_가솔린",
+      "imsGroupId": 22179,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "셀토스",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "[특가] 더 뉴 셀토스_가솔린",
+      "imsGroupId": 23398,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "코나",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 코나 (2020년~)_가솔린",
+      "imsGroupId": 22026,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "코나",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 코나 (2022년~)_가솔린",
+      "imsGroupId": 22789,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "아반떼",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "아반떼 (CN7) (2020년~)_LPG",
+      "imsGroupId": 22015,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "아반떼",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 아반떼 (CN7) (2023년)_가솔린_어라운드뷰",
+      "imsGroupId": 22533,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "아반떼",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 아반떼 (CN7) (2023년)_가솔린",
+      "imsGroupId": 22533,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "K5 3세대",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "K5 3세대 (2019년~)_LPG",
+      "imsGroupId": 22017,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "K5 3세대",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "더 뉴 K5 3세대 (2025년)_가솔린",
+      "imsGroupId": 23142,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "구IG그렌져",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "그랜저 IG (2016년~)_가솔린",
+      "imsGroupId": 22019,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "구IG그렌져",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "그랜저 IG (2016년~)_LPG",
+      "imsGroupId": 22020,
+      "matchSource": "current-cars"
+    },
+    {
+      "policyName": "모델 Y 쥬니퍼",
+      "sourceFile": "group_cost---08457946-b17c-4145-a62a-91dcc5b55600.xlsx",
+      "groupName": "모델 Y 주니퍼 (2025년)_전기",
+      "imsGroupId": 23043,
+      "matchSource": "current-cars"
+    }
+  ]
+}

@@ -1,7 +1,10 @@
 export const company = {
-  name: '빵빵카(주)',
+  name: '빵빵카 주식회사',
+  representative: '오태진',
+  businessNumber: '114-86-25134',
+  mailOrderNumber: '제 2025-서울서초-2333 호',
   phone: '02-592-0079',
-  address: '서울 서초구 신반포로23길 78-9 (수푸레하우스) 1층 빵빵카(주)',
+  address: '서울 서초구 신반포로23길 78-9 (수푸레하우스) 1층',
 }
 
 export const cars = [
@@ -14,7 +17,7 @@ export const cars = [
     seats: '5인승',
     dayPrice: '56,000원',
     totalPrice: '160,000원',
-    image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1200&q=80',
+    image: '/assets/mock-cars/mock-car-1.jpg',
     features: ['네비게이션', '블루투스', '후방센서', '후방카메라', '블랙박스', '금연 차량'],
     insurance: { type: '일반 자차', price: '0원', coverage: '700만원', deductible: '50만원' },
   },
@@ -27,7 +30,7 @@ export const cars = [
     seats: '5인승',
     dayPrice: '72,000원',
     totalPrice: '180,000원',
-    image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80',
+    image: '/assets/mock-cars/mock-car-2.jpg',
     features: ['네비게이션', '블루투스', '핸들열선', '후방카메라', '스마트키', '금연 차량'],
     insurance: { type: '일반 자차', price: '0원', coverage: '700만원', deductible: '50만원' },
   },
@@ -40,7 +43,7 @@ export const cars = [
     seats: '9인승',
     dayPrice: '104,000원',
     totalPrice: '260,000원',
-    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80',
+    image: '/assets/mock-cars/mock-car-3.jpg',
     features: ['네비게이션', '블루투스', '후방카메라', '열선시트', '블랙박스', '금연 차량'],
     insurance: { type: '일반 자차', price: '0원', coverage: '700만원', deductible: '50만원' },
   },

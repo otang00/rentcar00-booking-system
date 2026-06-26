@@ -1,4 +1,5 @@
 import { buildSearchQuery } from '../utils/searchQuery'
+import { parseApiResponse } from '../utils/apiResponse'
 
 import { calculateReservationPricing, formatReservationPricing } from './pricing'
 
@@ -26,10 +27,14 @@ function formatFuelType(value) {
 function toDetailViewModel(payload) {
   return {
     search: payload.search,
-    company: payload.company,
+    company: {
+      ...payload.company,
+      deliveryTimes: Array.isArray(payload.company?.deliveryTimes) ? payload.company.deliveryTimes : [],
+      deliveryCostList: Array.isArray(payload.company?.deliveryCostList) ? payload.company.deliveryCostList : [],
+    },
     car: {
       id: String(payload.car.carId),
-      name: payload.car.name,
+      name: payload.car.displayName || payload.car.name,
       displayName: payload.car.displayName,
       image: payload.car.imageUrl,
       yearLabel: formatYearLabel(payload.car.minModelYear, payload.car.maxModelYear),
@@ -53,14 +58,16 @@ function toDetailViewModel(payload) {
   }
 }
 
-export async function fetchCarDetail(carId, searchState) {
-  const query = buildSearchQuery(searchState)
-  const response = await fetch(`/api/car-detail?carId=${encodeURIComponent(carId)}&${query}`)
-  const payload = await response.json()
+export async function fetchCarDetail(carId, searchState, detailToken) {
+  const params = new URLSearchParams(buildSearchQuery(searchState))
+  params.set('carId', String(carId))
 
-  if (!response.ok) {
-    throw new Error(payload.message || payload.error || '상세 조회에 실패했습니다.')
+  if (detailToken) {
+    params.set('detailToken', detailToken)
   }
+
+  const response = await fetch(`/api/car-detail?${params.toString()}`)
+  const payload = await parseApiResponse(response, '상세 조회에 실패했습니다.')
 
   return toDetailViewModel(payload)
 }

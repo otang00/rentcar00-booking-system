@@ -1,0 +1,189 @@
+/* Shared shell/header/footer/container. */
+.site-shell{
+  min-height:100vh;
+  background:var(--color-bg-page);
+}
+
+.site-container{
+  width:min(var(--container-width),calc(100% - 40px));
+  margin:0 auto;
+}
+
+.site-footer{
+  background:#fff;
+  border-top:1px solid #f0f0f0;
+  margin-top:40px;
+  color:#b3b3b3;
+  font-family:var(--font-family-base);
+  letter-spacing:-.018em;
+}
+
+.site-footer__inner{
+  width:92%;
+  max-width:1680px;
+  margin:0 auto;
+}
+
+.site-footer__block{
+  display:grid;
+  gap:34px;
+  padding:60px 0;
+}
+
+.site-footer__main{
+  display:flex;
+  justify-content:space-between;
+  gap:50px;
+  align-items:flex-start;
+}
+
+.site-footer__left{
+  flex:1 1 50%;
+  min-width:0;
+  display:grid;
+  gap:26px;
+  align-content:start;
+}
+
+.site-footer__right{
+  flex:1 1 50%;
+  min-width:0;
+  display:flex;
+  gap:50px;
+  justify-content:flex-end;
+  align-items:flex-start;
+}
+
+.site-footer__logo-wrap{
+  display:flex;
+  justify-content:flex-start;
+}
+
+.site-footer__logo{
+  width:auto;
+  height:60px;
+  max-width:400px;
+  object-fit:contain;
+}
+
+.site-footer__section{
+  display:grid;
+  gap:8px;
+  align-content:start;
+}
+
+.site-footer .footer-section-title{
+  display:block;
+  margin:0;
+  color:#1a1a1a;
+  font-size:16px;
+  font-weight:500;
+  line-height:1.5;
+  letter-spacing:-.018em;
+}
+
+.site-footer .footer-label,
+.site-footer__copy-list strong,
+.footer-bank-title strong{
+  color:#666;
+  font-weight:500;
+}
+
+.site-footer p,
+.site-footer span,
+.site-footer div,
+.site-footer a{
+  color:#b3b3b3;
+  font-size:13px;
+  letter-spacing:-.012em;
+  line-height:1.8;
+  word-break:keep-all;
+}
+
+.footer-info-list,
+.site-footer__copy-list{
+  display:grid;
+  gap:4px;
+}
+
+.footer-info-list p,
+.site-footer__copy-list p{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin:0;
+}
+
+.footer-gap{
+  display:inline-block;
+  width:10px;
+}
+
+.site-footer__sns{
+  display:grid;
+  gap:4px;
+  align-content:start;
+}
+
+.site-footer__sns a:hover,
+.site-footer__policy-links a:hover{
+  color:#1a1a1a;
+}
+
+.site-footer__policy-links{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.site-footer__bottom{
+  display:flex;
+  justify-content:space-between;
+  gap:24px;
+  align-items:center;
+  color:#b3b3b3;
+  font-size:12px;
+}
+
+@media(max-width:960px){
+  .site-container{
+    width:calc(100% - 24px);
+  }
+
+  .site-footer__inner{
+    width:92%;
+  }
+
+  .site-footer__block{
+    padding:40px 0;
+    gap:24px;
+  }
+
+  .site-footer__main,
+  .site-footer__right,
+  .site-footer__bottom{
+    display:grid;
+    gap:24px;
+  }
+
+  .site-footer__right,
+  .site-footer__bottom{
+    justify-content:stretch;
+  }
+
+  .site-footer__policy-links{
+    justify-content:flex-start;
+    gap:12px;
+  }
+
+  .site-footer__logo{
+    height:42px;
+    max-width:min(280px,100%);
+  }
+
+  .footer-info-list p,
+  .site-footer__copy-list p{
+    line-height:1.7;
+  }
+}

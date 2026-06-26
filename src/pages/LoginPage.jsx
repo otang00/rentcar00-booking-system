@@ -1,0 +1,146 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { PageShell } from '../components/Layout'
+import ContactInfoStrip from '../components/ContactInfoStrip'
+import { landingContactItems } from '../data/landing'
+import { useAuth } from '../hooks/useAuth'
+import { supabase, supabaseClientMissingEnv } from '../lib/supabaseClient'
+import { buildAuthEmailAlias, formatPhoneNumber, normalizePhoneNumber } from '../utils/phone'
+
+function resolveRedirectTo(search) {
+  const params = new URLSearchParams(search)
+  const redirectTo = params.get('redirectTo') || '/cars'
+  return redirectTo.startsWith('/') ? redirectTo : '/cars'
+}
+
+function resolvePhone(search) {
+  const params = new URLSearchParams(search)
+  return formatPhoneNumber(params.get('phone') || '')
+}
+
+function isInvalidCredentialsError(error) {
+  return Boolean(error?.message?.includes('Invalid login credentials'))
+}
+
+function getErrorMessage(error) {
+  if (!error) return '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.'
+  if (isInvalidCredentialsError(error)) return '휴대폰 번호 또는 비밀번호가 올바르지 않습니다.'
+  return error.message || '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.'
+}
+
+export default function LoginPage() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { loading, isAuthenticated, isSupabaseClientReady } = useAuth()
+  const redirectTo = useMemo(() => resolveRedirectTo(location.search), [location.search])
+  const [phone, setPhone] = useState(() => resolvePhone(location.search))
+  const [password, setPassword] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [showForgotPasswordLink, setShowForgotPasswordLink] = useState(false)
+
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      navigate(redirectTo, { replace: true })
+    }
+  }, [loading, isAuthenticated, navigate, redirectTo])
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+
+    if (!supabase || !isSupabaseClientReady) {
+      setErrorMessage(`Supabase 설정이 준비되지 않았습니다. 누락: ${supabaseClientMissingEnv.join(', ') || 'unknown'}`)
+      return
+    }
+
+    setSubmitting(true)
+    setErrorMessage('')
+    setShowForgotPasswordLink(false)
+
+    const normalizedPhone = normalizePhoneNumber(phone)
+    const authEmailAlias = buildAuthEmailAlias(normalizedPhone)
+
+    if (!authEmailAlias) {
+      setErrorMessage('휴대폰 번호 형식을 확인해 주세요.')
+      setSubmitting(false)
+      return
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: authEmailAlias,
+      password,
+    })
+
+    if (error) {
+      setErrorMessage(getErrorMessage(error))
+      setShowForgotPasswordLink(isInvalidCredentialsError(error))
+      setSubmitting(false)
+      return
+    }
+
+    navigate(redirectTo, { replace: true })
+  }
+
+  return (
+    <PageShell className="auth-page-shell">
+      <section className="auth-page-section">
+        <div className="site-container auth-page-container">
+          <article className="auth-card-shell">
+            <div className="auth-title-block"><h1>로그인</h1><span>전화번호 사용</span></div>
+
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="auth-card">
+                <div className="auth-card-row">
+                  <label className="auth-input-label" htmlFor="login-phone">전화번호</label>
+                  <input
+                    id="login-phone"
+                    className="auth-line-input"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    placeholder="전화번호"
+                    value={phone}
+                    onChange={(event) => setPhone(formatPhoneNumber(event.target.value))}
+                    disabled={submitting || !isSupabaseClientReady}
+                    required
+                  />
+                </div>
+
+                <div className="auth-card-row">
+                  <label className="auth-input-label" htmlFor="login-password">비밀번호</label>
+                  <input
+                    id="login-password"
+                    className="auth-line-input"
+                    type="password"
+                    autoComplete="current-password"
+                    placeholder="비밀번호"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    disabled={submitting || !isSupabaseClientReady}
+                    required
+                  />
+                </div>
+              </div>
+
+              {!isSupabaseClientReady ? (
+                <p className="auth-error-text">Supabase 설정이 준비되지 않았습니다. 누락: {supabaseClientMissingEnv.join(', ') || 'unknown'}</p>
+              ) : null}
+              {errorMessage ? <p className="auth-error-text">{errorMessage}</p> : null}
+
+              <button className="auth-submit-button" type="submit" disabled={submitting || loading || !isSupabaseClientReady}>
+                {submitting ? '로그인 중...' : '로그인'}
+              </button>
+            </form>
+
+            <div className="auth-bottom-links">
+              <Link to={`/signup?redirectTo=${encodeURIComponent(redirectTo)}`}>회원가입</Link>
+              <Link to={`/forgot-password?redirectTo=${encodeURIComponent(redirectTo)}`}>비밀번호 재설정</Link>
+              <Link to="/guest-bookings">비회원 예약조회</Link>
+            </div>
+          </article>
+        </div>
+      </section>
+      <ContactInfoStrip items={landingContactItems} />
+    </PageShell>
+  )
+}

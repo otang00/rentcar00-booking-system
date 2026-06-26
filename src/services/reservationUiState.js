@@ -48,7 +48,7 @@ export function validateTermsState(termsState = DEFAULT_TERMS_STATE) {
   }
 
   if (!termsState.rentalPolicyAgreed) {
-    errors.rentalPolicyAgreed = '렌터카 이용 특약사항 동의가 필요합니다.'
+    errors.rentalPolicyAgreed = '렌터카 이용약관 동의가 필요합니다.'
   }
 
   return {
@@ -73,7 +73,7 @@ export function validateReservationSubmission({
   }
 
   if (!paymentMethod) {
-    errors.paymentMethod = '결제 수단을 선택해 주세요.'
+    errors.paymentMethod = '결제 방식을 선택해 주세요.'
   }
 
   return {

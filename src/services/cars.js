@@ -1,5 +1,6 @@
 import { buildSearchQuery } from '../utils/searchQuery'
 import { cars as mockCars } from '../data/mock'
+import { parseApiResponse } from '../utils/apiResponse'
 
 function sortCars(cars, order) {
   const nextCars = [...cars]
@@ -54,6 +55,8 @@ function toCardModel(car, searchState) {
 
   return {
     id: String(car.carId),
+    groupId: car.groupId == null ? null : String(car.groupId),
+    detailToken: car.detailToken || '',
     name: car.name,
     image: car.imageUrl,
     yearLabel: formatYearLabel(car.minModelYear, car.maxModelYear),
@@ -67,6 +70,10 @@ function toCardModel(car, searchState) {
   }
 }
 
+function buildRequestQuery(searchState) {
+  return buildSearchQuery(searchState)
+}
+
 export function getMockCars(searchState) {
   const filteredCars = applyAgeFilter(mockCars, searchState.driverAge)
   const sortedCars = sortCars(filteredCars, searchState.order)
@@ -78,23 +85,18 @@ export function getMockCars(searchState) {
 }
 
 export async function fetchSearchCars(searchState) {
-  const query = buildSearchQuery(searchState)
+  const query = buildRequestQuery(searchState)
   const response = await fetch(`/api/search-cars?${query}`)
-  const payload = await response.json()
-
-  if (!response.ok) {
-    throw new Error(payload.message || payload.error || '차량 조회에 실패했습니다.')
-  }
+  const payload = await parseApiResponse(response, '차량 조회에 실패했습니다.')
+  const mappedCars = Array.isArray(payload.cars) ? payload.cars.map((car) => toCardModel(car, searchState)) : []
+  const sortedCars = sortCars(mappedCars, searchState.order)
 
   return {
     search: payload.search,
     company: payload.company,
     totalCount: payload.totalCount,
-    cars: Array.isArray(payload.cars) ? payload.cars.map((car) => toCardModel(car, searchState)) : [],
+    cars: sortedCars,
     meta: payload.meta,
   }
 }
 
-export function getMockCarById(carId) {
-  return mockCars.find((car) => car.id === String(carId)) || null
-}

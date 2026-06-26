@@ -1,0 +1,85 @@
+/* Shared site header. Page-specific header overrides are intentionally removed. */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:color-mix(in srgb, var(--color-bg-surface) 98%, transparent);
+  border-bottom:1px solid var(--color-border-strong);
+  box-shadow:var(--shadow-card);
+}
+
+.site-header__inner{
+  min-height:84px;
+  padding:12px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:nowrap;
+}
+
+.site-header__brand{
+  display:inline-flex;
+  align-items:center;
+  min-width:0;
+  flex:1 1 auto;
+  overflow:hidden;
+}
+
+.site-header__wordmark{
+  content:url('/bbang-wordmark-navy.png');
+  display:block;
+  width:auto;
+  height:42px;
+  max-width:min(280px,100%);
+  object-fit:contain;
+}
+
+.site-header__nav,
+.site-header__menu{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  min-width:0;
+  flex-wrap:nowrap;
+}
+
+.site-header__button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid var(--color-primary);
+  background:var(--color-primary);
+  color:#fff;
+  box-shadow:none;
+  font-size:13px;
+  font-weight:700;
+  line-height:1;
+  white-space:nowrap;
+}
+
+.site-header__button.is-soft{
+  border-color:var(--color-primary-soft-border);
+  background:var(--color-primary-soft);
+  color:var(--color-primary-hover);
+}
+
+@media(max-width:760px){
+  .site-header__inner{
+    min-height:72px;
+  }
+
+  .site-header__wordmark{
+    height:34px;
+  }
+
+  .site-header__button{
+    min-height:32px;
+    padding:0 10px;
+    font-size:12px;
+  }
+}

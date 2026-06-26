@@ -1,16 +1,26 @@
 {
-  "name": "premove-clone",
+  "name": "rentcar00-booking-system",
   "private": true,
   "version": "0.1.0",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "node scripts/check-frontend-env.mjs && vite build",
+    "preview": "vite preview",
+    "build:cars-seed": "node scripts/build-cars-seed.mjs",
+    "ims:sync": "node scripts/ims-sync/run-ims-reservation-sync.js",
+    "ims:sync:dry": "IMS_SYNC_DRY_RUN=true node scripts/ims-sync/run-ims-reservation-sync.js",
+    "zzimcar:plan": "node scripts/zzimcar-sync/run-zzimcar-disable-time-plan.js",
+    "zzimcar:sync:disable-time": "node scripts/zzimcar-sync/run-zzimcar-disable-time-sync.js",
+    "zzimcar:reconcile": "node scripts/zzimcar-sync/run-zzimcar-reconcile-sync.js",
+    "test:zzimcar-sync": "node --test scripts/zzimcar-sync/__tests__/*.test.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.103.0",
+    "nodemailer": "^8.0.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.0"
+    "react-router-dom": "^6.30.0",
+    "solapi": "^6.0.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",

@@ -1,0 +1,10 @@
+/* Foundation v2: base typography, color, spacing helpers */
+.text-strong{color:var(--color-text-strong);}
+.text-muted{color:var(--color-text-muted);}
+.text-primary{color:var(--color-primary);}
+.bg-page{background:var(--color-bg-page);}
+.bg-surface{background:var(--color-bg-surface);}
+.stack-md{display:grid;gap:var(--space-stack-md);}
+.stack-lg{display:grid;gap:var(--space-stack-lg);}
+.radius-card{border-radius:var(--radius-card);}
+.radius-button{border-radius:var(--radius-button);}

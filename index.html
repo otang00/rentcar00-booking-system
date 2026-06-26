@@ -3,12 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>빵빵카(주) 클론</title>
-    <meta name="description" content="렌터카 예약 UI 프로토타입" />
+    <title>빵빵카(주)</title>
+    <meta name="description" content="렌터카 예약 서비스" />
     <link rel="icon" href="data:," />
+    <link rel="preload" href="/bbang-wordmark.png" as="image" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <header class="header app-header">
+        <div class="container app-header__inner">
+          <a class="app-header__brand" href="/" aria-label="빵빵카 주식회사">
+            <img src="/bbang-wordmark.png" alt="빵빵카 주식회사" class="app-header__wordmark" />
+          </a>
+
+          <nav class="app-header__nav" aria-label="주요 메뉴">
+            <div class="app-header__menu app-header__menu--auth">
+              <a class="app-header__button is-soft" href="/login">로그인</a>
+              <a class="app-header__button" href="/guest-bookings">비회원 예약조회</a>
+            </div>
+          </nav>
+        </div>
+      </header>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -1,9 +1,14 @@
 import {
-  DEFAULT_SEARCH_STATE,
   DRIVER_AGE_OPTIONS,
   ORDER_OPTIONS,
   PICKUP_OPTIONS,
+  getDefaultSearchState,
 } from '../constants/search'
+import {
+  MAX_SEARCH_RETURN_DAYS,
+  parseDateTimeString,
+  sanitizeSearchDateTimes,
+} from './reservationSchedule'
 
 function toSearchParams(searchStringOrParams) {
   if (searchStringOrParams instanceof URLSearchParams) {
@@ -26,17 +31,17 @@ function normalizeDateTime(value, fallback) {
   return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(nextValue) ? nextValue : fallback
 }
 
-function normalizePickupOption(value) {
-  return PICKUP_OPTIONS.includes(value) ? value : DEFAULT_SEARCH_STATE.pickupOption
+function normalizePickupOption(value, fallbackState) {
+  return PICKUP_OPTIONS.includes(value) ? value : fallbackState.pickupOption
 }
 
-function normalizeDriverAge(value) {
+function normalizeDriverAge(value, fallbackState) {
   const nextValue = Number(value)
-  return DRIVER_AGE_OPTIONS.includes(nextValue) ? nextValue : DEFAULT_SEARCH_STATE.driverAge
+  return DRIVER_AGE_OPTIONS.includes(nextValue) ? nextValue : fallbackState.driverAge
 }
 
-function normalizeOrder(value) {
-  return ORDER_OPTIONS.includes(value) ? value : DEFAULT_SEARCH_STATE.order
+function normalizeOrder(value, fallbackState) {
+  return ORDER_OPTIONS.includes(value) ? value : fallbackState.order
 }
 
 function normalizeDongId(value) {
@@ -50,29 +55,32 @@ function normalizeDeliveryAddress(value) {
   return typeof value === 'string' ? value.trim() : ''
 }
 
+function normalizeDeliveryAddressDetail(value) {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
 export function normalizeSearchState(rawState = {}) {
-  const pickupOption = normalizePickupOption(rawState.pickupOption)
-  const deliveryDateTime = normalizeDateTime(
-    rawState.deliveryDateTime,
-    DEFAULT_SEARCH_STATE.deliveryDateTime,
-  )
-  const returnDateTime = normalizeDateTime(
-    rawState.returnDateTime,
-    DEFAULT_SEARCH_STATE.returnDateTime,
-  )
-  const driverAge = normalizeDriverAge(rawState.driverAge)
-  const order = normalizeOrder(rawState.order)
+  const fallbackState = getDefaultSearchState()
+  const pickupOption = normalizePickupOption(rawState.pickupOption, fallbackState)
+  const driverAge = normalizeDriverAge(rawState.driverAge, fallbackState)
+  const order = normalizeOrder(rawState.order, fallbackState)
   const dongId = normalizeDongId(rawState.dongId)
   const deliveryAddress = normalizeDeliveryAddress(rawState.deliveryAddress)
+  const deliveryAddressDetail = normalizeDeliveryAddressDetail(rawState.deliveryAddressDetail)
+  const sanitizedDateTimes = sanitizeSearchDateTimes({
+    deliveryDateTime: normalizeDateTime(rawState.deliveryDateTime, fallbackState.deliveryDateTime),
+    returnDateTime: normalizeDateTime(rawState.returnDateTime, fallbackState.returnDateTime),
+  })
 
   return {
-    deliveryDateTime,
-    returnDateTime,
+    deliveryDateTime: sanitizedDateTimes.deliveryDateTime,
+    returnDateTime: sanitizedDateTimes.returnDateTime,
     pickupOption,
     driverAge,
     order,
     dongId: pickupOption === 'delivery' ? dongId : null,
     deliveryAddress: pickupOption === 'delivery' ? deliveryAddress : '',
+    deliveryAddressDetail: pickupOption === 'delivery' ? deliveryAddressDetail : '',
   }
 }
 
@@ -100,11 +108,33 @@ export function validateSearchState(searchState) {
     errors.driverAge = 'driverAge is invalid'
   }
 
-  const pickupAt = new Date(normalized.deliveryDateTime.replace(' ', 'T'))
-  const returnAt = new Date(normalized.returnDateTime.replace(' ', 'T'))
+  if (normalized.pickupOption === 'delivery' && normalized.dongId == null) {
+    errors.dongId = '딜리버리 위치를 선택해 주세요.'
+  }
 
-  if (!Number.isNaN(pickupAt.getTime()) && !Number.isNaN(returnAt.getTime()) && returnAt <= pickupAt) {
+  const pickupAt = parseDateTimeString(normalized.deliveryDateTime)
+  const returnAt = parseDateTimeString(normalized.returnDateTime)
+
+  if (!pickupAt) {
+    errors.deliveryDateTime = 'deliveryDateTime is invalid'
+  }
+
+  if (!returnAt) {
+    errors.returnDateTime = 'returnDateTime is invalid'
+  }
+
+  if (pickupAt && returnAt && returnAt <= pickupAt) {
     errors.returnDateTime = 'returnDateTime must be after deliveryDateTime'
+  }
+
+  if (returnAt) {
+    const latestAllowedReturnAt = new Date()
+    latestAllowedReturnAt.setDate(latestAllowedReturnAt.getDate() + MAX_SEARCH_RETURN_DAYS)
+    latestAllowedReturnAt.setHours(23, 59, 59, 999)
+
+    if (returnAt > latestAllowedReturnAt) {
+      errors.returnDateTime = `반납일은 오늘 기준 ${MAX_SEARCH_RETURN_DAYS}일 이내만 선택할 수 있습니다.`
+    }
   }
 
   return {
@@ -125,6 +155,7 @@ export function parseSearchQuery(searchStringOrParams) {
     order: params.get('order'),
     dongId: params.get('dongId'),
     deliveryAddress: params.get('deliveryAddress'),
+    deliveryAddressDetail: params.get('deliveryAddressDetail'),
   })
 }
 
@@ -145,6 +176,10 @@ export function buildSearchQuery(searchState) {
 
     if (normalized.deliveryAddress) {
       params.set('deliveryAddress', normalized.deliveryAddress)
+    }
+
+    if (normalized.deliveryAddressDetail) {
+      params.set('deliveryAddressDetail', normalized.deliveryAddressDetail)
     }
   }
 
