@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth'
 import { getMockCompany } from '../services/company'
 import { isAdminUser } from '../utils/adminAccess'
 import { landingNotice } from '../data/landing'
+import { PromoSloganBar } from './PromoSloganBar'
 
 export function Header({ brandName, showGuestBookingAction = true } = {}) {
   const navigate = useNavigate()
@@ -17,33 +18,36 @@ export function Header({ brandName, showGuestBookingAction = true } = {}) {
   }
 
   return (
-    <header className="site-header">
-      <div className="site-container site-header__inner">
-        <Link className="site-header__brand" to="/" aria-label={resolvedBrandName}>
-          <img src="/bbang-wordmark.png" alt={resolvedBrandName} className="site-header__wordmark" />
-        </Link>
+    <>
+      <header className="site-header">
+        <div className="site-container site-header__inner">
+          <Link className="site-header__brand" to="/" aria-label={resolvedBrandName}>
+            <img src="/bbang-wordmark.png" alt={resolvedBrandName} className="site-header__wordmark" />
+          </Link>
 
-        <nav className="site-header__nav" aria-label="주요 메뉴">
-          <div className="site-header__menu">
-          {isAuthenticated ? (
-            <>
-              <Link className="site-header__button is-soft" to={isAdmin ? '/admin/bookings' : '/reservations'}>
-                {isAdmin ? '관리자 메뉴' : '예약목록'}
-              </Link>
-              <button className="site-header__button" type="button" onClick={handleSignOut}>로그아웃</button>
-            </>
-          ) : (
-            <>
-              <Link className="site-header__button is-soft" to="/login">로그인</Link>
-              {showGuestBookingAction ? (
-                <Link className="site-header__button" to="/guest-bookings">비회원 예약조회</Link>
-              ) : null}
-            </>
-          )}
-          </div>
-        </nav>
-      </div>
-    </header>
+          <nav className="site-header__nav" aria-label="주요 메뉴">
+            <div className="site-header__menu">
+            {isAuthenticated ? (
+              <>
+                <Link className="site-header__button is-soft" to={isAdmin ? '/admin/bookings' : '/reservations'}>
+                  {isAdmin ? '관리자 메뉴' : '예약목록'}
+                </Link>
+                <button className="site-header__button" type="button" onClick={handleSignOut}>로그아웃</button>
+              </>
+            ) : (
+              <>
+                <Link className="site-header__button is-soft" to="/login">로그인</Link>
+                {showGuestBookingAction ? (
+                  <Link className="site-header__button" to="/guest-bookings">비회원 예약조회</Link>
+                ) : null}
+              </>
+            )}
+            </div>
+          </nav>
+        </div>
+      </header>
+      <PromoSloganBar />
+    </>
   )
 }
 

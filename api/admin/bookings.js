@@ -205,6 +205,19 @@ function createDetailPath(item) {
   return `/admin/booking-confirm?token=${encodeURIComponent(token)}`
 }
 
+function toAdminBookingDetail(booking, rawBooking = {}) {
+  const rawPhone = String(rawBooking?.customer_phone || '').trim()
+  const rawBirth = String(rawBooking?.customer_birth || rawBooking?.pricing_snapshot?.customerBirth || '').trim()
+
+  return {
+    ...booking,
+    customerPhone: rawPhone || booking?.customerPhone || null,
+    customerBirth: rawBirth || booking?.customerBirth || null,
+    customerPhoneRaw: rawPhone || null,
+    customerBirthRaw: rawBirth || null,
+  }
+}
+
 function toAdminBookingItem(order, fallbackCarNumberById = new Map()) {
   const item = serializeBookingOrder(order)
   const fallbackCarNumber = fallbackCarNumberById.get(String(order?.car_id || '').trim()) || ''
@@ -379,6 +392,81 @@ async function fetchLatestZzimcarSyncErrors({ supabaseClient, latestSync } = {})
     : []
 }
 
+async function fetchLatestCarmoreSync({ supabaseClient } = {}) {
+  const { data, error } = await supabaseClient
+    .from('carmore_sync_runs')
+    .select('id, sync_mode, status, started_at, finished_at, desired_count, actual_count, additions_count, deletions_count, changes_count, unchanged_count, failed_count, error_summary')
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    const message = String(error.message || '')
+    if (message.includes('carmore_sync_runs')) {
+      return null
+    }
+    throw error
+  }
+
+  if (!data) {
+    return null
+  }
+
+  return {
+    id: data.id,
+    syncMode: data.sync_mode || 'dry-run',
+    status: data.status || 'unknown',
+    startedAt: data.started_at || null,
+    finishedAt: data.finished_at || null,
+    updatedAt: data.finished_at || data.started_at || null,
+    desiredCount: Number(data.desired_count || 0),
+    actualCount: Number(data.actual_count || 0),
+    additionsCount: Number(data.additions_count || 0),
+    deletionsCount: Number(data.deletions_count || 0),
+    changesCount: Number(data.changes_count || 0),
+    unchangedCount: Number(data.unchanged_count || 0),
+    failedCount: Number(data.failed_count || 0),
+    errorSummary: data.error_summary || '',
+  }
+}
+
+async function fetchLatestCarmoreSyncErrors({ supabaseClient, latestSync } = {}) {
+  if (!latestSync?.startedAt) return []
+  if (Number(latestSync.failedCount || 0) <= 0) return []
+
+  let query = supabaseClient
+    .from('carmore_holiday_sync_mappings')
+    .select('ims_reservation_id, car_number, sync_status, last_error, updated_at')
+    .in('sync_status', ['sync_failed', 'delete_failed'])
+    .gte('updated_at', latestSync.startedAt)
+
+  if (latestSync.finishedAt) {
+    query = query.lte('updated_at', latestSync.finishedAt)
+  }
+
+  const { data, error } = await query
+    .order('updated_at', { ascending: false })
+    .limit(5)
+
+  if (error) {
+    const message = String(error.message || '')
+    if (message.includes('carmore_holiday_sync_mappings')) {
+      return []
+    }
+    throw error
+  }
+
+  return Array.isArray(data)
+    ? data.map((row) => ({
+      imsReservationId: row.ims_reservation_id || '',
+      carNumber: row.car_number || '',
+      syncStatus: row.sync_status || '',
+      errorMessage: row.last_error || '',
+      updatedAt: row.updated_at || null,
+    }))
+    : []
+}
+
 async function handleList(req, res, supabaseClient) {
   const tab = normalizeTab(req.query?.tab)
   const q = String(req.query?.q || '').trim()
@@ -398,15 +486,17 @@ async function handleList(req, res, supabaseClient) {
     throw error
   }
 
-  const [fallbackCarNumberById, latestImsSync, latestZzimcarSync] = await Promise.all([
+  const [fallbackCarNumberById, latestImsSync, latestZzimcarSync, latestCarmoreSync] = await Promise.all([
     fetchFallbackCarNumbers({ supabaseClient, rows: data }),
     fetchLatestImsReservationSync({ supabaseClient }),
     fetchLatestZzimcarSync({ supabaseClient }),
+    fetchLatestCarmoreSync({ supabaseClient }),
   ])
 
-  const [imsSyncErrors, zzimcarSyncErrors] = await Promise.all([
+  const [imsSyncErrors, zzimcarSyncErrors, carmoreSyncErrors] = await Promise.all([
     fetchLatestImsReservationSyncErrors({ supabaseClient, syncRunId: latestImsSync?.id }),
     fetchLatestZzimcarSyncErrors({ supabaseClient, latestSync: latestZzimcarSync }),
+    fetchLatestCarmoreSyncErrors({ supabaseClient, latestSync: latestCarmoreSync }),
   ])
 
   const items = (Array.isArray(data) ? data : [])
@@ -436,6 +526,8 @@ async function handleList(req, res, supabaseClient) {
     imsSyncErrors,
     zzimcarSync: latestZzimcarSync,
     zzimcarSyncErrors,
+    carmoreSync: latestCarmoreSync,
+    carmoreSyncErrors,
   })
 }
 
@@ -453,7 +545,7 @@ async function handleConfirmTarget(req, res, supabaseClient) {
     })
   }
 
-  return res.status(200).json({ booking: result.booking })
+  return res.status(200).json({ booking: toAdminBookingDetail(result.booking, result.rawBooking) })
 }
 
 async function handleCancel(req, res, supabaseClient) {
@@ -488,12 +580,12 @@ async function handleCancel(req, res, supabaseClient) {
     return res.status(result.status || 400).json({
       error: result.code || 'admin_cancel_failed',
       message: result.message || '예약 취소에 실패했습니다.',
-      booking: result.booking || null,
+      booking: result.booking ? toAdminBookingDetail(result.booking, lookup.rawBooking) : null,
     })
   }
 
   return res.status(200).json({
-    booking: result.booking,
+    booking: toAdminBookingDetail(result.booking, lookup.rawBooking),
     mapping: result.mapping || null,
   })
 }
@@ -576,7 +668,7 @@ async function handleChange(req, res, supabaseClient) {
     return res.status(409).json({
       error: 'booking_change_not_allowed_status',
       message: '예약 확정 상태에서만 변경할 수 있습니다.',
-      booking: lookup.booking,
+      booking: toAdminBookingDetail(lookup.booking, lookup.rawBooking),
     })
   }
 
@@ -585,7 +677,7 @@ async function handleChange(req, res, supabaseClient) {
     return res.status(409).json({
       error: 'started_booking_change_requires_force',
       message: '이미 시작된 예약은 1차 변경 기능에서 변경할 수 없습니다.',
-      booking: lookup.booking,
+      booking: toAdminBookingDetail(lookup.booking, lookup.rawBooking),
     })
   }
 
@@ -685,7 +777,7 @@ async function handleChange(req, res, supabaseClient) {
   if (eventError) throw eventError
 
   return res.status(200).json({
-    booking: serializeBookingOrder(updatedOrder),
+    booking: toAdminBookingDetail(serializeBookingOrder(updatedOrder), updatedOrder),
     change: {
       type: changeType,
       keptAmount,
@@ -721,12 +813,12 @@ async function handleRefundComplete(req, res, supabaseClient) {
     return res.status(result.status || 400).json({
       error: result.code || 'admin_refund_complete_failed',
       message: result.message || '환불 완료 처리에 실패했습니다.',
-      booking: result.booking || null,
+      booking: result.booking ? toAdminBookingDetail(result.booking, lookup.rawBooking) : null,
     })
   }
 
   return res.status(200).json({
-    booking: result.booking,
+    booking: toAdminBookingDetail(result.booking, lookup.rawBooking),
   })
 }
 

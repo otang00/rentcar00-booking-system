@@ -23,24 +23,10 @@ export const landingHeaderMenu = [
   { label: '장바구니', to: '/cars' },
 ]
 
-export const landingHero = {
-  slides: [
-    {
-      pcSrc: '/assets/hero/hero-1-pc.png',
-      mobileSrc: '/assets/hero/hero-1-mobile.png',
-      alt: '빵빵카 메인 배너 1',
-    },
-    {
-      pcSrc: '/assets/hero/hero-2-pc.png',
-      mobileSrc: '/assets/hero/hero-2-mobile.png',
-      alt: '빵빵카 메인 배너 2',
-    },
-    {
-      pcSrc: '/assets/hero/hero-3-pc.png',
-      mobileSrc: '/assets/hero/hero-3-mobile.png',
-      alt: '빵빵카 메인 배너 3',
-    },
-  ],
+export const landingPromo = {
+  slogan: '서울·수도권 단기렌트 · 1주일렌트 · 사고대차 상담 가능',
+  sloganShort: '단기렌트 · 1주일렌트 · 사고대차',
+  sloganNote: '카카오톡 00RENTCAR · 전화 010-2416-7114',
 }
 
 export const landingContactItems = [

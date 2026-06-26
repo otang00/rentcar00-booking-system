@@ -96,6 +96,14 @@ function getFallbackPosition(maps, coords) {
   return new maps.Coords(Number(coords.x), Number(coords.y)).toLatLng()
 }
 
+function getActionLabel(actionType) {
+  if (actionType === 'phone') return '전화 연결'
+  if (actionType === 'kakao') return '채팅 연결'
+  if (actionType === 'map') return '지도 보기'
+  if (actionType === 'hours') return '자세히 보기'
+  return '열기'
+}
+
 export default function ContactInfoStrip({ items }) {
   const [modalState, setModalState] = useState(null)
   const [mapError, setMapError] = useState('')
@@ -240,6 +248,13 @@ export default function ContactInfoStrip({ items }) {
               <span className="operation-card__label">{item.label}</span>
               <strong>{item.value}</strong>
               <p>{item.note}</p>
+              <span className="operation-card__action" aria-hidden="true">
+                <span>{getActionLabel(item.actionType)}</span>
+                <svg viewBox="0 0 16 16" focusable="false">
+                  <path d="M5 3.5h7.5V11" />
+                  <path d="M12.5 3.5 4 12" />
+                </svg>
+              </span>
             </button>
           ))}
         </div>

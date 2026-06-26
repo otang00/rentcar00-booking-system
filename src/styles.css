@@ -5,6 +5,7 @@
 @import './styles/layout-v2.css';
 @import './styles/components/hero.css';
 @import './styles/components/search-box.css';
+@import './styles/components/promo.css';
 @import './styles/components/car-card.css';
 @import './styles/components/detail-car-card.css';
 @import './styles/components/reservation-form.css';

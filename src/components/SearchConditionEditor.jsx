@@ -93,6 +93,14 @@ export default function SearchConditionEditor({ open, initialState, onClose, onA
       return
     }
 
+    if (dateKey === draftPickupDate) {
+      setDraftPickupDate('')
+      setDraftReturnDate('')
+      setDraftPickupTime('')
+      setDraftReturnTime('')
+      return
+    }
+
     if (dateKey < modalMinReturnDateKey || dateKey > modalMaxReturnDateKey) return
     setDraftReturnDate(dateKey)
   }

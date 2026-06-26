@@ -1,24 +1,6 @@
 import { parseApiResponse } from '../utils/apiResponse'
 import { toBookingViewModel } from './bookingViewModel'
 
-export async function createGuestBooking(payload, options = {}) {
-  const accessToken = options.session?.access_token
-  const response = await fetch('/api/guest-bookings/create', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    },
-    body: JSON.stringify(payload),
-  })
-
-  const result = await parseApiResponse(response, '예약 생성에 실패했습니다.')
-  return {
-    booking: toBookingViewModel(result.booking),
-    completionToken: result.completionToken || '',
-  }
-}
-
 export async function prepareGuestBookingPayment(payload, options = {}) {
   const accessToken = options.session?.access_token
   const response = await fetch('/api/payments/prepare', {

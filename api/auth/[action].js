@@ -8,6 +8,7 @@ const { buildAuthEmailAlias } = require('../../server/auth/authEmailAlias')
 const { hashOtpValue, normalizePhoneNumber } = require('../../server/auth/phoneOtp')
 const { findMemberProfileByPhone } = require('../../server/auth/memberPhoneLookup')
 const { attachGuestBookingsToMember } = require('../../server/booking-core/guestBookingService')
+const { sendSignupNotificationEmail } = require('../../server/email/sendSignupNotificationEmail')
 const {
   validatePersonName,
   validateBirthDate,
@@ -226,6 +227,28 @@ async function handleSignup(req, res) {
   if (profileUpsertError) {
     await privilegedClient.auth.admin.deleteUser(userId).catch(() => undefined)
     return res.status(500).json({ error: 'profile_upsert_failed', message: '회원 프로필 저장에 실패했습니다.' })
+  }
+
+  try {
+    await sendSignupNotificationEmail({
+      member: {
+        id: userId,
+        name,
+        phone,
+        email,
+        postalCode,
+        addressMain,
+        addressDetail,
+        marketingAgree: agreeMarketing,
+      },
+      createdAt: nowIso,
+    })
+  } catch (error) {
+    console.error('[signup-notification-email] failed', {
+      userId,
+      phone,
+      message: error?.message || 'unknown_signup_notification_email_error',
+    })
   }
 
   let attachedGuestBookings = { updatedCount: 0, bookings: [] }

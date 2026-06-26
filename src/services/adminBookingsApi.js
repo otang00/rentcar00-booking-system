@@ -49,5 +49,7 @@ export async function getAdminBookings(session, params = {}) {
     imsSyncErrors: Array.isArray(result.imsSyncErrors) ? result.imsSyncErrors : [],
     zzimcarSync: result.zzimcarSync || null,
     zzimcarSyncErrors: Array.isArray(result.zzimcarSyncErrors) ? result.zzimcarSyncErrors : [],
+    carmoreSync: result.carmoreSync || null,
+    carmoreSyncErrors: Array.isArray(result.carmoreSyncErrors) ? result.carmoreSyncErrors : [],
   }
 }

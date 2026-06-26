@@ -73,8 +73,8 @@ function buildBookingConfirmationEmail({ booking, req, customerPhone, customerBi
   const detailUrl = `${confirmUrl}&view=detail`
   const carName = booking.pricingSnapshot?.carName || '-'
   const carNumber = booking.pricingSnapshot?.carNumber || '-'
-  const displayedCustomerPhone = formatPhone(customerPhone || booking.customerPhone || booking.customerPhoneLast4 || '')
-  const displayedCustomerBirth = formatBirth(customerBirth || booking.customerBirth || '')
+  const displayedCustomerPhone = formatPhone(customerPhone || booking.customerPhoneRaw || booking.rawCustomerPhone || booking.customerPhone || booking.customerPhoneLast4 || '')
+  const displayedCustomerBirth = formatBirth(customerBirth || booking.customerBirthRaw || booking.rawCustomerBirth || booking.customerBirth || '')
   const paymentMethod = booking.pricingSnapshot?.paymentMethod || '확인 필요'
   const totalAmount = `${Number(booking.quotedTotalAmount || 0).toLocaleString('ko-KR')}원`
 
