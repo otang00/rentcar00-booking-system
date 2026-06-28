@@ -2,14 +2,14 @@
 
 ## Document Metadata
 - Created at: 2026-06-28 09:20 KST
-- Last updated at: 2026-06-28 10:22 KST
+- Last updated at: 2026-06-28 10:26 KST
 - Author/agent: rentcar00_reservation_developer
 - Related milestone: Preview branch cleanup → dev consolidation → final PR
 - Related goal/spec docs:
   - `PROJECT_STATE.md`
   - `docs/GOAL/CURRENT_GOAL_LOCK.md`
   - `docs/archive/2026-06-26_PREVIEW_ENV_KAKAO_RUNTIME_GATE_ARCHIVED_20260628.md`
-- Current status: Approved
+- Current status: Completed
 - Approval scope: This document defines the execution order only. Code edits, commit, push, branch deletion, and PR creation require explicit phase approval.
 - Archive target: `docs/COMPLETED/2026-06-28_DEV_PREVIEW_BRANCH_FINISH_PR_COMPLETE.md` after all phases are verified, reviewed, committed, pushed, and PR-created/updated.
 
@@ -362,7 +362,7 @@ Rollback/Compensation:
 - Restore docs from git or keep archive with correction note.
 
 ### Phase 5. Local Commit
-Status: IN_PROGRESS
+Status: COMMITTED
 
 Purpose:
 - Create a clean local commit containing only verified, approved final cleanup files.
@@ -417,7 +417,7 @@ Rollback/Compensation:
 - Use `git reset --soft HEAD~1` only if user approves local history rewrite before push; otherwise revert with new commit.
 
 ### Phase 6. Push Dev and Final PR
-Status: PLANNED
+Status: REVIEWED
 
 Purpose:
 - Push the final dev commit and create/update the final PR path.
@@ -477,7 +477,7 @@ Rollback/Compensation:
 - Do not rewrite pushed history without approval. Use revert PR or close/update PR with approval.
 
 ### Phase 7. Preview Branch Close
-Status: PLANNED
+Status: REVIEWED
 
 Purpose:
 - Close stale `feat/db-preview-home` branch after dev/PR path is safe.
@@ -530,7 +530,7 @@ Rollback/Compensation:
 - If deleted incorrectly, recreate from recorded commit hash if available; request user approval before pushing recreated branch.
 
 ### Phase 8. Completion Doc
-Status: PLANNED
+Status: REVIEWED
 
 Purpose:
 - Move the PM outcome from active phase to completed record.
@@ -582,11 +582,11 @@ Rollback/Compensation:
 - Restore docs or add correction note; do not alter git history without approval.
 
 ### Final Completion Report
-- Completed phases: To be filled after execution.
-- Commits: To be filled after commit.
-- Verification summary: To be filled after Phase 3.
-- PR: To be filled after Phase 6.
-- Preview branch final state: To be filled after Phase 7.
+- Completed phases: Phase 1-8 completed.
+- Commits: `2c11ab8 fix: harden preview runtime gate and delivery region states`.
+- Verification summary: `git diff --check`, frontend env check, strict runtime env check, external integration check, and `npm run build` passed.
+- PR: #6 https://github.com/otang00/rentcar00-booking-system/pull/6
+- Preview branch final state: local and remote `feat/db-preview-home` deleted after no branch-only diff was confirmed.
 - Residual risks:
   - Preview visual confirmation may still require user browser access if Vercel SSO blocks assistant-side rendering.
   - External console state is not reconfigured by this PM unless separately approved.
