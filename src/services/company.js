@@ -7,10 +7,11 @@ export function getMockCompany() {
 }
 
 export function mergeCompanyWithFallback(company) {
+  const hasApiDeliveryCostList = Array.isArray(company?.deliveryCostList)
   return {
     ...mockCompany,
     ...(company || {}),
-    deliveryCostList: Array.isArray(company?.deliveryCostList) && company.deliveryCostList.length > 0
+    deliveryCostList: hasApiDeliveryCostList
       ? company.deliveryCostList
       : mockCompany.deliveryCostList,
   }
