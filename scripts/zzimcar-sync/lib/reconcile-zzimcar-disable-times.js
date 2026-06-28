@@ -2,6 +2,37 @@ const { formatKstDateTime, ZzimcarClient } = require('./zzimcar-client');
 const { fetchDesiredImsReservations } = require('./fetch-desired-ims-reservations');
 const { fetchActiveMappings, upsertMapping, markMappingDeleted, markMappingFailed } = require('./zzimcar-sync-mapping-repo');
 const { createRun, finishRun } = require('./zzimcar-sync-run-repo');
+const { createSyncLogger } = require('../../../server/logging/syncLogger');
+
+const zzimcarReconcileLogger = createSyncLogger({ provider: 'zzimcar', stage: 'disable_time_reconcile' });
+
+function logReconcileEvent(event) {
+  try {
+    zzimcarReconcileLogger.event(event);
+  } catch (error) {
+    console.error('[zzimcar-reconcile-sync] sync logger failed');
+    console.error(error?.stack || error?.message || String(error));
+  }
+}
+
+function logReconcileError({ runId, action, desired, actual, error }) {
+  const imsReservationId = desired?.imsReservationId || actual?.imsReservationId;
+  logReconcileEvent({
+    runId,
+    action: `reconcile_${action}_failed`,
+    severity: 'warn',
+    eventType: 'sync_warning',
+    imsReservationId,
+    carNumber: desired?.carNumber || actual?.carNumber,
+    errorCode: error?.code || error?.name || 'ZZIMCAR_RECONCILE_ACTION_FAILED',
+    message: error?.message || String(error),
+    metadata: { action },
+    requiresAck: true,
+    visibility: 'admin',
+    ackKey: `zzimcar:${action}:${imsReservationId || 'unknown'}`,
+    dedupeKey: `zzimcar:${action}:failed:${imsReservationId || 'unknown'}`,
+  });
+}
 
 function buildMapByImsReservationId(rows = []) {
   return new Map((Array.isArray(rows) ? rows : []).map((row) => [String(row.imsReservationId), row]));
@@ -353,6 +384,7 @@ async function reconcileZzimcarDisableTimes({
         error: error.message,
       };
       results.errors.push(failure);
+      logReconcileError({ runId: run.id, action: 'add', desired: entry.desired, error });
       if (shouldSave) {
         await markMappingFailed({
           imsReservationId: entry.desired.imsReservationId,
@@ -381,6 +413,7 @@ async function reconcileZzimcarDisableTimes({
         error: error.message,
       };
       results.errors.push(failure);
+      logReconcileError({ runId: run.id, action: 'delete', actual: entry.actual, error });
       if (shouldSave) {
         await markMappingFailed({
           imsReservationId: entry.actual.imsReservationId,
@@ -422,6 +455,7 @@ async function reconcileZzimcarDisableTimes({
         error: error.message,
       };
       results.errors.push(failure);
+      logReconcileError({ runId: run.id, action: 'change', desired: entry.desired, actual: entry.actual, error });
       if (shouldSave) {
         await markMappingFailed({
           imsReservationId: entry.desired.imsReservationId,
@@ -444,6 +478,19 @@ async function reconcileZzimcarDisableTimes({
       const result = await applyMissingDisableTimeRecovery({ ...entry, client: zzimcarClient, shouldSave });
       if (result.recovered) {
         results.recoveries.push(result);
+        logReconcileEvent({
+          runId: run.id,
+          action: 'recover_missing_disable_time',
+          severity: 'info',
+          eventType: 'sync_recovery',
+          imsReservationId: result.imsReservationId,
+          carNumber: result.desired?.carNumber,
+          message: 'Zzimcar missing disable time recovered',
+          metadata: { disableTimePid: result.disableTimePid, vehiclePid: result.vehiclePid },
+          requiresAck: false,
+          visibility: 'ops',
+          dedupeKey: `zzimcar:recover_missing_disable_time:${result.imsReservationId}`,
+        });
         if (shouldSave) {
           await upsertMapping({
             mapping: {
@@ -468,6 +515,7 @@ async function reconcileZzimcarDisableTimes({
         imsReservationId: entry.desired.imsReservationId,
         error: error.message,
       });
+      logReconcileError({ runId: run.id, action: 'recover_missing_disable_time', desired: entry.desired, actual: entry.actual, error });
     }
   }
   results.unchanged = verifiedUnchanged;

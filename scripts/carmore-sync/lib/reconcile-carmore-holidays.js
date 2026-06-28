@@ -4,6 +4,37 @@ const { buildHolidayDateRange } = require('./carmore-holiday-date');
 const { findCarmoreVehicleByCarNumber } = require('./carmore-vehicle-mapping');
 const { fetchActiveMappings, markMappingDeleted, markMappingFailed, upsertMapping } = require('./carmore-sync-mapping-repo');
 const { createRun, finishRun } = require('./carmore-sync-run-repo');
+const { createSyncLogger } = require('../../../server/logging/syncLogger');
+
+const carmoreReconcileLogger = createSyncLogger({ provider: 'carmore', stage: 'holiday_reconcile' });
+
+function logReconcileEvent(event) {
+  try {
+    carmoreReconcileLogger.event(event);
+  } catch (error) {
+    console.error('[carmore-reconcile-sync] sync logger failed');
+    console.error(error?.stack || error?.message || String(error));
+  }
+}
+
+function logReconcileError({ runId, action, desired, actual, error }) {
+  const imsReservationId = desired?.imsReservationId || actual?.imsReservationId;
+  logReconcileEvent({
+    runId,
+    action: `reconcile_${action}_failed`,
+    severity: 'warn',
+    eventType: 'sync_warning',
+    imsReservationId,
+    carNumber: desired?.carNumber || actual?.carNumber,
+    errorCode: error?.code || error?.name || 'CARMORE_RECONCILE_ACTION_FAILED',
+    message: error?.message || String(error),
+    metadata: { action },
+    requiresAck: true,
+    visibility: 'admin',
+    ackKey: `carmore:${action}:${imsReservationId || 'unknown'}`,
+    dedupeKey: `carmore:${action}:failed:${imsReservationId || 'unknown'}`,
+  });
+}
 
 function buildMapByImsReservationId(rows = []) {
   return new Map((Array.isArray(rows) ? rows : []).map((row) => [String(row.imsReservationId), row]));
@@ -202,6 +233,7 @@ async function reconcileCarmoreHolidays({
         }, supabaseClient: supabase });
       } catch (error) {
         results.errors.push({ action: 'add', imsReservationId: entry.desired.imsReservationId, error: error.message });
+        logReconcileError({ runId: run.id, action: 'add', desired: entry.desired, error });
         if (shouldSave) await markMappingFailed({ ...entry.desired, lastError: error.message, syncStatus: 'sync_failed', supabaseClient: supabase });
       }
     }
@@ -213,6 +245,7 @@ async function reconcileCarmoreHolidays({
         if (shouldSave) await markMappingDeleted({ imsReservationId: result.imsReservationId, supabaseClient: supabase });
       } catch (error) {
         results.errors.push({ action: 'delete', imsReservationId: entry.actual.imsReservationId, error: error.message });
+        logReconcileError({ runId: run.id, action: 'delete', actual: entry.actual, error });
         if (shouldSave) await markMappingFailed({ ...entry.actual, lastError: error.message, syncStatus: 'delete_failed', supabaseClient: supabase });
       }
     }
@@ -234,6 +267,7 @@ async function reconcileCarmoreHolidays({
         }, supabaseClient: supabase });
       } catch (error) {
         results.errors.push({ action: 'change', imsReservationId: entry.desired.imsReservationId, error: error.message });
+        logReconcileError({ runId: run.id, action: 'change', desired: entry.desired, actual: entry.actual, error });
         if (shouldSave) await markMappingFailed({ ...entry.desired, carmoreHolidaySerial: entry.actual.carmoreHolidaySerial, lastError: error.message, syncStatus: 'sync_failed', supabaseClient: supabase });
       }
     }
