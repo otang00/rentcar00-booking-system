@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/check-frontend-env.mjs && vite build",
+    "build": "node scripts/check-frontend-env.mjs && node scripts/check-runtime-env.mjs && node scripts/check-external-integrations.mjs && vite build",
     "preview": "vite preview",
     "build:cars-seed": "node scripts/build-cars-seed.mjs",
     "ims:sync": "node scripts/ims-sync/run-ims-reservation-sync.js",

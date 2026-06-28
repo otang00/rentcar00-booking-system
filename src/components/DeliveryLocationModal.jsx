@@ -60,6 +60,8 @@ export default function DeliveryLocationModal({
   onClose,
   onSelect,
   closeOnSelect = true,
+  isLoading = false,
+  errorMessage = '',
 }) {
   const [selectedProvinceId, setSelectedProvinceId] = useState(null)
   const [selectedCityId, setSelectedCityId] = useState(null)
@@ -67,6 +69,22 @@ export default function DeliveryLocationModal({
   const [mobileStep, setMobileStep] = useState('province')
 
   const provinces = Array.isArray(company?.deliveryCostList) ? company.deliveryCostList : []
+  const hasRegions = provinces.length > 0
+  const shouldShowStatus = isLoading || errorMessage || !hasRegions
+
+  useEffect(() => {
+    if (!open) return undefined
+
+    const originalBodyOverflow = document.body.style.overflow
+    const originalBodyOverscrollBehavior = document.body.style.overscrollBehavior
+    document.body.style.overflow = 'hidden'
+    document.body.style.overscrollBehavior = 'contain'
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow
+      document.body.style.overscrollBehavior = originalBodyOverscrollBehavior
+    }
+  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -206,6 +224,33 @@ export default function DeliveryLocationModal({
     )
   }
 
+  function renderRegionStatus() {
+    if (isLoading) {
+      return (
+        <div className="delivery-region-status" role="status" aria-live="polite">
+          <strong>딜리버리 지역을 불러오는 중입니다</strong>
+          <p>잠시만 기다려 주세요.</p>
+        </div>
+      )
+    }
+
+    if (errorMessage) {
+      return (
+        <div className="delivery-region-status is-error" role="alert">
+          <strong>딜리버리 지역을 불러오지 못했습니다</strong>
+          <p>{errorMessage}</p>
+        </div>
+      )
+    }
+
+    return (
+      <div className="delivery-region-status is-empty" role="status">
+        <strong>선택 가능한 딜리버리 지역이 없습니다</strong>
+        <p>잠시 후 다시 시도해 주세요.</p>
+      </div>
+    )
+  }
+
   if (!open) return null
 
   return (
@@ -222,6 +267,9 @@ export default function DeliveryLocationModal({
           </div>
         </div>
 
+        {shouldShowStatus ? renderRegionStatus() : null}
+
+        {!shouldShowStatus && (
         <div className="delivery-modal-body delivery-region-grid delivery-desktop-only">
           <div className="delivery-column delivery-region-column province-column">
             <div className="delivery-column-heading">
@@ -288,7 +336,9 @@ export default function DeliveryLocationModal({
             </div>
           </div>
         </div>
+        )}
 
+        {!shouldShowStatus && (
         <div className="delivery-mobile-flow delivery-mobile-only">
           <div className="delivery-inline-steps">
             <div>
@@ -338,6 +388,7 @@ export default function DeliveryLocationModal({
             <button className={`btn btn-dark btn-md ${canConfirm ? 'is-flow-active' : ''}`} type="button" onClick={handleConfirm} disabled={!canConfirm}>선택 완료</button>
           </div>
         </div>
+        )}
       </div>
     </div>
   )

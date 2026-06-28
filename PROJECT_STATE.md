@@ -38,6 +38,7 @@
 - KCP 운영 결제는 코드 저장 단계보다 KCP 상점 승인 가능 상태 확인이 blocker다.
 - 홈페이지 DB 가격과 외부 플랫폼 가격은 변경 시 반영 결과/복구 근거를 함께 남겨야 한다.
 - 카모아/찜카 동기화는 live save-run, launchd, DB 상태가 얽히므로 상태 owner와 재처리 기준을 먼저 봐야 한다.
+- Preview 카카오 지도 검증용 고정 alias는 `https://rentcar00-booking-system-git-dev-otang00s-projects.vercel.app` 이다. Kakao Developers Web 플랫폼 도메인에는 이 alias를 유지 등록한다.
 
 ## 리스크
 - 예약 상태, 결제 상태, 외부 플랫폼 휴무/가격 상태가 서로 다른 owner를 가진다.

@@ -21,6 +21,8 @@ export default function SearchConditionEditor({ open, initialState, onClose, onA
   const [step, setStep] = useState('location')
   const [draftState, setDraftState] = useState(() => normalizeSearchState(initialState))
   const [company, setCompany] = useState(() => getMockCompany())
+  const [isCompanyLoading, setIsCompanyLoading] = useState(false)
+  const [companyError, setCompanyError] = useState('')
   const [monthCursor, setMonthCursor] = useState(() => startOfMonth(getEarliestPickupDateTime()))
   const [draftPickupDate, setDraftPickupDate] = useState('')
   const [draftReturnDate, setDraftReturnDate] = useState('')
@@ -69,12 +71,20 @@ export default function SearchConditionEditor({ open, initialState, onClose, onA
   useEffect(() => {
     if (!open) return
     let isCancelled = false
+    setIsCompanyLoading(true)
+    setCompanyError('')
     fetchSearchCompany(draftState)
       .then((payload) => {
-        if (!isCancelled) setCompany((current) => ({ ...current, ...payload }))
+        if (isCancelled) return
+        setCompany((current) => ({ ...current, ...payload }))
       })
-      .catch(() => {
-        if (!isCancelled) setCompany(getMockCompany())
+      .catch((error) => {
+        if (isCancelled) return
+        setCompany(getMockCompany())
+        setCompanyError(error.message || '딜리버리 지역을 불러오지 못했습니다.')
+      })
+      .finally(() => {
+        if (!isCancelled) setIsCompanyLoading(false)
       })
     return () => { isCancelled = true }
   }, [open, draftState.deliveryDateTime, draftState.returnDateTime, draftState.driverAge])
@@ -137,7 +147,16 @@ export default function SearchConditionEditor({ open, initialState, onClose, onA
 
   return (
     <>
-      <DeliveryLocationModal open={step === 'location'} company={company} selectedDongId={draftState.dongId} onClose={onClose} onSelect={handleLocationSelect} closeOnSelect={false} />
+      <DeliveryLocationModal
+        open={step === 'location'}
+        company={company}
+        selectedDongId={draftState.dongId}
+        onClose={onClose}
+        onSelect={handleLocationSelect}
+        closeOnSelect={false}
+        isLoading={isCompanyLoading}
+        errorMessage={companyError}
+      />
       <DateRangeModal
         open={step === 'date'}
         monthCursor={monthCursor}

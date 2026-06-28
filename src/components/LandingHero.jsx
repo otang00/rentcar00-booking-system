@@ -40,6 +40,8 @@ export function LandingHero() {
   const scheduleRef = useRef(null)
   const [searchState, setSearchState] = useState(() => getDefaultSearchState())
   const [company, setCompany] = useState(() => getMockCompany())
+  const [isCompanyLoading, setIsCompanyLoading] = useState(false)
+  const [companyError, setCompanyError] = useState('')
   const [isLocationOpen, setIsLocationOpen] = useState(false)
   const [isDateModalOpen, setIsDateModalOpen] = useState(false)
   const [isAgeModalOpen, setIsAgeModalOpen] = useState(false)
@@ -79,12 +81,20 @@ export function LandingHero() {
 
   useEffect(() => {
     let isCancelled = false
+    setIsCompanyLoading(true)
+    setCompanyError('')
     fetchSearchCompany(searchState)
       .then((payload) => {
-        if (!isCancelled) setCompany((current) => ({ ...current, ...payload }))
+        if (isCancelled) return
+        setCompany((current) => ({ ...current, ...payload }))
       })
-      .catch(() => {
-        if (!isCancelled) setCompany(getMockCompany())
+      .catch((error) => {
+        if (isCancelled) return
+        setCompany(getMockCompany())
+        setCompanyError(error.message || '딜리버리 지역을 불러오지 못했습니다.')
+      })
+      .finally(() => {
+        if (!isCancelled) setIsCompanyLoading(false)
       })
     return () => { isCancelled = true }
   }, [searchState.deliveryDateTime, searchState.returnDateTime, searchState.driverAge])
@@ -246,7 +256,15 @@ export function LandingHero() {
         </div>
       </div>
 
-      <DeliveryLocationModal open={isLocationOpen} company={company} selectedDongId={searchState.dongId} onClose={() => setIsLocationOpen(false)} onSelect={handleLocationSelect} />
+      <DeliveryLocationModal
+        open={isLocationOpen}
+        company={company}
+        selectedDongId={searchState.dongId}
+        onClose={() => setIsLocationOpen(false)}
+        onSelect={handleLocationSelect}
+        isLoading={isCompanyLoading}
+        errorMessage={companyError}
+      />
       <DateRangeModal
         open={isDateModalOpen}
         monthCursor={monthCursor}

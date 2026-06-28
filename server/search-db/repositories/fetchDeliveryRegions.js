@@ -1,5 +1,7 @@
 'use strict'
 
+const { appLogger } = require('../../logging/appLogger')
+
 function isMissingDeliveryRegionsTableError(error) {
   if (!error) return false
   if (error.code === 'PGRST205') {
@@ -31,18 +33,40 @@ async function fetchDeliveryRegions({ supabaseClient, dongId } = {}) {
     const { data, error } = await query
     if (error) {
       if (isMissingDeliveryRegionsTableError(error)) {
-        console.warn('[search-db] delivery_regions table missing, skipping delivery fetch')
+        appLogger.warn('delivery_regions_load_failed', 'Delivery regions table is missing.', {
+          route: '/api/search-cars',
+          reason: 'table_missing',
+          metadata: { hasDongId: dongId != null, errorCode: error.code || null },
+        })
         return []
       }
       throw error
     }
 
-    return Array.isArray(data) ? data : []
+    const rows = Array.isArray(data) ? data : []
+    if (rows.length === 0) {
+      appLogger.warn('delivery_regions_empty', 'Delivery regions query returned no rows.', {
+        route: '/api/search-cars',
+        reason: 'empty_result',
+        metadata: { hasDongId: dongId != null },
+      })
+    }
+    return rows
   } catch (error) {
     if (isMissingDeliveryRegionsTableError(error)) {
-      console.warn('[search-db] delivery_regions table missing, skipping delivery fetch')
+      appLogger.warn('delivery_regions_load_failed', 'Delivery regions table is missing.', {
+        route: '/api/search-cars',
+        reason: 'table_missing',
+        metadata: { hasDongId: dongId != null, errorCode: error?.code || null },
+      })
       return []
     }
+
+    appLogger.error('delivery_regions_load_failed', 'Delivery regions query failed.', {
+      route: '/api/search-cars',
+      reason: 'query_failed',
+      metadata: { hasDongId: dongId != null, errorCode: error?.code || null },
+    })
     throw error
   }
 }
