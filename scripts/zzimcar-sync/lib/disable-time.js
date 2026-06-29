@@ -27,18 +27,6 @@ function buildDisableTimeCreatePayload({ vehiclePid, startDtime, endDtime } = {}
   };
 }
 
-function buildDisableTimeUpdatePayload({ pid, startDtime, endDtime } = {}) {
-  if (!pid && pid !== 0) throw new Error('pid is required');
-  if (!startDtime) throw new Error('startDtime is required');
-  if (!endDtime) throw new Error('endDtime is required');
-
-  return {
-    pid: String(pid),
-    startDtime: String(startDtime),
-    endDtime: String(endDtime),
-  };
-}
-
 function buildDisableTimeDeletePayload({ pid } = {}) {
   if (!pid && pid !== 0) throw new Error('pid is required');
 
@@ -79,7 +67,6 @@ module.exports = {
   normalizeCarNumber,
   buildDisableTimeListPath,
   buildDisableTimeCreatePayload,
-  buildDisableTimeUpdatePayload,
   buildDisableTimeDeletePayload,
   extractVehiclePidFromRowHtml,
   sameDisableWindow,

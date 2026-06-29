@@ -3,11 +3,15 @@ const path = require('path');
 const { loadEnvFile } = require('../pricing/lib/loadEnvFile');
 const { reconcileCarmoreHolidays } = require('./lib/reconcile-carmore-holidays');
 const { createSyncLogger } = require('../../server/logging/syncLogger');
+const { getSupabaseAdmin, hasSupabaseConfig } = require('./../ims-sync/lib/supabase-admin');
 
 const projectRoot = path.resolve(__dirname, '../..');
 loadEnvFile(path.join(projectRoot, '.env'));
 
-const carmoreSyncLogger = createSyncLogger({ provider: 'carmore', stage: 'holiday_reconcile' });
+const carmoreSyncLogger = createSyncLogger(
+  { provider: 'carmore', stage: 'holiday_reconcile' },
+  { supabaseClient: hasSupabaseConfig() ? getSupabaseAdmin() : null },
+);
 
 function logSyncEvent(event) {
   try {
@@ -53,9 +57,10 @@ function parseArgs(argv = process.argv.slice(2)) {
 }
 
 async function runCarmoreReconcileSync(options = {}) {
-  const shouldSave = options.shouldSave === true || process.env.CARMORE_SYNC_SAVE === 'true';
-  const runId = `carmore-${new Date().toISOString()}`;
-  logSyncEvent({
+  const noWriteSmoke = options.noWriteSmoke === true || process.env.NO_WRITE_SMOKE === 'true' || process.env.CARMORE_NO_WRITE_SMOKE === 'true';
+  const shouldSave = !noWriteSmoke && (options.shouldSave === true || process.env.CARMORE_SYNC_SAVE === 'true');
+  const runId = noWriteSmoke ? `carmore-no-write-smoke-${new Date().toISOString()}` : `carmore-${new Date().toISOString()}`;
+  if (!noWriteSmoke) logSyncEvent({
     runId,
     action: 'sync_start',
     severity: 'info',
@@ -63,6 +68,7 @@ async function runCarmoreReconcileSync(options = {}) {
     message: 'Carmore reconcile sync started',
     metadata: {
       shouldSave,
+      noWriteSmoke,
       limit: options.limit || process.env.CARMORE_SYNC_LIMIT || 0,
       onlyImsReservationId: options.onlyImsReservationId || process.env.CARMORE_SYNC_ONLY_IMS_RESERVATION_ID || '',
     },
@@ -73,10 +79,12 @@ async function runCarmoreReconcileSync(options = {}) {
 
   const summary = await reconcileCarmoreHolidays({
     shouldSave,
+    noWriteSmoke,
     limit: options.limit || process.env.CARMORE_SYNC_LIMIT || 0,
     onlyImsReservationId: options.onlyImsReservationId || process.env.CARMORE_SYNC_ONLY_IMS_RESERVATION_ID || '',
+    eventLogger: noWriteSmoke ? () => {} : logSyncEvent,
   });
-  logSyncEvent(buildCompletionEvent({ runId, summary }));
+  if (!noWriteSmoke) logSyncEvent(buildCompletionEvent({ runId, summary }));
   return summary;
 }
 
@@ -84,6 +92,7 @@ async function main() {
   const args = parseArgs();
   const summary = await runCarmoreReconcileSync({
     shouldSave: args.save === true,
+    noWriteSmoke: args.noWriteSmoke === true,
     limit: args.limit || 0,
     onlyImsReservationId: args.imsReservationId || args.onlyImsReservationId || '',
   });

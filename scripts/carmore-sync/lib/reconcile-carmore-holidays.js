@@ -5,8 +5,12 @@ const { findCarmoreVehicleByCarNumber } = require('./carmore-vehicle-mapping');
 const { fetchActiveMappings, markMappingDeleted, markMappingFailed, upsertMapping } = require('./carmore-sync-mapping-repo');
 const { createRun, finishRun } = require('./carmore-sync-run-repo');
 const { createSyncLogger } = require('../../../server/logging/syncLogger');
+const { getSupabaseAdmin, hasSupabaseConfig } = require('../../ims-sync/lib/supabase-admin');
 
-const carmoreReconcileLogger = createSyncLogger({ provider: 'carmore', stage: 'holiday_reconcile' });
+const carmoreReconcileLogger = createSyncLogger(
+  { provider: 'carmore', stage: 'holiday_reconcile' },
+  { supabaseClient: hasSupabaseConfig() ? getSupabaseAdmin() : null },
+);
 
 function logReconcileEvent(event) {
   try {
@@ -36,8 +40,28 @@ function logReconcileError({ runId, action, desired, actual, error }) {
   });
 }
 
+function getDesiredPlanKey(desired = {}) {
+  return String(desired.childHolidayKey || `${desired.imsReservationId}:${desired.holidayStartDate || ''}:${desired.holidayEndDate || ''}`);
+}
+
 function buildMapByImsReservationId(rows = []) {
-  return new Map((Array.isArray(rows) ? rows : []).map((row) => [String(row.imsReservationId), row]));
+  return new Map((Array.isArray(rows) ? rows : []).map((row) => [`${String(row.imsReservationId)}:${getDesiredPlanKey(row)}`, row]));
+}
+
+function buildMapByPlanKey(rows = []) {
+  return new Map((Array.isArray(rows) ? rows : []).map((row) => [getDesiredPlanKey(row), row]));
+}
+
+function dedupePlanEntries(entries = [], getKey = (entry) => entry) {
+  const seen = new Set();
+  const deduped = [];
+  for (const entry of entries) {
+    const key = getKey(entry);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(entry);
+  }
+  return deduped;
 }
 
 function enrichDesiredReservation(desired, mappingOptions = {}) {
@@ -64,25 +88,97 @@ function hasChanged(desired, actual) {
     || !actual.carmoreHolidaySerial;
 }
 
-function planReconcile({ desiredRows = [], actualRows = [] } = {}) {
-  const desiredMap = buildMapByImsReservationId(desiredRows);
-  const actualMap = buildMapByImsReservationId(actualRows);
+
+function dateToUtcMs(value) {
+  const ms = new Date(`${value}T00:00:00.000Z`).getTime();
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function utcMsToDate(ms) {
+  return new Date(ms).toISOString().slice(0, 10);
+}
+
+function splitDateRangeByUnmanagedWalls(desired, unmanagedWalls = []) {
+  const dayMs = 24 * 60 * 60 * 1000;
+  const start = dateToUtcMs(desired.holidayStartDate);
+  const end = dateToUtcMs(desired.holidayEndDate);
+  if (start == null || end == null || start > end) return [];
+  let ranges = [{ start, end }];
+
+  const walls = (Array.isArray(unmanagedWalls) ? unmanagedWalls : [])
+    .filter((wall) => String(wall.carmoreRentcarSerial) === String(desired.carmoreRentcarSerial))
+    .map((wall) => ({ start: dateToUtcMs(wall.holidayStartDate || wall.startDate), end: dateToUtcMs(wall.holidayEndDate || wall.endDate) }))
+    .filter((wall) => wall.start != null && wall.end != null && wall.start <= wall.end)
+    .sort((a, b) => a.start - b.start || a.end - b.end);
+
+  for (const wall of walls) {
+    const next = [];
+    for (const range of ranges) {
+      if (wall.end < range.start || wall.start > range.end) {
+        next.push(range);
+        continue;
+      }
+      if (wall.start > range.start) next.push({ start: range.start, end: wall.start - dayMs });
+      if (wall.end < range.end) next.push({ start: wall.end + dayMs, end: range.end });
+    }
+    ranges = next;
+  }
+
+  return ranges
+    .filter((range) => range.start <= range.end)
+    .map((range, index) => ({
+      ...desired,
+      holidayStartDate: utcMsToDate(range.start),
+      holidayEndDate: utcMsToDate(range.end),
+      sourcePolicy: 'managed_child_split',
+      childHolidayKey: `${desired.imsReservationId}:${utcMsToDate(range.start)}:${utcMsToDate(range.end)}:${index}`,
+    }));
+}
+
+function splitCarmoreDesiredRowsByUnmanagedWalls({ desiredRows = [], unmanagedWalls = [] } = {}) {
+  return (Array.isArray(desiredRows) ? desiredRows : []).flatMap((desired) => splitDateRangeByUnmanagedWalls(desired, unmanagedWalls));
+}
+
+function planReconcile({ desiredRows = [], actualRows = [], unmanagedWalls = [] } = {}) {
+  const effectiveDesiredRows = unmanagedWalls.length > 0
+    ? splitCarmoreDesiredRowsByUnmanagedWalls({ desiredRows, unmanagedWalls })
+    : desiredRows;
   const additions = [];
   const changes = [];
   const deletions = [];
   const unchanged = [];
+  const consumedActualIndexes = new Set();
 
-  for (const desired of desiredRows) {
-    const actual = actualMap.get(String(desired.imsReservationId));
-    if (!actual) additions.push({ desired });
-    else if (hasChanged(desired, actual)) changes.push({ desired, actual });
-    else unchanged.push({ desired, actual });
+  for (const desired of effectiveDesiredRows) {
+    const exactIndex = actualRows.findIndex((actual, index) => !consumedActualIndexes.has(index) && getDesiredPlanKey(actual) === getDesiredPlanKey(desired));
+    if (exactIndex >= 0) {
+      consumedActualIndexes.add(exactIndex);
+      const actual = actualRows[exactIndex];
+      if (hasChanged(desired, actual)) changes.push({ desired, actual });
+      else unchanged.push({ desired, actual });
+      continue;
+    }
+
+    const sameImsIndex = actualRows.findIndex((actual, index) => !consumedActualIndexes.has(index) && String(actual.imsReservationId) === String(desired.imsReservationId));
+    if (sameImsIndex >= 0) {
+      consumedActualIndexes.add(sameImsIndex);
+      changes.push({ desired, actual: actualRows[sameImsIndex] });
+      continue;
+    }
+
+    additions.push({ desired });
   }
 
-  for (const actual of actualRows) {
-    if (!desiredMap.has(String(actual.imsReservationId))) deletions.push({ actual });
+  for (const [index, actual] of actualRows.entries()) {
+    if (!consumedActualIndexes.has(index)) deletions.push({ actual });
   }
-  return { additions, changes, deletions, unchanged };
+
+  return {
+    additions: dedupePlanEntries(additions, ({ desired }) => getDesiredPlanKey(desired)),
+    changes: dedupePlanEntries(changes, ({ desired, actual }) => `${getDesiredPlanKey(desired)}=>${actual.carmoreHolidaySerial || actual.imsReservationId || ''}`),
+    deletions: dedupePlanEntries(deletions, ({ actual }) => String(actual.carmoreHolidaySerial || getDesiredPlanKey(actual))),
+    unchanged: dedupePlanEntries(unchanged, ({ desired }) => getDesiredPlanKey(desired)),
+  };
 }
 
 function buildHolidayMemo(desired) {
@@ -181,6 +277,54 @@ async function applyChange({ desired, actual, actualRows = [], client, shouldSav
   return { ...base, applied: true, deletion, addition };
 }
 
+function classifyCarmoreHolidayRows({ currentRows = [], previousMappings = [], carmoreRentcarSerial, carNumber } = {}) {
+  const managedBySerial = new Set((Array.isArray(previousMappings) ? previousMappings : [])
+    .map((mapping) => mapping?.carmoreHolidaySerial)
+    .filter(Boolean)
+    .map(String));
+
+  const unmanagedWalls = [];
+  for (const row of Array.isArray(currentRows) ? currentRows : []) {
+    if (!row) continue;
+    const serial = row.serial != null ? String(row.serial) : null;
+    if (serial && managedBySerial.has(serial)) continue;
+    if (!row.startDate || !row.endDate) continue;
+    unmanagedWalls.push({
+      carNumber,
+      carmoreRentcarSerial: String(carmoreRentcarSerial),
+      carmoreHolidaySerial: serial,
+      holidayStartDate: row.startDate,
+      holidayEndDate: row.endDate,
+      source: 'carmore_unmanaged_wall',
+      unmanaged: true,
+      raw: row,
+    });
+  }
+  return unmanagedWalls;
+}
+
+async function fetchCurrentCarmoreUnmanagedWalls({ desiredRows = [], actualRows = [], client } = {}) {
+  if (!client) return [];
+  const serials = new Map();
+  for (const row of [...(Array.isArray(desiredRows) ? desiredRows : []), ...(Array.isArray(actualRows) ? actualRows : [])]) {
+    if (!row?.carmoreRentcarSerial) continue;
+    const serial = String(row.carmoreRentcarSerial);
+    if (!serials.has(serial)) serials.set(serial, { carmoreRentcarSerial: serial, carNumber: row.carNumber || '' });
+  }
+
+  const unmanagedWalls = [];
+  for (const vehicle of serials.values()) {
+    const currentRows = await client.getRentcarHolidays({ rentcarSerial: vehicle.carmoreRentcarSerial });
+    unmanagedWalls.push(...classifyCarmoreHolidayRows({
+      currentRows,
+      previousMappings: actualRows,
+      carmoreRentcarSerial: vehicle.carmoreRentcarSerial,
+      carNumber: vehicle.carNumber,
+    }));
+  }
+  return unmanagedWalls;
+}
+
 async function fetchEnrichedDesiredRows({ now, supabaseClient, mappingOptions } = {}) {
   const desiredRows = await fetchDesiredImsReservations({ now, supabaseClient });
   return desiredRows.map((desired) => enrichDesiredReservation(desired, mappingOptions));
@@ -188,16 +332,21 @@ async function fetchEnrichedDesiredRows({ now, supabaseClient, mappingOptions } 
 
 async function reconcileCarmoreHolidays({
   shouldSave = false,
+  noWriteSmoke = false,
   now = new Date(),
   supabaseClient,
   client,
   mappingOptions,
   limit = 0,
   onlyImsReservationId = '',
+  eventLogger = logReconcileEvent,
 } = {}) {
   const supabase = supabaseClient;
-  const syncMode = shouldSave ? 'save' : 'dry-run';
-  const run = await createRun({ syncMode, supabaseClient: supabase });
+  if (shouldSave && noWriteSmoke) throw new Error('noWriteSmoke cannot be used with shouldSave');
+  const syncMode = noWriteSmoke ? 'no-write-smoke' : (shouldSave ? 'save' : 'dry-run');
+  const run = noWriteSmoke
+    ? { id: `carmore-no-write-smoke-${new Date().toISOString()}`, syncMode, status: 'running' }
+    : await createRun({ syncMode, supabaseClient: supabase });
   try {
     let desiredRows = await fetchEnrichedDesiredRows({ now, supabaseClient: supabase, mappingOptions });
     if (onlyImsReservationId) {
@@ -207,10 +356,29 @@ async function reconcileCarmoreHolidays({
     if (maxRows > 0) {
       desiredRows = desiredRows.slice(0, maxRows);
     }
-    const actualRows = await fetchActiveMappings({ supabaseClient: supabase, allowMissingTable: !shouldSave });
-    const plan = planReconcile({ desiredRows, actualRows });
-    const results = { additions: [], deletions: [], changes: [], unchanged: plan.unchanged, errors: [] };
+    const actualRows = await fetchActiveMappings({ supabaseClient: supabase, allowMissingTable: !shouldSave || noWriteSmoke });
     const carmoreClient = client || new CarmoreClient();
+    const shouldFetchUnmanagedWalls = desiredRows.length > 0 && (shouldSave || client);
+    const unmanagedWalls = shouldFetchUnmanagedWalls
+      ? await fetchCurrentCarmoreUnmanagedWalls({ desiredRows, actualRows, client: carmoreClient })
+      : [];
+    for (const wall of unmanagedWalls) {
+      eventLogger({
+        runId: run.id,
+        action: 'unmanaged_wall_detected',
+        severity: 'warn',
+        eventType: 'sync_unmanaged_wall_detected',
+        carNumber: wall.carNumber,
+        message: 'Carmore unmanaged holiday wall detected and preserved',
+        metadata: { carmoreRentcarSerial: wall.carmoreRentcarSerial, holidayStartDate: wall.holidayStartDate, holidayEndDate: wall.holidayEndDate, carmoreHolidaySerial: wall.carmoreHolidaySerial },
+        requiresAck: true,
+        visibility: 'admin',
+        ackKey: `carmore:unmanaged_wall:${wall.carmoreHolidaySerial || `${wall.carmoreRentcarSerial}:${wall.holidayStartDate}:${wall.holidayEndDate}`}`,
+        dedupeKey: `carmore:unmanaged_wall:${wall.carmoreHolidaySerial || `${wall.carmoreRentcarSerial}:${wall.holidayStartDate}:${wall.holidayEndDate}`}`,
+      });
+    }
+    const plan = planReconcile({ desiredRows, actualRows, unmanagedWalls });
+    const results = { additions: [], deletions: [], changes: [], unchanged: plan.unchanged, errors: [] };
 
     if (shouldSave && (plan.additions.length || plan.deletions.length || plan.changes.length)) {
       await carmoreClient.ensureLoggedIn();
@@ -225,6 +393,7 @@ async function reconcileCarmoreHolidays({
           carNumber: result.desired.carNumber,
           carmoreRentcarSerial: result.desired.carmoreRentcarSerial,
           carmoreHolidaySerial: result.holidaySerial,
+          childHolidayKey: result.desired.childHolidayKey,
           startAt: result.desired.startAt,
           endAt: result.desired.endAt,
           holidayStartDate: result.desired.holidayStartDate,
@@ -234,7 +403,7 @@ async function reconcileCarmoreHolidays({
       } catch (error) {
         results.errors.push({ action: 'add', imsReservationId: entry.desired.imsReservationId, error: error.message });
         logReconcileError({ runId: run.id, action: 'add', desired: entry.desired, error });
-        if (shouldSave) await markMappingFailed({ ...entry.desired, lastError: error.message, syncStatus: 'sync_failed', supabaseClient: supabase });
+        if (shouldSave) await markMappingFailed({ ...entry.desired, childHolidayKey: entry.desired.childHolidayKey, lastError: error.message, syncStatus: 'sync_failed', supabaseClient: supabase });
       }
     }
 
@@ -242,11 +411,11 @@ async function reconcileCarmoreHolidays({
       try {
         const result = await applyDeletion({ ...entry, actualRows, client: carmoreClient, shouldSave });
         results.deletions.push(result);
-        if (shouldSave) await markMappingDeleted({ imsReservationId: result.imsReservationId, supabaseClient: supabase });
+        if (shouldSave) await markMappingDeleted({ imsReservationId: result.imsReservationId, childHolidayKey: entry.actual.childHolidayKey, holidayStartDate: entry.actual.holidayStartDate, holidayEndDate: entry.actual.holidayEndDate, supabaseClient: supabase });
       } catch (error) {
         results.errors.push({ action: 'delete', imsReservationId: entry.actual.imsReservationId, error: error.message });
         logReconcileError({ runId: run.id, action: 'delete', actual: entry.actual, error });
-        if (shouldSave) await markMappingFailed({ ...entry.actual, lastError: error.message, syncStatus: 'delete_failed', supabaseClient: supabase });
+        if (shouldSave) await markMappingFailed({ ...entry.actual, childHolidayKey: entry.actual.childHolidayKey, lastError: error.message, syncStatus: 'delete_failed', supabaseClient: supabase });
       }
     }
 
@@ -259,6 +428,7 @@ async function reconcileCarmoreHolidays({
           carNumber: result.desired.carNumber,
           carmoreRentcarSerial: result.desired.carmoreRentcarSerial,
           carmoreHolidaySerial: result.addition.holidaySerial,
+          childHolidayKey: result.desired.childHolidayKey,
           startAt: result.desired.startAt,
           endAt: result.desired.endAt,
           holidayStartDate: result.desired.holidayStartDate,
@@ -268,7 +438,7 @@ async function reconcileCarmoreHolidays({
       } catch (error) {
         results.errors.push({ action: 'change', imsReservationId: entry.desired.imsReservationId, error: error.message });
         logReconcileError({ runId: run.id, action: 'change', desired: entry.desired, actual: entry.actual, error });
-        if (shouldSave) await markMappingFailed({ ...entry.desired, carmoreHolidaySerial: entry.actual.carmoreHolidaySerial, lastError: error.message, syncStatus: 'sync_failed', supabaseClient: supabase });
+        if (shouldSave) await markMappingFailed({ ...entry.desired, carmoreHolidaySerial: entry.actual.carmoreHolidaySerial, childHolidayKey: entry.desired.childHolidayKey, lastError: error.message, syncStatus: 'sync_failed', supabaseClient: supabase });
       }
     }
 
@@ -276,6 +446,7 @@ async function reconcileCarmoreHolidays({
       mode: syncMode,
       desiredCount: desiredRows.length,
       actualCount: actualRows.length,
+      unmanagedWallCount: unmanagedWalls.length,
       additionsCount: results.additions.length,
       deletionsCount: results.deletions.length,
       changesCount: results.changes.length,
@@ -284,10 +455,10 @@ async function reconcileCarmoreHolidays({
       results,
     };
     const finalStatus = results.errors.length ? ((results.additions.length || results.deletions.length || results.changes.length) ? 'partial_success' : 'failed') : 'success';
-    await finishRun({ runId: run.id, status: finalStatus, summary, supabaseClient: supabase });
+    if (!noWriteSmoke) await finishRun({ runId: run.id, status: finalStatus, summary, supabaseClient: supabase });
     return summary;
   } catch (error) {
-    await finishRun({
+    if (!noWriteSmoke) await finishRun({
       runId: run.id,
       status: 'failed',
       summary: { desiredCount: 0, actualCount: 0, additionsCount: 0, deletionsCount: 0, changesCount: 0, unchangedCount: 0, errorsCount: 1, results: { errors: [{ error: error.message }] } },
@@ -303,14 +474,19 @@ module.exports = {
   applyChange,
   applyDeletion,
   buildHolidayMemo,
+  classifyCarmoreHolidayRows,
   buildMapByImsReservationId,
   createOrRecoverHoliday,
+  fetchCurrentCarmoreUnmanagedWalls,
   findRecoverableHoliday,
   findSharedActiveHolidayMappings,
   isDuplicateHolidayError,
+  getDesiredPlanKey,
   enrichDesiredReservation,
   fetchEnrichedDesiredRows,
   hasChanged,
   planReconcile,
+  splitCarmoreDesiredRowsByUnmanagedWalls,
+  splitDateRangeByUnmanagedWalls,
   reconcileCarmoreHolidays,
 };

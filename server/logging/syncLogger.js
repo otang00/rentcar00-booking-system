@@ -7,6 +7,8 @@ const ALLOWED_SEVERITIES = new Set(['debug', 'info', 'warn', 'error', 'critical'
 const ALLOWED_VISIBILITIES = new Set(['ops', 'admin', 'internal'])
 const ALLOWED_ACK_STATUSES = new Set(['not_required', 'unread', 'acknowledged'])
 
+let syncEventRepository = null
+
 const ALLOWED_EVENT_FIELDS = new Set([
   'provider',
   'runId',
@@ -117,12 +119,22 @@ function writeSyncEvent(input = {}, options = {}) {
     console.log(line)
   }
 
+  const supabaseClient = options.supabaseClient || options.dbClient
+  if (supabaseClient) {
+    const repository = syncEventRepository || require('./syncEventRepository')
+    repository.persistSyncEventBestEffort({ supabaseClient, event: entry }).catch(() => {})
+  }
+
   return entry
 }
 
-function createSyncLogger(defaultContext = {}) {
+function setSyncEventRepositoryForTest(repository) {
+  syncEventRepository = repository || null
+}
+
+function createSyncLogger(defaultContext = {}, defaultOptions = {}) {
   function log(severity, input = {}, options = {}) {
-    return writeSyncEvent({ ...defaultContext, ...input, severity }, options)
+    return writeSyncEvent({ ...defaultContext, ...input, severity }, { ...defaultOptions, ...options })
   }
 
   return {
@@ -131,7 +143,7 @@ function createSyncLogger(defaultContext = {}) {
     warn(input, options) { return log('warn', input, options) },
     error(input, options) { return log('error', input, options) },
     critical(input, options) { return log('critical', input, options) },
-    event(input, options) { return writeSyncEvent({ ...defaultContext, ...input }, options) },
+    event(input, options) { return writeSyncEvent({ ...defaultContext, ...input }, { ...defaultOptions, ...options }) },
   }
 }
 
@@ -141,6 +153,7 @@ module.exports = {
   buildSyncEvent,
   createSyncLogger,
   sanitizeSyncValue: sanitizeValue,
+  setSyncEventRepositoryForTest,
   syncLogger,
   writeSyncEvent,
 }

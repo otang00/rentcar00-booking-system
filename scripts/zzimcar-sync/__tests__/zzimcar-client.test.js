@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 
 const {
   buildLoginFormBody,
+  buildZzimcarErrorDetail,
   extractSessionCookie,
   formatKstDateTime,
   parseVehiclePagingResponse,
@@ -38,4 +39,14 @@ test('parseVehiclePagingResponse returns exact normalized match', () => {
 
 test('formatKstDateTime formats ISO to Asia/Seoul second precision', () => {
   assert.equal(formatKstDateTime('2026-05-01T01:00:00.000Z'), '2026-05-01 10:00:00');
+});
+
+test('buildZzimcarErrorDetail keeps duplicate schedule code and message signal', () => {
+  assert.equal(
+    buildZzimcarErrorDetail({
+      code: 'VEHICLE_SCHEDULE_DUPLICATION_ERROR',
+      msg: '차량 스케줄이 중복되었습니다.',
+    }),
+    '[VEHICLE_SCHEDULE_DUPLICATION_ERROR] 차량 스케줄이 중복되었습니다.',
+  );
 });

@@ -1,9 +1,15 @@
 const { getSupabaseAdmin } = require('../../ims-sync/lib/supabase-admin');
 
+function buildChildBlockKey(mapping = {}) {
+  if (mapping.childBlockKey != null && String(mapping.childBlockKey)) return String(mapping.childBlockKey);
+  return [mapping.imsReservationId, mapping.startAt, mapping.endAt].map((value) => String(value || '')).join(':');
+}
+
 function normalizeMapping(row) {
   return {
     id: row.id,
     imsReservationId: String(row.ims_reservation_id),
+    childBlockKey: row.child_block_key || buildChildBlockKey({ imsReservationId: row.ims_reservation_id, startAt: row.start_at, endAt: row.end_at }),
     carNumber: row.car_number,
     zzimcarVehiclePid: row.zzimcar_vehicle_pid != null ? String(row.zzimcar_vehicle_pid) : null,
     zzimcarDisableTimePid: row.zzimcar_disable_time_pid != null ? String(row.zzimcar_disable_time_pid) : null,
@@ -37,6 +43,7 @@ async function upsertMapping({ mapping, supabaseClient } = {}) {
   const supabase = supabaseClient || getSupabaseAdmin();
   const row = {
     ims_reservation_id: String(mapping.imsReservationId),
+    child_block_key: buildChildBlockKey(mapping),
     car_number: String(mapping.carNumber),
     zzimcar_vehicle_pid: String(mapping.zzimcarVehiclePid),
     zzimcar_disable_time_pid: mapping.zzimcarDisableTimePid != null ? String(mapping.zzimcarDisableTimePid) : null,
@@ -50,7 +57,7 @@ async function upsertMapping({ mapping, supabaseClient } = {}) {
 
   const { data, error } = await supabase
     .from('zzimcar_disable_time_sync_mappings')
-    .upsert(row, { onConflict: 'ims_reservation_id' })
+    .upsert(row, { onConflict: 'ims_reservation_id,child_block_key' })
     .select('*')
     .single();
 
@@ -58,9 +65,9 @@ async function upsertMapping({ mapping, supabaseClient } = {}) {
   return normalizeMapping(data);
 }
 
-async function markMappingDeleted({ imsReservationId, lastError = null, supabaseClient } = {}) {
+async function markMappingDeleted({ imsReservationId, childBlockKey = null, startAt = null, endAt = null, lastError = null, supabaseClient } = {}) {
   const supabase = supabaseClient || getSupabaseAdmin();
-  const { data, error } = await supabase
+  let query = supabase
     .from('zzimcar_disable_time_sync_mappings')
     .update({
       sync_status: 'deleted',
@@ -68,9 +75,10 @@ async function markMappingDeleted({ imsReservationId, lastError = null, supabase
       updated_at: new Date().toISOString(),
       last_synced_at: new Date().toISOString(),
     })
-    .eq('ims_reservation_id', String(imsReservationId))
-    .select('*')
-    .single();
+    .eq('ims_reservation_id', String(imsReservationId));
+  const effectiveChildBlockKey = childBlockKey || (startAt && endAt ? buildChildBlockKey({ imsReservationId, startAt, endAt }) : null);
+  if (effectiveChildBlockKey) query = query.eq('child_block_key', effectiveChildBlockKey);
+  const { data, error } = await query.select('*').single();
 
   if (error) throw error;
   return normalizeMapping(data);
@@ -81,6 +89,7 @@ async function markMappingFailed({
   carNumber,
   zzimcarVehiclePid,
   zzimcarDisableTimePid = null,
+  childBlockKey = null,
   startAt,
   endAt,
   lastError,
@@ -92,6 +101,7 @@ async function markMappingFailed({
     .from('zzimcar_disable_time_sync_mappings')
     .upsert({
       ims_reservation_id: String(imsReservationId),
+      child_block_key: buildChildBlockKey({ imsReservationId, childBlockKey, startAt, endAt }),
       car_number: String(carNumber || ''),
       zzimcar_vehicle_pid: zzimcarVehiclePid != null ? String(zzimcarVehiclePid) : '0',
       zzimcar_disable_time_pid: zzimcarDisableTimePid != null ? String(zzimcarDisableTimePid) : null,
@@ -101,7 +111,7 @@ async function markMappingFailed({
       last_error: String(lastError || ''),
       updated_at: new Date().toISOString(),
       last_synced_at: new Date().toISOString(),
-    }, { onConflict: 'ims_reservation_id' })
+    }, { onConflict: 'ims_reservation_id,child_block_key' })
     .select('*')
     .single();
 
@@ -110,6 +120,7 @@ async function markMappingFailed({
 }
 
 module.exports = {
+  buildChildBlockKey,
   fetchActiveMappings,
   markMappingDeleted,
   markMappingFailed,

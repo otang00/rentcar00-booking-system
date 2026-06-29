@@ -5,8 +5,12 @@ const { fetchAllVehicles } = require('./fetch-ims-vehicles');
 const { syncReservationsToSupabase } = require('./upsert-ims-reservations');
 const { syncVehiclesToSupabase } = require('./upsert-ims-vehicles');
 const { createSyncLogger } = require('../../server/logging/syncLogger');
+const { getSupabaseAdmin, hasSupabaseConfig } = require('./lib/supabase-admin');
 
-const imsSyncLogger = createSyncLogger({ provider: 'ims', stage: 'reservation_vehicle_sync' });
+const imsSyncLogger = createSyncLogger(
+  { provider: 'ims', stage: 'reservation_vehicle_sync' },
+  { supabaseClient: hasSupabaseConfig() ? getSupabaseAdmin() : null },
+);
 
 function logSyncEvent(event) {
   try {
@@ -17,16 +21,22 @@ function logSyncEvent(event) {
   }
 }
 
+function parseArgs(argv = process.argv.slice(2)) {
+  return new Set(argv.filter((token) => token.startsWith('--')).map((token) => token.slice(2)));
+}
+
 async function main() {
-  const dryRun = process.env.IMS_SYNC_DRY_RUN === 'true';
-  const runId = `ims-${new Date().toISOString()}`;
-  logSyncEvent({
+  const flags = parseArgs();
+  const noWriteSmoke = flags.has('no-write-smoke') || process.env.NO_WRITE_SMOKE === 'true' || process.env.IMS_NO_WRITE_SMOKE === 'true';
+  const dryRun = noWriteSmoke || process.env.IMS_SYNC_DRY_RUN === 'true';
+  const runId = noWriteSmoke ? `ims-no-write-smoke-${new Date().toISOString()}` : `ims-${new Date().toISOString()}`;
+  if (!noWriteSmoke) logSyncEvent({
     runId,
     action: 'sync_start',
     severity: 'info',
     eventType: 'sync_start',
     message: 'IMS reservation/vehicle sync started',
-    metadata: { dryRun },
+    metadata: { dryRun, noWriteSmoke },
     requiresAck: false,
     visibility: 'ops',
     dedupeKey: 'ims:sync_start',
@@ -66,7 +76,7 @@ async function main() {
 
   console.log(JSON.stringify(summary, null, 2));
 
-  logSyncEvent({
+  if (!noWriteSmoke) logSyncEvent({
     runId,
     action: 'sync_success',
     severity: 'info',
@@ -74,6 +84,7 @@ async function main() {
     message: 'IMS reservation/vehicle sync completed',
     metadata: {
       dryRun,
+      noWriteSmoke,
       reservations: summary.reservations,
       vehicles: summary.vehicles,
     },
@@ -84,7 +95,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  logSyncEvent({
+  if (!(process.env.NO_WRITE_SMOKE === 'true' || process.env.IMS_NO_WRITE_SMOKE === 'true' || process.argv.includes('--no-write-smoke'))) logSyncEvent({
     action: 'sync_failed',
     severity: 'error',
     eventType: 'sync_failed',

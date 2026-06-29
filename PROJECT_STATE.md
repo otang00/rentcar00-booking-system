@@ -40,6 +40,32 @@
 - 카모아/찜카 동기화는 live save-run, launchd, DB 상태가 얽히므로 상태 owner와 재처리 기준을 먼저 봐야 한다.
 - Preview 카카오 지도 검증용 고정 alias는 `https://rentcar00-booking-system-git-dev-otang00s-projects.vercel.app` 이다. Kakao Developers Web 플랫폼 도메인에는 이 alias를 유지 등록한다.
 
+
+## 2026-06-29 IMS external sync split block local implementation
+- PMDOC: `docs/PHASE/2026-06-29_IMS_EXTERNAL_SYNC_SPLIT_BLOCK_POLICY_PM.md`
+- 상태: 로컬 구현 및 테스트 통과. 운영 반영/COMPLETE/commit은 아직 아님. 운영 save-run 전 mapping schema gate 필요.
+- 정책: unmanaged wall + child block split. mapping 없는 찜카/카모아 차단은 삭제·흡수·replace하지 않고, IMS required coverage 중 빈 구간만 child block/date range로 생성한다.
+- 추가된 검증 축: 공통 IMS required coverage builder, read-only 전역 coverage verifier, sync logger/admin event 검증.
+- 검증: zzimcar 46 pass, carmore 18 pass, syncLogger 10 pass, sync-coverage 3 pass, build pass, diff check pass.
+- 금지 유지: 외부 save-run/write, Supabase migration apply/push, deploy/restart/launchd, commit은 별도 승인 전 미실행.
+- 운영 schema gate: 현재 찜카/카모아 mapping table과 repository upsert가 `ims_reservation_id` 단일 unique 기준이라 IMS 1건 -> 여러 child block 저장에 부족하다. child key/range 기반 schema/repository phase 승인 전 save-run 금지.
+
+
+## 2026-06-29 IMS external sync child mapping schema local implementation
+- PMDOC: `docs/PHASE/2026-06-29_IMS_EXTERNAL_SYNC_CHILD_MAPPING_SCHEMA_PM.md`
+- 상태: 로컬 구현 및 테스트 통과. 운영 반영/COMPLETE/commit은 아직 아님.
+- schema 파일: `supabase/migrations/20260629102000_update_external_sync_child_mapping_keys.sql`
+- 변경: 찜카 `child_block_key`, 카모아 `child_holiday_key` 추가/backfill 후 `(ims_reservation_id, child_*_key)` unique 기준으로 전환. 기존 단일 `ims_reservation_id` unique index는 신규 index 생성 뒤 drop하도록 migration 파일만 준비.
+- repo/reconcile: mapping upsert/failed/deleted 경로가 child key를 저장·대상 지정하도록 변경.
+- 검증: zzimcar 47 pass, carmore 18 pass, syncLogger 10 pass, sync-coverage 4 pass, build pass, diff check pass.
+- 금지 유지: Supabase migration apply/push, 외부 API save-run/write, deploy/restart/launchd, commit, `.env*`/secret 변경 미실행.
+
+
+## 2026-06-29 IMS external sync verification correction
+- 정정: 현재 상태는 로컬 코드/그린테스트 PASS이지, 실제 runner dry-run/read-only smoke/운영 데이터 coverage smoke 완료가 아니다.
+- 다음 PMDOC 기준: `docs/PHASE/2026-06-29_IMS_EXTERNAL_SYNC_CHILD_MAPPING_SCHEMA_PM.md` 앞단 Phase 1~4에 runner side-effect 조사, no-write smoke 모드, read-only smoke, 실제 coverage smoke를 추가했다.
+- 운영 DB migration/save-run/배포/커밋은 위 smoke gate 전까지 금지.
+
 ## 리스크
 - 예약 상태, 결제 상태, 외부 플랫폼 휴무/가격 상태가 서로 다른 owner를 가진다.
 - 관리자 UI/API가 운영 상태를 직접 바꾸는 구간은 guardrail이 필요하다.
@@ -48,3 +74,22 @@
 ## 다음 작업 후보
 1. Payment Ledger 최소 설계 PM으로 KCP approve 성공 후 booking RPC 실패 시 복구 가능한 상태를 설계한다.
 2. 이후 실제 구현·DB·외부 반영은 별도 phase 승인 후 진행한다.
+
+## 2026-06-29 IMS external sync Phase 1~4 smoke result
+- PMDOC: `docs/PHASE/2026-06-29_IMS_EXTERNAL_SYNC_CHILD_MAPPING_SCHEMA_PM.md`
+- 상태: 승인된 `pa 1-4` 범위만 실행 완료. COMPLETE/commit/운영 반영 아님.
+- no-write smoke 추가: IMS/찜카/카모아 runner에 `--no-write-smoke` 및 `NO_WRITE_SMOKE=true` 경로 추가. run row, mapping row, sync_events DB write, 외부 create/update/delete 없이 stdout/report만 반환.
+- 실제 read-only smoke: 찜카 no-write smoke PASS(68 desired, 69 actual, unmanagedWall 1, replacements 67, errors 0), 카모아 no-write smoke PASS(68 desired, 69 actual, additions 1, deletions 2, unchanged 67, errors 0).
+- coverage smoke: read-only verifier 결과 WARN. IMS `4320448` / `142호5773` / `2026-06-30T01:00:00.000Z~2026-07-03T01:00:00.000Z` 구간이 찜카와 카모아 각각 missing.
+- 검증: no-write smoke test, zzimcar-sync, carmore-sync, sync-coverage, syncLogger, build, diff-check 모두 PASS.
+- 금지 유지: Supabase migration apply/push, 외부 API write/save-run, deploy/restart/launchd, commit, `.env*`/secret 변경 미실행.
+
+## 2026-06-30 IMS 4320448 existing external block mapping absorb COMPLETE
+- PMDOC: `docs/COMPLETED/2026-06-30_IMS_4320448_EXISTING_BLOCK_MAPPING_ABSORB_PM_COMPLETE_20260630.md`
+- 상태: B안 완료. 기존 외부 차단은 삭제/재생성하지 않고 라이브 DB mapping으로 흡수했다.
+- 대상: IMS `4320448`, 차량 `142호5773`, `2026-06-30T01:00:00+00:00` ~ `2026-07-03T01:00:00+00:00`.
+- 외부 차단: 찜카 `disableTimePid=231732`, 카모아 `holidaySerial=1605223` / memo `IMS 4320448`.
+- DB 반영: `zzimcar_disable_time_sync_mappings` 1건, `carmore_holiday_sync_mappings` 1건 active mapping 추가.
+- 검증: DB SELECT 확인, 찜카/카모아 no-write smoke에서 IMS `4320448`은 unchanged로 판정, targeted sync tests 48 pass, `npm run build` pass.
+- 금지 유지: 외부 save-run/write, 외부 차단 삭제/재생성, Supabase migration apply/push, deploy/restart/launchd는 미실행.
+- 후속 기준: child key migration은 아직 라이브 DB 미적용이며, 전체 save-run 전에는 migration/schema gate와 추가 no-write 검증이 필요하다.

@@ -6,7 +6,9 @@ const {
   applyChange,
   applyDeletion,
   buildHolidayMemo,
+  classifyCarmoreHolidayRows,
   createOrRecoverHoliday,
+  fetchCurrentCarmoreUnmanagedWalls,
   findSharedActiveHolidayMappings,
   hasChanged,
   isDuplicateHolidayError,
@@ -135,4 +137,88 @@ test('applyChange deletes old and creates new holiday on save', async () => {
   const result = await applyChange({ desired, actual, client, shouldSave: true });
   assert.deepEqual(calls, [['delete', 'OLD'], ['create']]);
   assert.equal(result.addition.holidaySerial, 'NEW');
+});
+
+test('planReconcile splits carmore desired holiday dates around unmanaged wall', () => {
+  const desiredRows = [{
+    imsReservationId: 'A1',
+    carNumber: '101하9257',
+    carmoreRentcarSerial: '100',
+    startAt: '2026-06-22T00:00:00.000Z',
+    endAt: '2026-07-01T00:00:00.000Z',
+    holidayStartDate: '2026-06-22',
+    holidayEndDate: '2026-07-01',
+  }];
+  const unmanagedWalls = [{ carmoreRentcarSerial: '100', holidayStartDate: '2026-06-30', holidayEndDate: '2026-07-05' }];
+
+  const plan = planReconcile({ desiredRows, actualRows: [], unmanagedWalls });
+
+  assert.equal(plan.additions.length, 1);
+  assert.equal(plan.additions[0].desired.holidayStartDate, '2026-06-22');
+  assert.equal(plan.additions[0].desired.holidayEndDate, '2026-06-29');
+  assert.equal(plan.deletions.length, 0);
+  assert.equal(plan.changes.length, 0);
+});
+
+
+test('classifyCarmoreHolidayRows separates unmapped current holidays as unmanaged walls', () => {
+  const walls = classifyCarmoreHolidayRows({
+    carmoreRentcarSerial: '100',
+    carNumber: '101하9257',
+    previousMappings: [{ imsReservationId: 'A1', carmoreHolidaySerial: 'H1' }],
+    currentRows: [
+      { serial: 'H1', memo: 'IMS A1', startDate: '2026-06-22', endDate: '2026-06-29' },
+      { serial: 'MANUAL', memo: 'manual block', startDate: '2026-06-30', endDate: '2026-07-05' },
+    ],
+  });
+
+  assert.equal(walls.length, 1);
+  assert.equal(walls[0].carmoreHolidaySerial, 'MANUAL');
+  assert.equal(walls[0].holidayStartDate, '2026-06-30');
+  assert.equal(walls[0].unmanaged, true);
+});
+
+test('fetchCurrentCarmoreUnmanagedWalls reads current holidays and excludes managed serials', async () => {
+  const calls = [];
+  const client = {
+    async getRentcarHolidays({ rentcarSerial }) {
+      calls.push(rentcarSerial);
+      return [
+        { serial: 'H1', memo: 'IMS A1', startDate: '2026-06-22', endDate: '2026-06-29' },
+        { serial: 'MANUAL', memo: 'manual block', startDate: '2026-06-30', endDate: '2026-07-05' },
+      ];
+    },
+  };
+
+  const walls = await fetchCurrentCarmoreUnmanagedWalls({
+    client,
+    desiredRows: [{ imsReservationId: 'A1', carNumber: '101하9257', carmoreRentcarSerial: '100' }],
+    actualRows: [{ imsReservationId: 'A1', carNumber: '101하9257', carmoreRentcarSerial: '100', carmoreHolidaySerial: 'H1' }],
+  });
+
+  assert.deepEqual(calls, ['100']);
+  assert.equal(walls.length, 1);
+  assert.equal(walls[0].carmoreHolidaySerial, 'MANUAL');
+});
+
+test('planReconcile keeps multiple child holiday additions for same IMS reservation', () => {
+  const desiredRows = [{
+    imsReservationId: 'A1',
+    carNumber: '101하9257',
+    carmoreRentcarSerial: '100',
+    startAt: '2026-06-22T00:00:00.000Z',
+    endAt: '2026-07-10T00:00:00.000Z',
+    holidayStartDate: '2026-06-22',
+    holidayEndDate: '2026-07-10',
+  }];
+  const unmanagedWalls = [{ carmoreRentcarSerial: '100', holidayStartDate: '2026-06-30', holidayEndDate: '2026-07-05' }];
+
+  const plan = planReconcile({ desiredRows, actualRows: [], unmanagedWalls });
+
+  assert.equal(plan.additions.length, 2);
+  assert.deepEqual(plan.additions.map((entry) => [entry.desired.holidayStartDate, entry.desired.holidayEndDate]), [
+    ['2026-06-22', '2026-06-29'],
+    ['2026-07-06', '2026-07-10'],
+  ]);
+  assert.notEqual(plan.additions[0].desired.childHolidayKey, plan.additions[1].desired.childHolidayKey);
 });

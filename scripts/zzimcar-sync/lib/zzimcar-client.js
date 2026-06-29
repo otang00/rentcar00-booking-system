@@ -56,6 +56,17 @@ function formatKstDateTime(value) {
   return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`;
 }
 
+function buildZzimcarErrorDetail(body) {
+  if (!body || typeof body !== 'object') return '';
+  const parts = [];
+  if (body.code != null && String(body.code).trim()) parts.push(`[${String(body.code).trim()}]`);
+  if (body.message != null && String(body.message).trim()) parts.push(String(body.message).trim());
+  if (body.msg != null && String(body.msg).trim()) parts.push(String(body.msg).trim());
+  const defaultMessage = body.errors?.[0]?.defaultMessage;
+  if (defaultMessage != null && String(defaultMessage).trim()) parts.push(String(defaultMessage).trim());
+  return [...new Set(parts)].join(' ');
+}
+
 class ZzimcarClient {
   constructor(options = {}) {
     this.baseUrl = options.baseUrl || ZZIMCAR_BASE_URL;
@@ -221,7 +232,7 @@ class ZzimcarClient {
 
     const body = await response.json().catch(() => null);
     if (!response.ok) {
-      const detail = body?.message || body?.errors?.[0]?.defaultMessage || '';
+      const detail = buildZzimcarErrorDetail(body);
       throw new Error(`Disable time create failed: HTTP ${response.status}${detail ? ` ${detail}` : ''}`);
     }
 
@@ -252,7 +263,7 @@ class ZzimcarClient {
 
     const body = await response.json().catch(() => null);
     if (!response.ok) {
-      const detail = body?.message || body?.errors?.[0]?.defaultMessage || '';
+      const detail = buildZzimcarErrorDetail(body);
       throw new Error(`Disable time delete failed: HTTP ${response.status}${detail ? ` ${detail}` : ''}`);
     }
 
@@ -265,6 +276,7 @@ module.exports = {
   ZzimcarClient,
   buildLoginFormBody,
   buildUrl,
+  buildZzimcarErrorDetail,
   extractSessionCookie,
   formatKstDateTime,
   parseVehiclePagingResponse,

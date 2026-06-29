@@ -68,6 +68,72 @@ function buildSyncSummaryText(kind, sync, loading) {
   return `${label} | ${formatSyncStatusLabel(sync.status)} | ${formatSyncDateTime(sync.updatedAt)} | add ${sync.additionsCount ?? 0} / del ${sync.deletionsCount ?? 0} / chg ${sync.changesCount ?? 0} | 오류 ${sync.failedCount ?? 0}`
 }
 
+function formatSyncEventProvider(provider) {
+  if (provider === 'zzimcar') return '찜카'
+  if (provider === 'carmore') return '카모아'
+  if (provider === 'ims') return 'IMS'
+  return provider || '시스템'
+}
+
+function formatSyncEventSeverity(severity) {
+  if (severity === 'critical') return '긴급'
+  if (severity === 'error') return '오류'
+  if (severity === 'warn') return '경고'
+  return severity || '정보'
+}
+
+function getSyncEventTone(severity) {
+  if (severity === 'critical' || severity === 'error') return { bg: '#fff1f2', border: '#fecdd3', text: '#be123c' }
+  if (severity === 'warn') return { bg: '#fffbeb', border: '#fde68a', text: '#b45309' }
+  return { bg: '#f8fafc', border: '#e2e8f0', text: '#475569' }
+}
+
+function SyncEventPanel({ events = [], loading = false }) {
+  const visibleEvents = Array.isArray(events) ? events.slice(0, 10) : []
+
+  return (
+    <div className="panel-sub" style={{ display: 'grid', gap: 8, padding: '10px 12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
+        <strong>최근 동기화 이벤트</strong>
+        <span className="field-note" style={{ margin: 0 }}>{loading ? '확인중' : `${visibleEvents.length}건`}</span>
+      </div>
+      {loading ? <p className="field-note" style={{ margin: 0 }}>운영 이벤트를 불러오는 중입니다.</p> : null}
+      {!loading && visibleEvents.length === 0 ? (
+        <p className="field-note" style={{ margin: 0 }}>표시할 경고/오류/부분성공/overlap 이벤트가 없습니다.</p>
+      ) : null}
+      {!loading && visibleEvents.length > 0 ? (
+        <div style={{ display: 'grid', gap: 6 }}>
+          {visibleEvents.map((event, index) => {
+            const tone = getSyncEventTone(event.severity)
+            return (
+              <div
+                key={event.id || event.dedupeKey || `${event.provider}-${event.occurredAt}-${index}`}
+                style={{
+                  display: 'grid',
+                  gap: 4,
+                  padding: '8px 10px',
+                  borderRadius: 8,
+                  background: tone.bg,
+                  border: `1px solid ${tone.border}`,
+                }}
+              >
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                  <strong style={{ color: tone.text }}>{formatSyncEventSeverity(event.severity)}</strong>
+                  <span className="field-note" style={{ margin: 0 }}>{formatSyncEventProvider(event.provider)}</span>
+                  <span className="field-note" style={{ margin: 0 }}>{formatSyncDateTime(event.occurredAt)}</span>
+                </div>
+                <p className="field-note" style={{ margin: 0, color: '#334155' }}>
+                  [{event.eventType || event.action || 'sync_event'}] {event.carNumber ? `${event.carNumber} · ` : ''}{event.imsReservationId ? `${event.imsReservationId} · ` : ''}{event.message || event.errorCode || '-'}
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 function SyncStatusRow({ sync, errors = [], loading = false, kind = 'ims' }) {
   const tone = getSyncTone(sync?.status)
   const summaryText = buildSyncSummaryText(kind, sync, loading)
@@ -138,6 +204,7 @@ export default function AdminBookingsPage() {
   const [zzimcarSyncErrors, setZzimcarSyncErrors] = useState([])
   const [carmoreSync, setCarmoreSync] = useState(null)
   const [carmoreSyncErrors, setCarmoreSyncErrors] = useState([])
+  const [latestSyncEvents, setLatestSyncEvents] = useState([])
 
   const tab = searchParams.get('tab') || 'active'
   const qField = searchParams.get('qField') || 'carNumber'
@@ -180,6 +247,7 @@ export default function AdminBookingsPage() {
         setZzimcarSyncErrors(result.zzimcarSyncErrors || [])
         setCarmoreSync(result.carmoreSync || null)
         setCarmoreSyncErrors(result.carmoreSyncErrors || [])
+        setLatestSyncEvents(result.latestSyncEvents || [])
         setError('')
       })
       .catch((fetchError) => {
@@ -192,6 +260,7 @@ export default function AdminBookingsPage() {
         setZzimcarSyncErrors([])
         setCarmoreSync(null)
         setCarmoreSyncErrors([])
+        setLatestSyncEvents([])
         setError(fetchError.message || '관리자 예약 목록을 불러오지 못했습니다.')
       })
       .finally(() => {
@@ -255,6 +324,7 @@ export default function AdminBookingsPage() {
                     <SyncStatusRow sync={imsSync} errors={imsSyncErrors} loading={fetching} kind="ims" />
                     <SyncStatusRow sync={zzimcarSync} errors={zzimcarSyncErrors} loading={fetching} kind="zzimcar" />
                     <SyncStatusRow sync={carmoreSync} errors={carmoreSyncErrors} loading={fetching} kind="carmore" />
+                    <SyncEventPanel events={latestSyncEvents} loading={fetching} />
                   </div>
                 </div>
               ) : null}

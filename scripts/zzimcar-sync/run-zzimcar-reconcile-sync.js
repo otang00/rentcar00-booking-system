@@ -3,10 +3,14 @@ const path = require('path');
 const { loadEnvFile } = require('../pricing/lib/loadEnvFile');
 const { reconcileZzimcarDisableTimes } = require('./lib/reconcile-zzimcar-disable-times');
 const { createSyncLogger } = require('../../server/logging/syncLogger');
+const { getSupabaseAdmin, hasSupabaseConfig } = require('./../ims-sync/lib/supabase-admin');
 const projectRoot = path.resolve(__dirname, '../..');
 loadEnvFile(path.join(projectRoot, '.env'));
 
-const zzimcarSyncLogger = createSyncLogger({ provider: 'zzimcar', stage: 'disable_time_reconcile' });
+const zzimcarSyncLogger = createSyncLogger(
+  { provider: 'zzimcar', stage: 'disable_time_reconcile' },
+  { supabaseClient: hasSupabaseConfig() ? getSupabaseAdmin() : null },
+);
 
 function logSyncEvent(event) {
   try {
@@ -57,28 +61,36 @@ function parseArgs(argv = process.argv.slice(2)) {
 }
 
 async function runZzimcarReconcileSync(options = {}) {
-  const shouldSave = options.shouldSave === true || process.env.ZZIMCAR_SYNC_SAVE === 'true';
-  const runId = `zzimcar-${new Date().toISOString()}`;
-  logSyncEvent({
+  const noWriteSmoke = options.noWriteSmoke === true || process.env.NO_WRITE_SMOKE === 'true' || process.env.ZZIMCAR_NO_WRITE_SMOKE === 'true';
+  const shouldSave = !noWriteSmoke && (options.shouldSave === true || process.env.ZZIMCAR_SYNC_SAVE === 'true');
+  const runId = noWriteSmoke ? `zzimcar-no-write-smoke-${new Date().toISOString()}` : `zzimcar-${new Date().toISOString()}`;
+  if (!noWriteSmoke) logSyncEvent({
     runId,
     action: 'sync_start',
     severity: 'info',
     eventType: 'sync_start',
     message: 'Zzimcar reconcile sync started',
-    metadata: { shouldSave },
+    metadata: { shouldSave, noWriteSmoke },
     requiresAck: false,
     visibility: 'ops',
     dedupeKey: 'zzimcar:sync_start',
   });
 
-  const summary = await reconcileZzimcarDisableTimes({ shouldSave });
-  logSyncEvent(buildCompletionEvent({ runId, summary }));
+  const summary = await reconcileZzimcarDisableTimes({
+    shouldSave,
+    noWriteSmoke,
+    eventLogger: noWriteSmoke ? () => {} : logSyncEvent,
+  });
+  if (!noWriteSmoke) logSyncEvent(buildCompletionEvent({ runId, summary }));
   return summary;
 }
 
 async function main() {
   const args = parseArgs();
-  const summary = await runZzimcarReconcileSync({ shouldSave: args.save === true });
+  const summary = await runZzimcarReconcileSync({
+    shouldSave: args.save === true,
+    noWriteSmoke: args.noWriteSmoke === true,
+  });
   console.log(JSON.stringify(summary, null, 2));
 }
 
