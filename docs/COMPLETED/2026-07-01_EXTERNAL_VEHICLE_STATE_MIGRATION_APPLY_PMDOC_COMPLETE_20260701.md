@@ -1,0 +1,379 @@
+# External Vehicle State Migration Apply & Dev PR PMDOC
+
+## 0. 문서 정보
+- 작성일: 2026-07-01
+- 작성자/agent: OpenClaw `rentcar00_reservation_developer`
+- 상태: COMPLETE
+- 기준 브랜치: `dev`
+- 기준 커밋: `e8919ac Prepare external vehicle state operations apply`
+- 목적: 3사 차량 상태를 IMS 정책 기준으로 실제 일치시키고, 검증·문서정리·커밋·push·dev → master PR까지 마무리한다.
+- 승인 범위: DB migration apply → mapping 저장 no-write → 실제 외부 write → 최종 검증 → 문서 COMPLETE/커밋 → push/PR.
+- 관련 문서:
+  - `docs/PHASE/2026-06-30_EXTERNAL_VEHICLE_STATE_OPERATIONS_APPLY_PM.md`
+  - `docs/COMPLETED/2026-06-30_IMS_MONTHLY_VEHICLE_CLOSE_SYNC_PM_COMPLETE_20260630.md`
+  - `docs/policies/RENTCAR00_POLICY.md`
+- 완료 후 문서명: `docs/COMPLETED/2026-07-01_EXTERNAL_VEHICLE_STATE_MIGRATION_APPLY_PMDOC_COMPLETE_20260701.md`
+- 상태/정책문서 업데이트 대상:
+  - `PROJECT_STATE.md` 존재 시 업데이트
+  - `docs/PHASE/2026-06-30_EXTERNAL_VEHICLE_STATE_OPERATIONS_APPLY_PM.md`
+  - 필요 시 `docs/policies/RENTCAR00_POLICY.md`
+
+## 1. 목적
+- 목표:
+  - live DB에 차량 상태 sync mapping table 2개를 적용한다.
+  - 외부 write 전에 mapping 저장과 운영로그를 검증한다.
+  - 카모아/찜카 실제 차량 상태를 IMS 정책 기준으로 반영한다.
+  - write 후 mismatch 0을 확인한다.
+  - dev 변경사항을 문서화·커밋·push하고 dev → master PR을 생성한다.
+- 성공 기준:
+  - migration apply 성공.
+  - 카모아 mapping 60 row, 찜카 mapping 60 row 저장 확인.
+  - mapping 저장 no-write에서 `wroteExternal=false` 확인.
+  - 실제 write: 카모아 17건, 찜카 15건 실행.
+  - write 후 no-write smoke에서 `afterMismatch=0` 확인.
+  - 신규 테스트, 카모아/찜카 테스트, build 통과.
+  - PMDOC COMPLETE 이동, `PROJECT_STATE.md` 필요 시 업데이트, 커밋 완료.
+  - origin/dev push 및 dev → master PR 생성.
+- 제외 범위:
+  - 승인 범위 밖 기능 수정.
+  - `.env*`, secret, token 값 변경.
+  - deploy.
+  - launchd restart.
+
+## 2. 기준점
+- 현재 dev:
+  - 커밋 2개 ahead 상태로 파악됨.
+  - migration 파일 준비 완료.
+  - 가상 write 결과: mismatch 27 → 0 PASS.
+  - 실제 DB apply 미실행.
+  - 외부 write 미실행.
+  - push 미실행.
+  - PR 미생성.
+- 적용 migration 파일:
+  - `supabase/migrations/20260630191000_create_carmore_vehicle_state_sync_mappings.sql`
+  - `supabase/migrations/20260630191100_create_zzimcar_vehicle_state_sync_mappings.sql`
+- 생성 table:
+  - `public.carmore_vehicle_state_sync_mappings`
+  - `public.zzimcar_vehicle_state_sync_mappings`
+- 실제 write 예상:
+  - 카모아: 17건
+  - 찜카: 15건
+  - touched 차량: 27대
+
+## 3. 전체 변경 요약
+- 변경점:
+  - live DB schema에 신규 mapping table 2개 생성.
+  - mapping 계획 row 저장 및 `sync_events` 운영로그 확인.
+  - 카모아/찜카 차량 상태 실제 write.
+  - write 후 3사 상태 일치 검증.
+  - 문서 COMPLETE, 커밋, push, PR 생성.
+- 변경대상:
+  - Live Supabase DB schema
+  - `public.carmore_vehicle_state_sync_mappings`
+  - `public.zzimcar_vehicle_state_sync_mappings`
+  - `public.sync_events`
+  - 카모아 차량 상태 API
+  - 찜카 차량 상태 API
+  - `docs/PHASE/2026-07-01_EXTERNAL_VEHICLE_STATE_MIGRATION_APPLY_PMDOC.md`
+  - `docs/COMPLETED/2026-07-01_EXTERNAL_VEHICLE_STATE_MIGRATION_APPLY_PMDOC_COMPLETE_20260701.md`
+  - `PROJECT_STATE.md` 존재 시
+  - git branch `dev`, remote `origin/dev`, GitHub PR
+- 예상 영향:
+  - 신규 DB table 추가.
+  - 외부 플랫폼 카모아/찜카의 차량 노출/월렌트 상태 변경.
+  - dev branch 변경사항이 remote로 push되고 PR이 생성됨.
+- 주요 리스크:
+  - live DB schema 변경 실패 또는 부분 적용.
+  - mapping 저장 실패.
+  - 차량 매칭 0건/다건.
+  - 카모아/찜카 API write 오류.
+  - write 후 mismatch 잔존.
+  - push/PR 과정에서 remote 변경 충돌.
+
+## 4. Phase 목록
+
+### Phase 1. DB migration apply
+- 목적: 차량 상태 sync mapping 저장용 신규 DB table 2개를 live DB에 생성한다.
+- 변경점:
+  - `public.carmore_vehicle_state_sync_mappings` 생성.
+  - `public.zzimcar_vehicle_state_sync_mappings` 생성.
+  - 각 table의 column, check constraint, unique index, 조회 index 생성.
+- 변경대상:
+  - Live Supabase DB schema
+- 실행방법:
+  - 실행 직전 `git status`, migration 파일 2개, Supabase 연결/대상 project를 확인한다.
+  - 승인된 apply 방식으로 migration 2개를 순서대로 적용한다.
+- 종료조건:
+  - 두 table 생성 성공.
+  - migration 오류 없음.
+- 검증방법:
+  - 테이블 생성 확인.
+  - 컬럼 확인.
+  - unique index 확인.
+- 리스크:
+  - live DB schema 변경.
+- 되돌릴 방법:
+  - write 전이면 신규 table drop 가능.
+  - rollback SQL:
+    - `drop table if exists public.zzimcar_vehicle_state_sync_mappings;`
+    - `drop table if exists public.carmore_vehicle_state_sync_mappings;`
+- 출력보고:
+  - 적용 migration 파일.
+  - 생성 table.
+  - 컬럼/index 확인 결과.
+
+### Phase 2. mapping 저장 no-write
+- 목적: 외부 플랫폼 write 없이 DB mapping 저장과 운영로그만 검증한다.
+- 변경점:
+  - 카모아/찜카별 mapping 계획 row 저장.
+  - `sync_events` 로그 저장 확인.
+- 변경대상:
+  - `public.carmore_vehicle_state_sync_mappings`
+  - `public.zzimcar_vehicle_state_sync_mappings`
+  - `public.sync_events`
+- 실행방법:
+  - 외부 write 방지 옵션을 명시한 no-write/persist-plan 검증만 실행한다.
+  - 실행 전 `NO_WRITE_SMOKE=true` 또는 `--no-write-smoke` 계열 옵션을 확인한다.
+- 종료조건:
+  - 카모아 60 row 저장 확인.
+  - 찜카 60 row 저장 확인.
+  - `sync_events` 로그 저장 확인.
+  - `wroteExternal=false` 확인.
+- 검증방법:
+  - DB row count.
+  - 최근 `sync_events` 조회.
+  - runner summary inspection.
+- 리스크:
+  - mapping 저장 실패 시 실제 write 전 중단 필요.
+  - no-write 옵션 누락 시 외부 write 위험.
+- 되돌릴 방법:
+  - 검증 row 삭제가 필요하면 삭제 대상/조건 보고 후 별도 승인.
+- 출력보고:
+  - 카모아 row count.
+  - 찜카 row count.
+  - sync_events 확인 결과.
+  - wroteExternal=false.
+
+### Phase 3. 실제 외부 write
+- 목적: IMS 정책 기준으로 카모아/찜카 차량 상태를 실제 반영한다.
+- 변경점:
+  - 카모아 차량 상태 write 17건.
+  - 찜카 차량 상태 write 15건.
+  - touched 차량 27대 반영.
+- 변경대상:
+  - 카모아 외부 API 차량 상태.
+  - 찜카 외부 API 차량 상태.
+  - mapping table의 applied/synced 상태.
+  - `sync_events` write 결과 로그.
+- 실행방법:
+  - Phase 2 결과와 write 대상 count를 재확인한다.
+  - 실제 write 명령 실행 전 대상 count를 출력한다.
+  - 카모아/찜카 write를 실행한다.
+- 종료조건:
+  - 카모아 write 17건 성공.
+  - 찜카 write 15건 성공.
+  - API 오류 없음.
+- 검증방법:
+  - write 결과 summary 확인.
+  - 실패/partial success 여부 확인.
+- 리스크:
+  - 외부 플랫폼 상태가 실제 변경됨.
+  - API 오류 또는 일부 실패 시 즉시 중단 필요.
+- 되돌릴 방법:
+  - write 전 observed/applied 값을 기준으로 원복 write 계획을 별도 보고하고 승인 후 처리.
+- 출력보고:
+  - 카모아 write 성공/실패 count.
+  - 찜카 write 성공/실패 count.
+  - touched 차량 수.
+  - partial/failed 여부.
+
+### Phase 4. 최종 검증
+- 목적: 실제 write 후 3사 상태가 IMS 정책 기준으로 일치하는지 확인한다.
+- 변경점: 없음. 검증만 수행한다.
+- 변경대상: 없음.
+- 실행방법:
+  - write 후 no-write smoke 실행.
+  - live no-write report 출력.
+  - 신규 테스트, 카모아/찜카 테스트, build 실행.
+  - 운영로그 확인.
+- 종료조건:
+  - afterMismatch 0.
+  - 신규 테스트 통과.
+  - 카모아 테스트 통과.
+  - 찜카 테스트 통과.
+  - build 통과.
+  - 운영로그 확인 완료.
+- 검증방법:
+  - `node --test scripts/external-vehicle-state-sync/__tests__/*.test.js`
+  - `npm run test:carmore-sync`
+  - `npm run test:zzimcar-sync`
+  - `npm run build`
+  - live no-write report.
+  - 최근 `sync_events` 확인.
+- 리스크:
+  - write 후 mismatch가 남으면 즉시 중단하고 원인 분석 필요.
+- 되돌릴 방법:
+  - 실패 원인에 따라 rollback/write 원복 PM 작성.
+- 출력보고:
+  - afterMismatch.
+  - 테스트/build 결과.
+  - live report 요약.
+  - 운영로그 확인 결과.
+
+### Phase 5. 문서 COMPLETE / 커밋
+- 목적: 작업 결과를 문서화하고 dev branch에 커밋한다.
+- 변경점:
+  - PMDOC 완료 내용 반영.
+  - PMDOC를 COMPLETED로 이동.
+  - `PROJECT_STATE.md` 업데이트.
+  - 기존 관련 PM 문서 상태 필요 시 업데이트.
+  - 커밋 생성.
+- 변경대상:
+  - `docs/PHASE/2026-07-01_EXTERNAL_VEHICLE_STATE_MIGRATION_APPLY_PMDOC.md`
+  - `docs/COMPLETED/2026-07-01_EXTERNAL_VEHICLE_STATE_MIGRATION_APPLY_PMDOC_COMPLETE_20260701.md`
+  - `PROJECT_STATE.md` 존재 시
+  - 필요 시 관련 docs
+  - git commit
+- 실행방법:
+  - 완료 결과를 PMDOC에 반영.
+  - 완료 문서 경로로 이동.
+  - `PROJECT_STATE.md` 존재 여부 확인 후 업데이트.
+  - `git diff --check`, `git status --short` 확인.
+  - 승인 범위 파일만 커밋.
+- 종료조건:
+  - COMPLETE 문서 생성.
+  - 필요한 상태 문서 업데이트 완료.
+  - 커밋 완료.
+- 검증방법:
+  - diff inspection.
+  - `git diff --check`.
+  - 완료 문서 직접 확인.
+- 리스크:
+  - unrelated dirty work 포함 위험.
+- 되돌릴 방법:
+  - 커밋 전 파일 원복.
+  - 커밋 후 revert commit.
+- 출력보고:
+  - 변경 파일.
+  - 완료 문서 경로.
+  - 커밋 해시.
+
+### Phase 6. push / PR
+- 목적: dev 변경사항을 remote에 올리고 master 병합용 PR을 만든다.
+- 변경점:
+  - `origin/dev` push.
+  - dev → master PR 생성.
+- 변경대상:
+  - remote branch `origin/dev`
+  - GitHub PR
+- 실행방법:
+  - push 전 `git status`, `git log --oneline origin/dev..dev` 확인.
+  - `git push origin dev`.
+  - dev → master PR 생성.
+  - PR 본문에 다음을 명시한다:
+    - migration 포함.
+    - DB migration apply 완료 여부.
+    - external write 실행/검증 완료 여부.
+    - deploy 필요 여부.
+- 종료조건:
+  - push 성공.
+  - PR URL 생성.
+- 검증방법:
+  - remote ahead 해소 확인.
+  - PR 조회 확인.
+- 리스크:
+  - remote 변경 충돌.
+  - PR 생성 권한/API 문제.
+- 되돌릴 방법:
+  - PR close.
+  - push된 commit은 필요 시 revert commit.
+- 출력보고:
+  - push 결과.
+  - PR URL.
+  - PR에 적힌 핵심 주의사항.
+
+## 5. 중단 조건
+- migration 실패.
+- mapping 저장 실패.
+- 차량 매칭 0건/다건.
+- write 후 mismatch 남음.
+- 카모아/찜카 API 오류.
+- 운영로그 실패가 추적 불가능 수준이면 중단.
+- Supabase 연결 project가 불명확함.
+- `wroteExternal=false`가 Phase 2에서 확인되지 않음.
+- 실제 write 대상 count가 기준점과 다름.
+- `.env*`, secret, token, runtime config 수정 필요 발생.
+- deploy/restart 필요 발생.
+- remote push/PR 중 충돌 발생.
+
+## 6. 승인 요청
+- 승인 문구:
+  - `이 PMDOC 기준으로 Phase 1부터 Phase 6까지 진행 승인`
+- 이 승인은 다음 상태 변경을 포함한다:
+  - live DB migration apply.
+  - mapping row 저장.
+  - 카모아/찜카 실제 외부 write.
+  - 문서 수정/이동.
+  - 커밋.
+  - origin/dev push.
+  - dev → master PR 생성.
+- 별도 제외:
+  - deploy.
+  - launchd restart.
+  - secret/runtime config 수정.
+
+## 7. 완료 보고 형식
+- 완료 phase:
+- DB migration apply 결과:
+- mapping 저장 no-write 결과:
+- 실제 write 결과:
+- 최종 검증 결과:
+- 문서 COMPLETE 경로:
+- PROJECT_STATE.md 업데이트:
+- 커밋:
+- push:
+- PR URL:
+- 남은 리스크:
+
+
+## 8. 실행 결과
+- 실행일: 2026-07-01 KST
+- Phase 1 DB migration apply: 완료
+  - 적용 migration:
+    - `20260630191000_create_carmore_vehicle_state_sync_mappings.sql`
+    - `20260630191100_create_zzimcar_vehicle_state_sync_mappings.sql`
+  - Supabase CLI `db push --linked` 성공.
+  - `supabase migration list --linked` 기준 두 migration이 remote 미적용 상태였고 push 후 적용 완료.
+- Phase 2 mapping 저장 no-write: 완료
+  - 카모아 mapping row: 60
+  - 찜카 mapping row: 60
+  - 카모아 planned write count: 17
+  - 찜카 planned write count: 15
+  - beforeMismatch: 27
+  - afterMismatch: 0
+  - virtualPass: true
+  - touchedVehicles: 27
+  - `wroteExternal=false`, `wroteDb=true`
+  - `sync_events` start/plan/success structured event 기록 확인.
+- Phase 3 실제 외부 write: 완료
+  - 카모아 write success: 17
+  - 찜카 write success: 15
+  - failures: 0
+  - `sync_events` write start/success 기록 확인.
+- Phase 4 최종 검증: 완료
+  - write 후 live no-write smoke: PASS
+  - reportSummary: total 60 / beforeMismatch 0 / afterMismatch 0 / virtualPass true / touchedVehicles 0
+  - carmoreCounts: total 60 / setState 0 / unchanged 60 / errors 0
+  - zzimcarCounts: total 60 / setState 0 / unchanged 60 / errors 0
+  - 신규 external vehicle state tests: 5 pass
+  - 카모아 tests: 20 pass
+  - 찜카 tests: 47 pass
+  - `npm run build`: pass
+- Phase 5 문서 COMPLETE / 커밋: 진행 중 이 문서에서 정리.
+- Phase 6 push / PR: 커밋 후 진행.
+
+## 9. 남은 리스크 / 운영 메모
+- deploy는 이번 범위에서 실행하지 않았다.
+- launchd restart는 이번 범위에서 실행하지 않았다.
+- `.env*`, secret, token, runtime config 값은 수정하지 않았다.
+- 외부 차량 상태는 2026-07-01 실행 직후 기준 IMS 정책과 일치한다.

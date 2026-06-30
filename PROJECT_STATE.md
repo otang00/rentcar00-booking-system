@@ -88,6 +88,17 @@
 - 검증: 신규 external vehicle state 테스트 5 pass, 카모아 테스트 20 pass, 찜카 테스트 47 pass, build pass, live no-write smoke with report pass.
 - 다음 승인 필요: Supabase migration apply → mapping 저장 no-write 검증 → 실제 카모아/찜카 write save-run 별도 승인.
 
+
+## 2026-07-01 External vehicle state migration apply + live write COMPLETE
+- PMDOC: `docs/COMPLETED/2026-07-01_EXTERNAL_VEHICLE_STATE_MIGRATION_APPLY_PMDOC_COMPLETE_20260701.md`
+- 상태: Supabase migration apply, mapping 저장 no-write, 카모아/찜카 실제 차량 상태 write, 최종 no-write 검증 완료.
+- DB 반영: `carmore_vehicle_state_sync_mappings`, `zzimcar_vehicle_state_sync_mappings` live DB 생성 완료.
+- mapping 저장 검증: 카모아 60 row, 찜카 60 row, `wroteExternal=false`, `wroteDb=true`, sync_events 기록 확인.
+- 실제 write: 카모아 17건, 찜카 15건 성공, failures 0.
+- write 후 검증: live no-write smoke 결과 total 60 / beforeMismatch 0 / afterMismatch 0 / virtualPass true / touchedVehicles 0.
+- 테스트: external vehicle state 5 pass, carmore 20 pass, zzimcar 47 pass, build pass.
+- 미실행: deploy, launchd restart, secret/runtime config 변경.
+
 ## 리스크
 - 예약 상태, 결제 상태, 외부 플랫폼 휴무/가격 상태가 서로 다른 owner를 가진다.
 - 관리자 UI/API가 운영 상태를 직접 바꾸는 구간은 guardrail이 필요하다.
