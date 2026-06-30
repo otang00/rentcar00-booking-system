@@ -117,3 +117,13 @@
 - 검증: 카모아 테스트 17 pass, 찜카 테스트 24 pass, `npm run build` pass, 카모아 no-write desired 70 / actual 70 / unchanged 70 / errors 0, 찜카 no-write additions/deletions/replacements 0 / errors 0.
 - 운영 반영: Vercel deploy, launchd restart/kickstart, DB write/apply, 외부 save-run/write는 미실행.
 - 운영 기준: 카모아 filtered save-run은 금지/차단. 단건 확인은 no-write/dry-run만 사용하고, 실제 save-run은 full-scope no-write 검토 후 전체 기준으로만 판단한다.
+
+
+## 2026-06-30 IMS external sync PR merge / production deploy COMPLETE
+- PMDOC: `docs/COMPLETED/2026-06-30_IMS_EXTERNAL_SYNC_PR_DEPLOY_READINESS_PM_COMPLETE_20260630.md`
+- PR: #7 `https://github.com/otang00/rentcar00-booking-system/pull/7`
+- Merge: `a3bbae6870e0db8f171d00df33db0a4855ce0579` (`dev -> master`)
+- Production deploy: Vercel Git integration 자동 배포 READY. Deployment URL `rentcar00-booking-system-iexlkhpvd-otang00s-projects.vercel.app`.
+- Smoke: `https://rentcar00.com` HTTP 200, `/api/gone` HTTP 410, 카모아 filtered save-run guard direct check PASS.
+- 운영 데이터 drift: PR/배포 전 no-write smoke 중 live 예약 데이터가 계속 변동되어 카모아 후보가 `4321373`에서 `4308172 change`로 바뀌었다. 사용자 지시에 따라 이를 배포 차단 게이트가 아닌 live sync drift로 기록하고 PR/배포 정상화를 완료했다.
+- 미실행: 외부 save-run/write, launchd restart/kickstart, 추가 DB write/apply, `.env*`/secret 수정.
