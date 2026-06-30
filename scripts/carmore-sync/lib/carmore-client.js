@@ -129,6 +129,60 @@ class CarmoreClient {
     return this.login();
   }
 
+  async getRentcarInventory(params = {}) {
+    const session = await this.ensureLoggedIn();
+    const result = await this.post('get/JSON/rentcarInventory.php', {
+      ...session,
+      page: params.page || 1,
+      number: params.number || 200,
+      searchText: params.searchText || '',
+      rentType: params.rentType || 'all',
+      carState: params.carState || 'all',
+      carSerial: params.carSerial || 'all',
+      searchOption: params.searchOption || '',
+      searchOption2: params.searchOption2 || '',
+      searchOption3: params.searchOption3 || '',
+      searchOption4: params.searchOption4 || '',
+      searchOption5: params.searchOption5 || '',
+      carmoreInventory: params.carmoreInventory ?? 1,
+      sortingOption: params.sortingOption || '',
+      shortRentRegFilter: params.shortRentRegFilter || 'all',
+      monthRentRegFilter: params.monthRentRegFilter || 'all',
+      shortDisplayFilter: params.shortDisplayFilter || 'all',
+      monthDisplayFilter: params.monthDisplayFilter || 'all',
+    });
+    if (Number(result.result) !== 1) throw new Error(`Carmore rentcarInventory failed: ${JSON.stringify(result)}`);
+    return {
+      result,
+      rows: Array.isArray(result.list) ? result.list : [],
+      session,
+    };
+  }
+
+  async findVehicleStateByCarNumber({ carNumber }) {
+    const { rows, session } = await this.getRentcarInventory({ searchText: String(carNumber || '') });
+    const normalized = String(carNumber || '').replace(/\s+/g, '').toUpperCase();
+    const matches = rows.filter((row) => String(row.carNumber || row.car_number || '').replace(/\s+/g, '').toUpperCase() === normalized);
+    if (matches.length === 0) throw new Error(`Carmore vehicle not found for carNumber=${carNumber}`);
+    if (matches.length > 1) throw new Error(`Multiple Carmore vehicles matched for carNumber=${carNumber}`);
+    const row = matches[0];
+    return {
+      carNumber: String(row.carNumber || row.car_number || carNumber).replace(/\s+/g, '').toUpperCase(),
+      serial: row.serial != null ? String(row.serial) : null,
+      appFlag: row.appFlag != null ? String(row.appFlag) : null,
+      monthFlag: row.monthFlag != null ? String(row.monthFlag) : null,
+      row,
+      session,
+    };
+  }
+
+  async setVehicleState({ payload }) {
+    await this.ensureLoggedIn();
+    const result = await this.post('set/carmoreSettingCar.php', payload);
+    if (Number(result.result) !== 1) throw new Error(`Carmore vehicle state update failed: ${JSON.stringify(result)}`);
+    return { payload, result };
+  }
+
   async getRentcarHolidays({ rentcarSerial }) {
     const session = await this.ensureLoggedIn();
     const result = await this.post('get/JSON/rentcarHoliday.php', { ...session, rentcarSerial: String(rentcarSerial) });

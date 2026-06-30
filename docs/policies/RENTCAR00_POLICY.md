@@ -187,7 +187,47 @@
 
 ---
 
-## 5. 약관 / 법무 기준 중 정책에 남겨야 하는 것만
+## 5. IMS 기준 외부 차량 상태 sync 정책
+
+### 5-1. IMS가 외부 차량 상태의 기준이다
+- 카모아/찜카 외부 차량 상태 sync는 IMS 차량 flags와 active monthly 예약을 기준으로 맞춘다.
+- 별도 유예 판단을 두지 않는다. 매 실행 시 현재 IMS 기준에 외부 상태를 맞춘다.
+- active monthly 예약이 있으면 연장 가능성 때문에 해당 차량은 일차/월차 모두 닫는다.
+
+### 5-2. IMS 입력값
+- `can_general_rental`: 일차/일반대여 열림 여부
+- `can_monthly_rental`: 월차/월대여 열림 여부
+- `detail.rental_type = monthly`인 active 예약 존재 여부
+
+### 5-3. 카모아 결정 규칙
+- active monthly 있음 → `appFlag=0`, `monthFlag=0`
+- active monthly 없음 + `can_general_rental=true` → `appFlag=1`
+- active monthly 없음 + `can_general_rental=false` → `appFlag=0`
+- active monthly 없음 + `can_monthly_rental=true` → `monthFlag=1`
+- active monthly 없음 + `can_monthly_rental=false` → `monthFlag=0`
+
+### 5-4. 찜카 결정 규칙
+- active monthly 있음 → 차량 게시 닫음: `isPublish=0`
+- active monthly 없음 + `can_general_rental=false` → 차량 게시 닫음: `isPublish=0`
+- active monthly 없음 + `can_general_rental=true` → 차량 게시 연다: `isPublish=1`
+- `can_monthly_rental`은 찜카 상태 결정에 사용하지 않는다.
+- 찜카에는 별도 30일/월차 상품 열고닫기 API가 없는 것으로 정책을 잠근다.
+
+### 5-5. DB 분리 기준
+- 차량 상태 sync 이력은 카모아/찜카를 공통 단일 테이블에 섞지 않는다.
+- 카모아 차량 상태는 `carmore_vehicle_state_sync_mappings`로 관리한다.
+- 찜카 차량 상태는 `zzimcar_vehicle_state_sync_mappings`로 관리한다.
+- `pricing_hub_*`는 가격 truth로 유지하고, 차량 열림/닫힘 상태 이력과 섞지 않는다.
+- 나중에 외부 가격 반영 이력이 필요하면 `carmore_price_sync_mappings`, `zzimcar_price_sync_mappings`를 별도 phase에서 만든다.
+
+### 5-6. 실행 보호 기준
+- 실제 IMS flags POST, 카모아/찜카 외부 write, DB migration apply, deploy/restart는 별도 승인 없이는 하지 않는다.
+- no-write smoke는 실행할 수 있지만, save-run은 승인된 phase와 guard가 있어야 한다.
+- 차량번호 매칭이 0건 또는 다건이면 자동 write하지 않고 중단한다.
+
+---
+
+## 6. 약관 / 법무 기준 중 정책에 남겨야 하는 것만
 
 ### 계약 구조
 - 빵빵카 주식회사가 직접 계약 당사자다.
@@ -224,7 +264,7 @@
 
 ---
 
-## 6. 딜리버리 배송비 관리 기준
+## 7. 딜리버리 배송비 관리 기준
 
 ### truth
 - 딜리버리 배송비 truth 는 `public.delivery_regions.round_trip_price` 다.
@@ -249,7 +289,7 @@
 
 ---
 
-## 7. 새 세션에서 먼저 확인할 파일
+## 8. 새 세션에서 먼저 확인할 파일
 
 ### 인증/회원 수정
 1. `docs/policies/RENTCAR00_POLICY.md`
@@ -285,7 +325,7 @@
 
 ---
 
-## 8. 정책 파일에 굳이 안 넣은 것
+## 9. 정책 파일에 굳이 안 넣은 것
 - 이미 화면만 보면 알 수 있는 현상 설명
 - 임시 작업 순서
 - 끝난 phase 체크리스트

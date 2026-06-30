@@ -13,6 +13,7 @@
     "zzimcar:sync:disable-time": "node scripts/zzimcar-sync/run-zzimcar-disable-time-sync.js",
     "zzimcar:reconcile": "node scripts/zzimcar-sync/run-zzimcar-reconcile-sync.js",
     "carmore:reconcile": "node scripts/carmore-sync/run-carmore-reconcile-sync.js",
+    "external-vehicle-state:smoke": "NO_WRITE_SMOKE=true node scripts/external-vehicle-state-sync/run-external-vehicle-state-sync.js --no-write-smoke",
     "test:zzimcar-sync": "node --test scripts/zzimcar-sync/__tests__/*.test.js",
     "test:carmore-sync": "node --test scripts/carmore-sync/__tests__/*.test.js"
   },
