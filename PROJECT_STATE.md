@@ -93,3 +93,16 @@
 - 검증: DB SELECT 확인, 찜카/카모아 no-write smoke에서 IMS `4320448`은 unchanged로 판정, targeted sync tests 48 pass, `npm run build` pass.
 - 금지 유지: 외부 save-run/write, 외부 차단 삭제/재생성, Supabase migration apply/push, deploy/restart/launchd는 미실행.
 - 후속 기준: child key migration은 아직 라이브 DB 미적용이며, 전체 save-run 전에는 migration/schema gate와 추가 no-write 검증이 필요하다.
+
+## 2026-06-30 IMS external sync remaining live apply + Carmore recovery COMPLETE
+- PMDOC: `docs/COMPLETED/2026-06-30_IMS_EXTERNAL_SYNC_REMAINING_LIVE_APPLY_PM_COMPLETE_20260630.md`
+- 상태: recovery complete. `origin/dev` push, Supabase migration apply, 카모아 holiday 복구, final no-write smoke 완료.
+- 적용 migration:
+  - `20260629090500_create_sync_events.sql`
+  - `20260629102000_update_external_sync_child_mapping_keys.sql`
+  - `20260630004000_drop_legacy_external_sync_single_reservation_unique_indexes.sql`
+- 사고/복구: 카모아 filtered canary에서 actual 전체 deletion이 발생하여 holiday 70건이 삭제됐고, 즉시 full recovery save-run과 mapping 재연결로 복구했다.
+- 최종 카모아 no-write: desired 70 / actual 70 / additions 0 / deletions 0 / changes 0 / unchanged 70 / errors 0. IMS `4320448`, `4320591` 모두 unchanged.
+- 최종 찜카 no-write: desired 70 / actual 69 / unmanagedWall 1 / additions 0 / deletions 0 / replacements 0 / unchanged 69 / errors 0. IMS `4320448` unchanged.
+- 운영 반영: Vercel production deploy, launchd restart/kickstart는 미실행. 복구에는 불필요로 판단.
+- 후속 필수: provider별 필터 save-run은 금지. 전체 actual을 좁히지 않는 필터 결함을 별도 코드 수정 PM으로 처리해야 한다.

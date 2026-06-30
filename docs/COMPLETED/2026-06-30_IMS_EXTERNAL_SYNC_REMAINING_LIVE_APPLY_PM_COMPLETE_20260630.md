@@ -3,7 +3,7 @@
 ## 0. 문서 정보
 - 작성일: 2026-06-30
 - 작성자/agent: OpenClaw / rentcar00_reservation_developer
-- 상태: Draft
+- 상태: Complete
 - 승인 범위: 남은 전체 적용 준비 계획. 이 문서는 실행 승인이 아니며, phase별 승인 전 DB migration/apply, deploy, launchd, save-run은 금지한다.
 - 관련 문서:
   - `PROJECT_STATE.md`
@@ -299,3 +299,29 @@
 6. Phase 6: provider별 full save-run 판단
 7. Phase 7: Vercel/admin deploy 판단
 8. Final: 문서 COMPLETE와 커밋
+
+
+## 7. 실행 결과 / 완료 로그
+- 완료일: 2026-06-30
+- Phase 1 완료: PMDOC 커밋 `e856a61` 후 `origin/dev` push 완료.
+- Phase 2 완료: Supabase dry-run에서 적용 대상 migration 2개 확인.
+- Phase 3 완료: 라이브 DB migration 적용 완료.
+  - `20260629090500_create_sync_events.sql`
+  - `20260629102000_update_external_sync_child_mapping_keys.sql`
+  - 추가 복구 migration: `20260630004000_drop_legacy_external_sync_single_reservation_unique_indexes.sql`
+- Phase 4 완료: post-migration no-write smoke 확인.
+  - IMS `4320448`은 찜카/카모아 모두 unchanged.
+- Phase 5 중단조건 발생 및 복구:
+  - 카모아 filtered canary `--imsReservationId 4320591` 실행 시 actual 전체가 deletion 대상이 되는 결함으로 카모아 holiday 70건 삭제 발생.
+  - 즉시 STOP 처리 후 사용자 복구 승인으로 카모아 full recovery save-run 실행.
+  - 기존 single `ims_reservation_id` unique index가 recovery insert를 차단하여 legacy unique index drop migration을 적용.
+  - 카모아 holiday 70건 복구 완료 및 mapping 재연결 완료.
+- Phase 6 완료 판정:
+  - 카모아 final no-write: desired 70 / actual 70 / additions 0 / deletions 0 / changes 0 / unchanged 70 / errors 0.
+  - 찜카 final no-write: desired 70 / actual 69 / unmanagedWall 1 / additions 0 / deletions 0 / replacements 0 / unchanged 69 / errors 0.
+- Phase 7 판단:
+  - Vercel production deploy는 복구에 필수 아님. 미실행.
+  - launchd restart/kickstart 미실행.
+- 최종 판정:
+  - RECOVERY COMPLETE.
+  - 카모아/찜카 save-run 위험 목록은 현재 no-write 기준 0건.

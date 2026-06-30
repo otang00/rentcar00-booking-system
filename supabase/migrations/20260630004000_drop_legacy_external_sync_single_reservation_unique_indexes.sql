@@ -1,0 +1,3 @@
+drop index if exists public.uq_zzimcar_disable_time_sync_mappings_ims_reservation_id;
+
+drop index if exists public.uq_carmore_holiday_sync_mappings_ims_reservation_id;
