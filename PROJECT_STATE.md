@@ -66,6 +66,20 @@
 - 다음 PMDOC 기준: `docs/PHASE/2026-06-29_IMS_EXTERNAL_SYNC_CHILD_MAPPING_SCHEMA_PM.md` 앞단 Phase 1~4에 runner side-effect 조사, no-write smoke 모드, read-only smoke, 실제 coverage smoke를 추가했다.
 - 운영 DB migration/save-run/배포/커밋은 위 smoke gate 전까지 금지.
 
+## 2026-06-30 IMS vehicle flags external state sync COMPLETE
+- PMDOC: `docs/COMPLETED/2026-06-30_IMS_MONTHLY_VEHICLE_CLOSE_SYNC_PM_COMPLETE_20260630.md`
+- 정책 기준: `docs/policies/RENTCAR00_POLICY.md` 섹션 `5. IMS 기준 외부 차량 상태 sync 정책`
+- 상태: 코드 구현/테스트/build/no-write smoke 완료. 외부 write/DB apply/deploy/launchd restart는 아직 미실행.
+- DB 설계 기준: 카모아/찜카 차량 상태 sync는 공통 단일 테이블이 아니라 provider별 분리 테이블로 만든다. 카모아는 `carmore_vehicle_state_sync_mappings`, 찜카는 `zzimcar_vehicle_state_sync_mappings`를 사용한다. `pricing_hub_*`는 가격 truth로 유지하고 차량 상태 sync 이력과 섞지 않는다.
+- 확정 정책:
+  - active monthly 예약이 있으면 연장 가능성 때문에 카모아 일차/월차와 찜카 차량 게시를 모두 닫는다.
+  - active monthly가 없으면 카모아는 IMS `can_general_rental` → `appFlag`, IMS `can_monthly_rental` → `monthFlag`에 그대로 맞춘다.
+  - 찜카는 active monthly 또는 IMS `can_general_rental=false`일 때만 차량 게시를 닫는다.
+  - IMS `can_monthly_rental`은 찜카 상태 결정에 사용하지 않는다. 찜카에는 별도 30일/월차 상품 열고닫기 API가 없는 것으로 정책을 잠근다.
+- 검증: 신규 external vehicle state 테스트 4 pass, 카모아 테스트 20 pass, 찜카 테스트 47 pass, build pass, 전체 live no-write smoke pass(카모아 setState 17/errors 0, 찜카 setState 15/errors 0, wroteExternal false, wroteDb false).
+- 신규 migration 파일: `20260630191000_create_carmore_vehicle_state_sync_mappings.sql`, `20260630191100_create_zzimcar_vehicle_state_sync_mappings.sql`. apply는 미실행.
+- 금지 유지: IMS flags POST, 카모아/찜카 실제 상태 write, Supabase migration apply, deploy/restart/launchd, `.env*`/secret 변경은 별도 승인 전 미실행.
+
 ## 리스크
 - 예약 상태, 결제 상태, 외부 플랫폼 휴무/가격 상태가 서로 다른 owner를 가진다.
 - 관리자 UI/API가 운영 상태를 직접 바꾸는 구간은 guardrail이 필요하다.

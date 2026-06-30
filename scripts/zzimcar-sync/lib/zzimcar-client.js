@@ -172,8 +172,35 @@ class ZzimcarClient {
     return {
       carNumber: normalizeCarNumber(row.carNum),
       vehiclePid: String(row.pid),
+      isPublish: row.isPublish == null ? null : row.isPublish,
       row,
     };
+  }
+
+  async setVehiclePublish({ vehiclePid, isPublish }) {
+    await this.ensureLoggedIn();
+    const payload = { isPublish: isPublish === true ? 1 : (isPublish === false ? 0 : Number(isPublish)) };
+    if (!(payload.isPublish === 0 || payload.isPublish === 1)) {
+      throw new Error('isPublish must be 0/1 or boolean');
+    }
+    const response = await this.request(`/vehicle/vehicle/publish/${String(vehiclePid)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        Accept: 'application/json, text/javascript, */*; q=0.01',
+        'X-Requested-With': 'XMLHttpRequest',
+        Origin: this.baseUrl,
+        Referer: buildUrl('/vehicle/vehicle'),
+        lang: 'ko',
+      },
+      body: JSON.stringify(payload),
+    });
+    const body = await response.json().catch(() => null);
+    if (!response.ok) {
+      const detail = buildZzimcarErrorDetail(body);
+      throw new Error(`Vehicle publish update failed: HTTP ${response.status}${detail ? ` ${detail}` : ''}`);
+    }
+    return { payload, body };
   }
 
   async getVehicleDetail({ vehiclePid }) {
