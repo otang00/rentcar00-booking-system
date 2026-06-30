@@ -106,3 +106,14 @@
 - 최종 찜카 no-write: desired 70 / actual 69 / unmanagedWall 1 / additions 0 / deletions 0 / replacements 0 / unchanged 69 / errors 0. IMS `4320448` unchanged.
 - 운영 반영: Vercel production deploy, launchd restart/kickstart는 미실행. 복구에는 불필요로 판단.
 - 후속 필수: provider별 필터 save-run은 금지. 전체 actual을 좁히지 않는 필터 결함을 별도 코드 수정 PM으로 처리해야 한다.
+
+
+## 2026-06-30 Carmore filtered save-run safety fix COMPLETE
+- PMDOC: `docs/COMPLETED/2026-06-30_CARMORE_FILTERED_SAVE_RUN_SAFETY_FIX_PM_COMPLETE_20260630.md`
+- 상태: 코드 수정/검증 완료. 카모아 `--imsReservationId` 또는 `limit`을 동반한 filtered save-run은 실행 전 hard fail로 차단한다.
+- 변경: `assertCarmoreSaveScopeSafe` guard를 `reconcileCarmoreHolidays`의 `createRun` 전 단계에 추가하여 sync run row 생성 및 외부 write 전에 중단한다. no-write/dry-run 필터는 진단용으로 유지한다.
+- 사고 재현 테스트: filtered desired 1건 + actual 다건이면 필터 밖 actual이 deletion으로 계획되는 케이스를 테스트로 고정하고, save guard가 이를 차단하는지 검증했다.
+- 찜카 영향: 동일 CLI/env IMS 필터 또는 limit save-run 경로 없음. 코드 변경 없음.
+- 검증: 카모아 테스트 17 pass, 찜카 테스트 24 pass, `npm run build` pass, 카모아 no-write desired 70 / actual 70 / unchanged 70 / errors 0, 찜카 no-write additions/deletions/replacements 0 / errors 0.
+- 운영 반영: Vercel deploy, launchd restart/kickstart, DB write/apply, 외부 save-run/write는 미실행.
+- 운영 기준: 카모아 filtered save-run은 금지/차단. 단건 확인은 no-write/dry-run만 사용하고, 실제 save-run은 full-scope no-write 검토 후 전체 기준으로만 판단한다.

@@ -52,6 +52,15 @@ function buildMapByPlanKey(rows = []) {
   return new Map((Array.isArray(rows) ? rows : []).map((row) => [getDesiredPlanKey(row), row]));
 }
 
+function isNarrowSaveScope({ onlyImsReservationId = '', limit = 0 } = {}) {
+  return String(onlyImsReservationId || '').trim() !== '' || Number(limit || 0) > 0;
+}
+
+function assertCarmoreSaveScopeSafe({ shouldSave = false, onlyImsReservationId = '', limit = 0 } = {}) {
+  if (!shouldSave || !isNarrowSaveScope({ onlyImsReservationId, limit })) return;
+  throw new Error('Carmore filtered save-run is disabled because it can treat out-of-scope active holidays as deletions. Use no-write smoke/dry-run for filtering, then run a full-scope save-run only after review.');
+}
+
 function dedupePlanEntries(entries = [], getKey = (entry) => entry) {
   const seen = new Set();
   const deduped = [];
@@ -343,6 +352,7 @@ async function reconcileCarmoreHolidays({
 } = {}) {
   const supabase = supabaseClient;
   if (shouldSave && noWriteSmoke) throw new Error('noWriteSmoke cannot be used with shouldSave');
+  assertCarmoreSaveScopeSafe({ shouldSave, onlyImsReservationId, limit });
   const syncMode = noWriteSmoke ? 'no-write-smoke' : (shouldSave ? 'save' : 'dry-run');
   const run = noWriteSmoke
     ? { id: `carmore-no-write-smoke-${new Date().toISOString()}`, syncMode, status: 'running' }
@@ -473,6 +483,7 @@ module.exports = {
   applyAddition,
   applyChange,
   applyDeletion,
+  assertCarmoreSaveScopeSafe,
   buildHolidayMemo,
   classifyCarmoreHolidayRows,
   buildMapByImsReservationId,

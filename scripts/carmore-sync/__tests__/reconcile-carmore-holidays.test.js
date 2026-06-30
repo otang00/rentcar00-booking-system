@@ -5,6 +5,7 @@ const {
   applyAddition,
   applyChange,
   applyDeletion,
+  assertCarmoreSaveScopeSafe,
   buildHolidayMemo,
   classifyCarmoreHolidayRows,
   createOrRecoverHoliday,
@@ -42,6 +43,38 @@ test('planReconcile splits add delete change unchanged', () => {
   assert.equal(plan.changes[0].desired.imsReservationId, 'A2');
   assert.equal(plan.additions[0].desired.imsReservationId, 'A3');
   assert.equal(plan.deletions[0].actual.imsReservationId, 'A4');
+});
+
+test('assertCarmoreSaveScopeSafe blocks filtered save-run before out-of-scope deletions can execute', () => {
+  assert.throws(
+    () => assertCarmoreSaveScopeSafe({ shouldSave: true, onlyImsReservationId: 'A1' }),
+    /filtered save-run is disabled/,
+  );
+  assert.throws(
+    () => assertCarmoreSaveScopeSafe({ shouldSave: true, limit: 1 }),
+    /filtered save-run is disabled/,
+  );
+  assert.doesNotThrow(() => assertCarmoreSaveScopeSafe({ shouldSave: false, onlyImsReservationId: 'A1' }));
+  assert.doesNotThrow(() => assertCarmoreSaveScopeSafe({ shouldSave: true }));
+});
+
+test('filtered desired rows would plan out-of-scope deletions, so save scope guard is required', () => {
+  const desiredRows = [
+    { imsReservationId: 'A1', carNumber: '101하9257', carmoreRentcarSerial: '100', startAt: 's1', endAt: 'e1', holidayStartDate: '2026-05-01', holidayEndDate: '2026-05-02' },
+  ];
+  const actualRows = [
+    { ...desiredRows[0], carmoreHolidaySerial: 'P1' },
+    { imsReservationId: 'A2', carNumber: '101하9258', carmoreRentcarSerial: '101', startAt: 's2', endAt: 'e2', holidayStartDate: '2026-05-03', holidayEndDate: '2026-05-04', carmoreHolidaySerial: 'P2' },
+    { imsReservationId: 'A3', carNumber: '101하9259', carmoreRentcarSerial: '102', startAt: 's3', endAt: 'e3', holidayStartDate: '2026-05-05', holidayEndDate: '2026-05-06', carmoreHolidaySerial: 'P3' },
+  ];
+
+  const plan = planReconcile({ desiredRows, actualRows });
+
+  assert.deepEqual(plan.deletions.map(({ actual }) => actual.imsReservationId), ['A2', 'A3']);
+  assert.throws(
+    () => assertCarmoreSaveScopeSafe({ shouldSave: true, onlyImsReservationId: 'A1' }),
+    /out-of-scope active holidays as deletions/,
+  );
 });
 
 test('applyAddition creates holiday on save', async () => {
