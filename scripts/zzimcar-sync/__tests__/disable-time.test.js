@@ -5,7 +5,6 @@ const {
   normalizeCarNumber,
   buildDisableTimeListPath,
   buildDisableTimeCreatePayload,
-  buildDisableTimeUpdatePayload,
   buildDisableTimeDeletePayload,
   extractVehiclePidFromRowHtml,
   sameDisableWindow,
@@ -30,18 +29,6 @@ test('buildDisableTimeCreatePayload returns expected payload', () => {
   }), {
     disableClass: 'vehicle',
     vehiclePid: '22360',
-    startDtime: '2026-04-29 10:00',
-    endDtime: '2026-04-30 10:00',
-  });
-});
-
-test('buildDisableTimeUpdatePayload returns expected payload', () => {
-  assert.deepEqual(buildDisableTimeUpdatePayload({
-    pid: 7788,
-    startDtime: '2026-04-29 10:00',
-    endDtime: '2026-04-30 10:00',
-  }), {
-    pid: '7788',
     startDtime: '2026-04-29 10:00',
     endDtime: '2026-04-30 10:00',
   });

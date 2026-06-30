@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const {
   ACTIVE_IMS_STATUSES,
   INACTIVE_IMS_STATUSES,
+  collapseOverlappingReservationsByCar,
   isDesiredImsReservation,
   normalizeDesiredReservation,
 } = require('../lib/fetch-desired-ims-reservations');
@@ -90,4 +91,53 @@ test('normalizeDesiredReservation normalizes shape', () => {
       status: 'paid',
     },
   });
+});
+
+function desired({ id, carNumber = '101하9257', startAt, endAt, status = 'confirmed' }) {
+  return { imsReservationId: id, carNumber, startAt, endAt, status, raw: { id } };
+}
+
+test('collapseOverlappingReservationsByCar merges only actual overlaps into vehicle blocked interval clusters', () => {
+  const rows = [
+    desired({ id: 'A1', startAt: '2026-06-20T00:00:00.000Z', endAt: '2026-07-20T00:00:00.000Z' }),
+    desired({ id: 'A2', startAt: '2026-07-07T00:00:00.000Z', endAt: '2026-07-23T00:00:00.000Z', status: 'paid' }),
+    desired({ id: 'B1', startAt: '2026-07-23T00:00:00.000Z', endAt: '2026-07-24T00:00:00.000Z' }),
+  ];
+
+  const collapsed = collapseOverlappingReservationsByCar(rows);
+
+  assert.equal(collapsed.length, 2);
+  assert.deepEqual(collapsed[0].sourceImsReservationIds, ['A1', 'A2']);
+  assert.equal(collapsed[0].imsReservationId, 'A1');
+  assert.equal(collapsed[0].startAt, '2026-06-20T00:00:00.000Z');
+  assert.equal(collapsed[0].endAt, '2026-07-23T00:00:00.000Z');
+  assert.equal(collapsed[0].status, 'paid');
+  assert.equal(collapsed[0].sourceReservations.length, 2);
+  assert.deepEqual(collapsed[1].sourceImsReservationIds, ['B1']);
+});
+
+test('collapseOverlappingReservationsByCar does not merge adjacent intervals', () => {
+  const rows = [
+    desired({ id: 'A1', startAt: '2026-06-20T00:00:00.000Z', endAt: '2026-07-20T00:00:00.000Z' }),
+    desired({ id: 'A2', startAt: '2026-07-20T00:00:00.000Z', endAt: '2026-07-23T00:00:00.000Z' }),
+  ];
+
+  const collapsed = collapseOverlappingReservationsByCar(rows);
+
+  assert.equal(collapsed.length, 2);
+  assert.deepEqual(collapsed.map((row) => row.sourceImsReservationIds), [['A1'], ['A2']]);
+});
+
+test('collapseOverlappingReservationsByCar recomputes remaining blocked interval after cancellation-like removal', () => {
+  const activeRows = [
+    desired({ id: 'A1', startAt: '2026-06-20T00:00:00.000Z', endAt: '2026-07-20T00:00:00.000Z' }),
+    desired({ id: 'A2', startAt: '2026-07-07T00:00:00.000Z', endAt: '2026-07-23T00:00:00.000Z' }),
+  ];
+  const remainingRows = activeRows.filter((row) => row.imsReservationId !== 'A1');
+
+  const [cluster] = collapseOverlappingReservationsByCar(remainingRows);
+
+  assert.deepEqual(cluster.sourceImsReservationIds, ['A2']);
+  assert.equal(cluster.startAt, '2026-07-07T00:00:00.000Z');
+  assert.equal(cluster.endAt, '2026-07-23T00:00:00.000Z');
 });

@@ -9,6 +9,7 @@ const { fetchBookingOrderByConfirmationToken } = require('../../server/booking-c
 const { cancelBookingOrder, completeRefundForBookingOrder } = require('../../server/booking-core/guestBookingService')
 const { createBookingConfirmToken } = require('../../server/security/bookingConfirmToken')
 const { buildSearchWindow } = require('../../server/search-db/helpers/buildSearchWindow')
+const { fetchRecentSyncEvents } = require('../../server/logging/syncEventRepository')
 
 const TAB_STATUS_MAP = {
   active: ['confirmed'],
@@ -486,11 +487,12 @@ async function handleList(req, res, supabaseClient) {
     throw error
   }
 
-  const [fallbackCarNumberById, latestImsSync, latestZzimcarSync, latestCarmoreSync] = await Promise.all([
+  const [fallbackCarNumberById, latestImsSync, latestZzimcarSync, latestCarmoreSync, latestSyncEvents] = await Promise.all([
     fetchFallbackCarNumbers({ supabaseClient, rows: data }),
     fetchLatestImsReservationSync({ supabaseClient }),
     fetchLatestZzimcarSync({ supabaseClient }),
     fetchLatestCarmoreSync({ supabaseClient }),
+    fetchRecentSyncEvents({ supabaseClient, limit: 10 }).catch(() => []),
   ])
 
   const [imsSyncErrors, zzimcarSyncErrors, carmoreSyncErrors] = await Promise.all([
@@ -528,6 +530,7 @@ async function handleList(req, res, supabaseClient) {
     zzimcarSyncErrors,
     carmoreSync: latestCarmoreSync,
     carmoreSyncErrors,
+    latestSyncEvents,
   })
 }
 

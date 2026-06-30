@@ -1,13 +1,14 @@
 const { getSupabaseAdmin } = require('../../ims-sync/lib/supabase-admin');
+const {
+  ACTIVE_IMS_STATUSES,
+  INACTIVE_IMS_STATUSES,
+  buildImsRequiredCoverage,
+  buildRequiredCoverageCluster,
+  getPrimaryImsReservationId,
+  mergeRequiredCoverageCluster,
+  overlapsRequiredCoverage,
+} = require('../../sync-coverage/build-ims-required-coverage');
 const { normalizeCarNumber } = require('./disable-time');
-
-const ACTIVE_IMS_STATUSES = new Set(['pending', 'confirmed', 'paid']);
-const INACTIVE_IMS_STATUSES = new Set(['cancelled', 'completed', 'failed']);
-const STATUS_PRIORITY = new Map([
-  ['paid', 3],
-  ['confirmed', 2],
-  ['pending', 1],
-]);
 
 function isDesiredImsReservation(row, now = new Date()) {
   if (!row) return false;
@@ -30,56 +31,10 @@ function normalizeDesiredReservation(row) {
   };
 }
 
-function overlapsReservationWindow(left, right) {
-  if (!left || !right) return false;
-  return new Date(left.startAt).getTime() < new Date(right.endAt).getTime()
-    && new Date(left.endAt).getTime() > new Date(right.startAt).getTime();
-}
-
-function getStatusPriority(status) {
-  return STATUS_PRIORITY.get(String(status || '').trim().toLowerCase()) || 0;
-}
-
-function choosePreferredDesiredReservation(current, candidate) {
-  const currentEnd = new Date(current.endAt).getTime();
-  const candidateEnd = new Date(candidate.endAt).getTime();
-  if (candidateEnd !== currentEnd) {
-    return candidateEnd > currentEnd ? candidate : current;
-  }
-
-  const currentPriority = getStatusPriority(current.status);
-  const candidatePriority = getStatusPriority(candidate.status);
-  if (candidatePriority !== currentPriority) {
-    return candidatePriority > currentPriority ? candidate : current;
-  }
-
-  const currentStart = new Date(current.startAt).getTime();
-  const candidateStart = new Date(candidate.startAt).getTime();
-  if (candidateStart !== currentStart) {
-    return candidateStart < currentStart ? candidate : current;
-  }
-
-  return String(candidate.imsReservationId) > String(current.imsReservationId) ? candidate : current;
-}
-
-function collapseOverlappingReservationsByCar(rows = []) {
-  const sorted = [...rows].sort((a, b) => {
-    const carCompare = String(a.carNumber).localeCompare(String(b.carNumber));
-    if (carCompare !== 0) return carCompare;
-    return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
-  });
-
-  const collapsed = [];
-  for (const row of sorted) {
-    const last = collapsed[collapsed.length - 1];
-    if (last && last.carNumber === row.carNumber && overlapsReservationWindow(last, row)) {
-      collapsed[collapsed.length - 1] = choosePreferredDesiredReservation(last, row);
-      continue;
-    }
-    collapsed.push(row);
-  }
-  return collapsed;
-}
+const overlapsReservationWindow = overlapsRequiredCoverage;
+const buildBlockedIntervalCluster = buildRequiredCoverageCluster;
+const mergeBlockedIntervalCluster = mergeRequiredCoverageCluster;
+const collapseOverlappingReservationsByCar = buildImsRequiredCoverage;
 
 async function fetchDesiredImsReservations({ now = new Date(), supabaseClient } = {}) {
   const supabase = supabaseClient || getSupabaseAdmin();
@@ -105,6 +60,8 @@ module.exports = {
   isDesiredImsReservation,
   normalizeDesiredReservation,
   overlapsReservationWindow,
-  choosePreferredDesiredReservation,
+  buildBlockedIntervalCluster,
   collapseOverlappingReservationsByCar,
+  getPrimaryImsReservationId,
+  mergeBlockedIntervalCluster,
 };
