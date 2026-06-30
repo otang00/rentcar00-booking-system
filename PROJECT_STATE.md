@@ -80,6 +80,14 @@
 - 신규 migration 파일: `20260630191000_create_carmore_vehicle_state_sync_mappings.sql`, `20260630191100_create_zzimcar_vehicle_state_sync_mappings.sql`. apply는 미실행.
 - 금지 유지: IMS flags POST, 카모아/찜카 실제 상태 write, Supabase migration apply, deploy/restart/launchd, `.env*`/secret 변경은 별도 승인 전 미실행.
 
+## 2026-06-30 External vehicle state operations apply PM Phase 1-3 COMPLETE
+- PMDOC: `docs/PHASE/2026-06-30_EXTERNAL_VEHICLE_STATE_OPERATIONS_APPLY_PM.md`
+- 상태: 운영로그 연결, 차량별 reportRows, migration apply 전 검증 완료. migration apply/외부 write/deploy/launchd는 미실행.
+- 운영로그: `external_vehicle_state_sync_start`, `external_vehicle_state_sync_plan`, `external_vehicle_state_sync_success`, `external_vehicle_state_sync_partial_success` 이벤트를 `createSyncLogger`로 생성한다. no-write 기본값은 DB 로그 저장 없이 console structured event만 출력하고, `--persist-logs`일 때만 no-write 로그 DB 저장을 허용한다.
+- 리포트: `reportSummary`, `reportRows` 추가. live no-write 결과 total 60 / beforeMismatch 27 / afterMismatch 0 / virtualPass true / touchedVehicles 27.
+- 검증: 신규 external vehicle state 테스트 5 pass, 카모아 테스트 20 pass, 찜카 테스트 47 pass, build pass, live no-write smoke with report pass.
+- 다음 승인 필요: Supabase migration apply → mapping 저장 no-write 검증 → 실제 카모아/찜카 write save-run 별도 승인.
+
 ## 리스크
 - 예약 상태, 결제 상태, 외부 플랫폼 휴무/가격 상태가 서로 다른 owner를 가진다.
 - 관리자 UI/API가 운영 상태를 직접 바꾸는 구간은 guardrail이 필요하다.

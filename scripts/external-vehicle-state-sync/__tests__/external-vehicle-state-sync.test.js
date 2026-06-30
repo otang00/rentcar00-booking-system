@@ -58,6 +58,7 @@ test('integrated no-write runner does not write DB or external systems with inje
   const desired = buildImsVehicleStateDesired({ vehicles, schedules }).decisions;
   const carmoreActualByCarNumber = new Map(desired.map((item) => [item.carNumber, { serial: `c-${item.carNumber}`, appFlag: '1', monthFlag: '1' }]));
   const zzimcarActualByCarNumber = new Map(desired.map((item) => [item.carNumber, { vehiclePid: `z-${item.carNumber}`, isPublish: 1 }]));
+  const events = [];
   const result = await runExternalVehicleStateSync({
     noWriteSmoke: true,
     vehicles,
@@ -66,9 +67,40 @@ test('integrated no-write runner does not write DB or external systems with inje
     carmoreActualByCarNumber,
     zzimcarActualByCarNumber,
     supabase: {},
+    logger: { event: (event) => events.push(event) },
   });
   assert.equal(result.wroteDb, false);
   assert.equal(result.wroteExternal, false);
   assert.equal(result.carmore.plannedRows.length, 3);
   assert.equal(result.zzimcar.plannedRows.length, 3);
+  assert.equal(result.reportSummary.beforeMismatch, 3);
+  assert.equal(result.reportSummary.afterMismatch, 0);
+  assert.equal(result.reportSummary.virtualPass, true);
+  assert.equal(result.reportRows.length, 3);
+  assert.deepEqual(events.map((event) => event.eventType), [
+    'external_vehicle_state_sync_start',
+    'external_vehicle_state_sync_plan',
+    'external_vehicle_state_sync_success',
+  ]);
+});
+
+test('report rows show before/after state per provider', async () => {
+  const desired = buildImsVehicleStateDesired({ vehicles, schedules }).decisions;
+  const result = await runExternalVehicleStateSync({
+    noWriteSmoke: true,
+    vehicles,
+    schedules,
+    localCars: [],
+    carmoreActualByCarNumber: new Map(desired.map((item) => [item.carNumber, { serial: `c-${item.carNumber}`, appFlag: '1', monthFlag: '1' }])),
+    zzimcarActualByCarNumber: new Map(desired.map((item) => [item.carNumber, { vehiclePid: `z-${item.carNumber}`, isPublish: 1 }])),
+    supabase: {},
+    logger: { event: () => {} },
+  });
+  const activeMonthlyRow = result.reportRows.find((row) => row.carNumber === '11가1111');
+  assert.equal(activeMonthlyRow.carmoreBefore, '1/1');
+  assert.equal(activeMonthlyRow.carmoreAfter, '0/0');
+  assert.equal(activeMonthlyRow.zzimcarBefore, '1');
+  assert.equal(activeMonthlyRow.zzimcarAfter, '0');
+  assert.equal(activeMonthlyRow.allMatchBefore, false);
+  assert.equal(activeMonthlyRow.allMatchAfter, true);
 });
