@@ -3,7 +3,7 @@
 ## 0. 문서 정보
 - 작성일: 2026-06-30
 - 작성자/agent: OpenClaw / rentcar00_reservation_developer
-- 상태: Draft
+- 상태: Complete
 - 승인 범위: IMS external sync 관련 완료 커밋을 PR/merge/deploy 가능한 상태로 검수하고, PR 생성/업데이트, production deploy 준비, post-deploy smoke 계획까지 확정한다. 이 문서는 실행 승인이 아니며, PR 생성/merge, deploy, launchd restart, 외부 save-run/write, DB write/apply는 별도 승인 전 금지한다.
 - 관련 문서:
   - `PROJECT_STATE.md`
@@ -299,3 +299,24 @@
 - 2026-06-30 11:16 KST: Phase 2 no-write smoke 중 live 예약 데이터 변화로 카모아 후보가 `4321373 addition`에서 `4308172 change`로 바뀌는 것을 확인했다.
 - 사용자 지시: 라이브에서 계속 추가/변경되는 것이므로 no-write 0건 고정 때문에 PR/배포를 멈추지 말고, 코드 push/PR/배포를 끝내 정상화한다.
 - 적용 판단: no-write drift는 운영 데이터 변화로 기록한다. 외부 save-run/write는 계속 금지하고, PR/merge/deploy 정상화만 진행한다.
+
+
+## 8. 완료 로그
+- 완료일: 2026-06-30
+- Phase 1 완료: `origin/master..origin/dev` 6커밋 범위와 36파일 diff 확인, open PR 없음 확인.
+- Phase 2 완료: `git diff --check`, 카모아 테스트 17 pass, 찜카 테스트 24 pass, `npm run build` pass. no-write smoke는 live 예약 데이터 변화로 후보가 계속 변동되어 PR/배포 차단 게이트가 아니라 운영 drift로 기록.
+- Phase 3 완료: PR #7 생성 `https://github.com/otang00/rentcar00-booking-system/pull/7`.
+- Phase 4 완료: PR #7 merge 완료. merge commit `a3bbae6870e0db8f171d00df33db0a4855ce0579`.
+- Phase 5 완료: Vercel Git integration이 master merge를 production 자동 배포. deployment READY 확인.
+  - production deployment: `rentcar00-booking-system-iexlkhpvd-otang00s-projects.vercel.app`
+  - commit: `a3bbae6870e0db8f171d00df33db0a4855ce0579`
+- Phase 6 완료: post-deploy smoke.
+  - `https://rentcar00.com` HTTP 200.
+  - `https://rentcar00.com/api/gone` HTTP 410.
+  - 카모아 filtered save-run guard direct check PASS.
+- 미실행 유지:
+  - 외부 카모아/찜카 save-run/write 미실행.
+  - launchd restart/kickstart 미실행.
+  - DB write/apply 추가 미실행.
+  - `.env*`/secret 수정 미실행.
+- 최종 판정: PR merge 및 production deploy 정상화 COMPLETE.
