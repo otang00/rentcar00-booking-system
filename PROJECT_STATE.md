@@ -99,6 +99,16 @@
 - 테스트: external vehicle state 5 pass, carmore 20 pass, zzimcar 47 pass, build pass.
 - 미실행: deploy, launchd restart, secret/runtime config 변경.
 
+
+## 2026-07-01 Sync event dedupe + admin ack COMPLETE
+- PMDOC: `docs/COMPLETED/2026-07-01_SYNC_EVENT_DEDUPE_ACK_PMDOC_COMPLETE_20260701.md`
+- 상태: sync_events 반복 경고 dedupe, admin ack API/UI, live DB migration apply 완료.
+- DB 반영: `last_seen_at`, `seen_count`, `acked_at`, `ack_note` 추가 및 requires_ack+dedupe_key partial unique index 적용.
+- 기존 중복 정리: `zzimcar:unmanaged_wall:231766` 159건이 1건으로 통합되었고, 찜카 reconcile 재실행 후 신규 row 증가 없이 `seen_count` 160으로 증가 확인.
+- 관리자 기능: 반복 횟수/마지막 감지/상태 설명 표시, `확인 완료`/`보존 처리` ack 버튼 및 API 추가.
+- 검증: syncLogger 10 pass, zzimcar 47 pass, carmore 20 pass, build pass.
+- 미실행: deploy, 전체 launchd restart, 외부 차단 삭제/흡수, secret/runtime config 변경.
+
 ## 리스크
 - 예약 상태, 결제 상태, 외부 플랫폼 휴무/가격 상태가 서로 다른 owner를 가진다.
 - 관리자 UI/API가 운영 상태를 직접 바꾸는 구간은 guardrail이 필요하다.

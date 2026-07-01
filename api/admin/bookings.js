@@ -9,7 +9,7 @@ const { fetchBookingOrderByConfirmationToken } = require('../../server/booking-c
 const { cancelBookingOrder, completeRefundForBookingOrder } = require('../../server/booking-core/guestBookingService')
 const { createBookingConfirmToken } = require('../../server/security/bookingConfirmToken')
 const { buildSearchWindow } = require('../../server/search-db/helpers/buildSearchWindow')
-const { fetchRecentSyncEvents } = require('../../server/logging/syncEventRepository')
+const { fetchRecentSyncEvents, updateSyncEventAck } = require('../../server/logging/syncEventRepository')
 
 const TAB_STATUS_MAP = {
   active: ['confirmed'],
@@ -468,6 +468,16 @@ async function fetchLatestCarmoreSyncErrors({ supabaseClient, latestSync } = {})
     : []
 }
 
+async function handleSyncEventAck(req, res, supabaseClient) {
+  const id = String(req.body?.id || '').trim()
+  const dedupeKey = String(req.body?.dedupeKey || '').trim()
+  const ackStatus = String(req.body?.ackStatus || '').trim().toLowerCase()
+  const ackNote = String(req.body?.ackNote || '').trim()
+
+  const event = await updateSyncEventAck({ supabaseClient, id, dedupeKey, ackStatus, ackNote })
+  return res.status(200).json({ event })
+}
+
 async function handleList(req, res, supabaseClient) {
   const tab = normalizeTab(req.query?.tab)
   const q = String(req.query?.q || '').trim()
@@ -872,6 +882,10 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'POST' && action === 'change') {
       return handleChange(req, res, supabaseClient)
+    }
+
+    if (req.method === 'POST' && action === 'sync-event-ack') {
+      return handleSyncEventAck(req, res, supabaseClient)
     }
 
     if (req.method === 'GET' && !action) {

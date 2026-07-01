@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { PageShell } from '../components/Layout'
 import { AdminNav } from '../components/AdminNav'
 import { useAuth } from '../hooks/useAuth'
-import { getAdminBookings } from '../services/adminBookingsApi'
+import { ackAdminSyncEvent, getAdminBookings } from '../services/adminBookingsApi'
 import { isAdminUser } from '../utils/adminAccess'
 
 const TAB_OPTIONS = [
@@ -88,7 +88,27 @@ function getSyncEventTone(severity) {
   return { bg: '#f8fafc', border: '#e2e8f0', text: '#475569' }
 }
 
-function SyncEventPanel({ events = [], loading = false }) {
+function formatSyncEventStatus(event) {
+  if (event.ackStatus === 'acknowledged') return '확인 완료'
+  if (event.ackStatus === 'ignored') return '보존 처리'
+  if (event.ackStatus === 'resolved') return '해결됨'
+  if (event.requiresAck) return '확인 필요'
+  return '확인 불필요'
+}
+
+function formatUnmanagedWallDescription(event) {
+  const metadata = event.metadata || {}
+  if (event.eventType !== 'sync_unmanaged_wall_detected') return ''
+  if (event.provider === 'zzimcar') {
+    return `찜카 수동/미관리 차단 감지 · PID ${metadata.zzimcarDisableTimePid || '-'} · ${formatSyncDateTime(metadata.startAt)} ~ ${formatSyncDateTime(metadata.endAt)} · 자동 삭제하지 않고 보존 중`
+  }
+  if (event.provider === 'carmore') {
+    return `카모아 수동/미관리 휴무 감지 · serial ${metadata.carmoreHolidaySerial || '-'} · ${metadata.holidayStartDate || '-'} ~ ${metadata.holidayEndDate || '-'} · 자동 삭제하지 않고 보존 중`
+  }
+  return ''
+}
+
+function SyncEventPanel({ events = [], loading = false, onAck, ackingKey = '' }) {
   const visibleEvents = Array.isArray(events) ? events.slice(0, 10) : []
 
   return (
@@ -105,26 +125,41 @@ function SyncEventPanel({ events = [], loading = false }) {
         <div style={{ display: 'grid', gap: 6 }}>
           {visibleEvents.map((event, index) => {
             const tone = getSyncEventTone(event.severity)
+            const eventKey = event.id || event.dedupeKey || `${event.provider}-${event.occurredAt}-${index}`
+            const canAck = event.requiresAck && event.ackStatus === 'unread'
+            const description = formatUnmanagedWallDescription(event)
             return (
               <div
-                key={event.id || event.dedupeKey || `${event.provider}-${event.occurredAt}-${index}`}
+                key={eventKey}
                 style={{
                   display: 'grid',
-                  gap: 4,
+                  gap: 5,
                   padding: '8px 10px',
                   borderRadius: 8,
-                  background: tone.bg,
-                  border: `1px solid ${tone.border}`,
+                  background: canAck ? tone.bg : '#f8fafc',
+                  border: `1px solid ${canAck ? tone.border : '#e2e8f0'}`,
                 }}
               >
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-                  <strong style={{ color: tone.text }}>{formatSyncEventSeverity(event.severity)}</strong>
+                  <strong style={{ color: canAck ? tone.text : '#475569' }}>{formatSyncEventSeverity(event.severity)}</strong>
                   <span className="field-note" style={{ margin: 0 }}>{formatSyncEventProvider(event.provider)}</span>
-                  <span className="field-note" style={{ margin: 0 }}>{formatSyncDateTime(event.occurredAt)}</span>
+                  <span className="field-note" style={{ margin: 0 }}>상태 {formatSyncEventStatus(event)}</span>
+                  <span className="field-note" style={{ margin: 0 }}>반복 {event.seenCount || 1}회</span>
+                  <span className="field-note" style={{ margin: 0 }}>마지막 {formatSyncDateTime(event.lastSeenAt || event.occurredAt)}</span>
                 </div>
                 <p className="field-note" style={{ margin: 0, color: '#334155' }}>
-                  [{event.eventType || event.action || 'sync_event'}] {event.carNumber ? `${event.carNumber} · ` : ''}{event.imsReservationId ? `${event.imsReservationId} · ` : ''}{event.message || event.errorCode || '-'}
+                  [{event.eventType || event.action || 'sync_event'}] {event.carNumber ? `${event.carNumber} · ` : ''}{event.imsReservationId ? `${event.imsReservationId} · ` : ''}{description || event.message || event.errorCode || '-'}
                 </p>
+                {canAck ? (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <button className="btn btn-outline btn-sm" type="button" disabled={ackingKey === eventKey} onClick={() => onAck?.(event, 'acknowledged')}>
+                      확인 완료
+                    </button>
+                    <button className="btn btn-outline btn-sm" type="button" disabled={ackingKey === eventKey} onClick={() => onAck?.(event, 'ignored')}>
+                      보존 처리
+                    </button>
+                  </div>
+                ) : null}
               </div>
             )
           })}
@@ -205,6 +240,7 @@ export default function AdminBookingsPage() {
   const [carmoreSync, setCarmoreSync] = useState(null)
   const [carmoreSyncErrors, setCarmoreSyncErrors] = useState([])
   const [latestSyncEvents, setLatestSyncEvents] = useState([])
+  const [ackingSyncEventKey, setAckingSyncEventKey] = useState('')
 
   const tab = searchParams.get('tab') || 'active'
   const qField = searchParams.get('qField') || 'carNumber'
@@ -273,6 +309,27 @@ export default function AdminBookingsPage() {
     }
   }, [session, tab, qField, q, hasAdminHint])
 
+  async function handleSyncEventAck(event, ackStatus) {
+    if (!session?.access_token) return
+    const eventKey = event.id || event.dedupeKey || ''
+    setAckingSyncEventKey(eventKey)
+    try {
+      await ackAdminSyncEvent(session, {
+        id: event.id,
+        dedupeKey: event.dedupeKey,
+        ackStatus,
+        ackNote: ackStatus === 'ignored' ? '관리자 보존 처리' : '관리자 확인 완료',
+      })
+      const result = await getAdminBookings(session, { tab, qField, q, page: 1, pageSize: 50 })
+      setLatestSyncEvents(result.latestSyncEvents || [])
+      setError('')
+    } catch (ackError) {
+      setError(ackError.message || '동기화 이벤트 확인 처리에 실패했습니다.')
+    } finally {
+      setAckingSyncEventKey('')
+    }
+  }
+
   function updateParams(next) {
     const nextParams = new URLSearchParams(searchParams)
     Object.entries(next).forEach(([key, value]) => {
@@ -324,7 +381,7 @@ export default function AdminBookingsPage() {
                     <SyncStatusRow sync={imsSync} errors={imsSyncErrors} loading={fetching} kind="ims" />
                     <SyncStatusRow sync={zzimcarSync} errors={zzimcarSyncErrors} loading={fetching} kind="zzimcar" />
                     <SyncStatusRow sync={carmoreSync} errors={carmoreSyncErrors} loading={fetching} kind="carmore" />
-                    <SyncEventPanel events={latestSyncEvents} loading={fetching} />
+                    <SyncEventPanel events={latestSyncEvents} loading={fetching} onAck={handleSyncEventAck} ackingKey={ackingSyncEventKey} />
                   </div>
                 </div>
               ) : null}

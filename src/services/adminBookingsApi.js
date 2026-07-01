@@ -6,6 +6,20 @@ function getAuthorizationHeaders(session) {
   return accessToken ? { Authorization: `Bearer ${accessToken}` } : {}
 }
 
+export async function ackAdminSyncEvent(session, { id = '', dedupeKey = '', ackStatus = 'acknowledged', ackNote = '' } = {}) {
+  const response = await fetch('/api/admin/bookings?action=sync-event-ack', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthorizationHeaders(session),
+    },
+    body: JSON.stringify({ id, dedupeKey, ackStatus, ackNote }),
+  })
+
+  const result = await parseApiResponse(response, '동기화 이벤트 확인 처리에 실패했습니다.')
+  return result.event || null
+}
+
 export async function getAdminBookings(session, params = {}) {
   const searchParams = new URLSearchParams()
   if (params.tab) searchParams.set('tab', params.tab)

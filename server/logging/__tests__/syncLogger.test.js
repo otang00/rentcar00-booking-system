@@ -201,6 +201,8 @@ test('normalizeSyncEventRow returns admin API shape', () => {
   }), {
     id: 'event-2',
     occurredAt: '2026-06-29T01:00:00.000Z',
+    lastSeenAt: '2026-06-29T01:00:00.000Z',
+    seenCount: 1,
     provider: 'ims',
     runId: 'run-4',
     stage: '',
@@ -214,6 +216,8 @@ test('normalizeSyncEventRow returns admin API shape', () => {
     requiresAck: true,
     ackStatus: 'unread',
     ackKey: '',
+    ackedAt: null,
+    ackNote: '',
     visibility: 'admin',
     dedupeKey: '',
     metadata: { failedCount: 1 },
